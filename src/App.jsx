@@ -23,6 +23,7 @@ import NotFound from './pages/NotFound';
 import BrandLoader from './components/BrandLoader/BrandLoader';
 import { DemoBanner } from './components/DemoBanner/DemoBanner';
 import { ImageSlotModal } from './components/VisualEdit/ImageSlotModal';
+import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 
 // Admin System (Lazy-Loaded for performance and bundle isolation)
 const AdminLayout = lazy(() => import('./admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
@@ -86,24 +87,27 @@ const AdminFallback = () => (
 );
 
 // Dynamic Robots & Indexation Controller
-const SeoMetaController = () => {
-  const { pathname } = useLocation();
-
+const SeoMetaController = ({ pathname }) => {
   useEffect(() => {
-    const allowIndexing = import.meta.env.VITE_ALLOW_INDEXING === 'true';
-    const isRestrictedRoute = pathname.startsWith('/admin') || pathname.startsWith('/booking/manage');
+    try {
+      const currentPath = pathname || (typeof window !== 'undefined' ? window.location.pathname : '/');
+      const allowIndexing = import.meta.env.VITE_ALLOW_INDEXING === 'true';
+      const isRestrictedRoute = currentPath.startsWith('/admin') || currentPath.startsWith('/booking/manage');
 
-    let metaTag = document.querySelector('meta[name="robots"]');
-    if (!metaTag) {
-      metaTag = document.createElement('meta');
-      metaTag.setAttribute('name', 'robots');
-      document.head.appendChild(metaTag);
-    }
+      let metaTag = document.querySelector('meta[name="robots"]');
+      if (!metaTag) {
+        metaTag = document.createElement('meta');
+        metaTag.setAttribute('name', 'robots');
+        document.head.appendChild(metaTag);
+      }
 
-    if (isRestrictedRoute || !allowIndexing) {
-      metaTag.setAttribute('content', 'noindex, nofollow');
-    } else {
-      metaTag.setAttribute('content', 'index, follow');
+      if (isRestrictedRoute || !allowIndexing) {
+        metaTag.setAttribute('content', 'noindex, nofollow');
+      } else {
+        metaTag.setAttribute('content', 'index, follow');
+      }
+    } catch (err) {
+      console.warn('[SeoMetaController] Failed to update robots meta:', err);
     }
   }, [pathname]);
 
@@ -121,13 +125,14 @@ function App() {
       <DataProvider>
         {initialLoading && <BrandLoader onFinish={() => setInitialLoading(false)} />}
         <ScrollToTop />
-        <SeoMetaController />
+        <SeoMetaController pathname={location.pathname} />
 
         {/* Golden Rule 3: Dismissible demo preview banner on public pages */}
         {!isAdminRoute && <DemoBanner />}
 
-        <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
+        <ErrorBoundary>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
             {/* Public Site Routes */}
             <Route path="/" element={<PageTransition><Home /></PageTransition>} />
             <Route path="/about" element={<PageTransition><About /></PageTransition>} />
@@ -313,8 +318,9 @@ function App() {
             <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
           </Routes>
         </AnimatePresence>
+      </ErrorBoundary>
 
-        {/* In-Place Image Edit Modal */}
+      {/* In-Place Image Edit Modal */}
         <ImageSlotModal />
       </DataProvider>
     </AuthProvider>

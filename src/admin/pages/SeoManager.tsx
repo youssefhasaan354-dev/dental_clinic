@@ -13,7 +13,7 @@ export const SeoManager: React.FC = () => {
   const isViewer = role === 'viewer';
 
   const [noindex, setNoindex] = useState(Boolean(settings.noindex));
-  const [siteUrl, setSiteUrl] = useState(import.meta.env.VITE_SITE_URL || 'https://hayaah-dental.vercel.app');
+  const [siteUrl, setSiteUrl] = useState(import.meta.env.VITE_SITE_URL || 'https://dentallclinic.vercel.app');
   const [copiedJson, setCopiedJson] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 

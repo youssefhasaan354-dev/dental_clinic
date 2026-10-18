@@ -5,6 +5,7 @@ import { useTranslation, useLanguage } from '../../i18n/LanguageContext';
 import { useData } from '../../context/DataContext';
 import { ImageSlotOverlay } from '../../components/VisualEdit/ImageSlotOverlay';
 import { FiCalendar, FiPhoneCall, FiStar, FiShield, FiArrowDown } from 'react-icons/fi';
+import OpenBadge from '../../components/OpenBadge/OpenBadge';
 import { CLINIC_RATING } from '../../data/clinic';
 import './Banner.scss';
 
