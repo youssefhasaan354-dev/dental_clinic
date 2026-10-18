@@ -1,0 +1,26 @@
+.not-found-page-layout {
+  .not-found-card {
+    max-width: 580px;
+
+    .not-found-error-code {
+      display: block;
+      font-size: 6rem;
+      font-weight: 900;
+      color: var(--color-primary);
+      line-height: 1;
+      margin-bottom: 12px;
+      letter-spacing: -2px;
+    }
+
+    .not-found-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-text);
+    }
+
+    .not-found-desc {
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+  }
+}

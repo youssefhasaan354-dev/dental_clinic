@@ -1,0 +1,71 @@
+.expert-about-section {
+  position: relative;
+
+  .expert-lead-p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    line-height: 1.75;
+  }
+
+  .expert-secondary-p {
+    font-size: 1rem;
+    color: var(--color-text-body);
+    line-height: 1.7;
+  }
+
+  .quality-points-grid {
+    .point-item {
+      .point-icon-badge {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 10px;
+        background: rgba(43, 179, 177, 0.12);
+        color: var(--color-accent-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+      }
+
+      .point-text {
+        font-size: 0.98rem;
+        font-weight: 700;
+        color: var(--color-text);
+      }
+    }
+  }
+
+  .expert-img-container {
+    .expert-main-img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--radius-card);
+      filter: drop-shadow(0 15px 35px rgba(24, 25, 69, 0.1));
+    }
+
+    .expert-floating-card {
+      position: absolute;
+      bottom: 25px;
+      inset-inline-end: 20px;
+      padding: 16px 24px;
+      text-align: start;
+      border-radius: 20px;
+
+      .big-stat {
+        display: block;
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--color-primary);
+        line-height: 1;
+      }
+
+      .stat-label {
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: var(--color-text);
+      }
+    }
+  }
+}

@@ -1,0 +1,143 @@
+.service-detail-page-layout {
+  .detail-breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+
+    a {
+      color: var(--color-muted);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--color-primary);
+      }
+    }
+
+    .breadcrumb-separator {
+      color: var(--color-muted);
+      font-size: 0.8rem;
+    }
+
+    .current-crumb {
+      color: var(--color-primary);
+      font-weight: 700;
+    }
+  }
+
+  .service-detail-hero {
+    position: relative;
+
+    .service-category-pill {
+      background: rgba(88, 63, 188, 0.08);
+      color: var(--color-primary);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .service-detail-title {
+      font-size: 2.7rem;
+      font-weight: 900;
+      color: var(--color-text);
+      line-height: 1.22;
+
+      @media (max-width: 768px) {
+        font-size: 1.95rem;
+      }
+    }
+
+    .service-detail-lead {
+      font-size: 1.1rem;
+      color: var(--color-text-body);
+      line-height: 1.7;
+    }
+
+    .service-meta-badges {
+      .meta-badge-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #FFFFFF;
+        padding: 8px 16px;
+        border-radius: 14px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(88, 63, 188, 0.08);
+
+        svg {
+          font-size: 1.35rem;
+        }
+
+        strong {
+          font-size: 0.92rem;
+          color: var(--color-text);
+        }
+      }
+    }
+  }
+
+  .section-subheading {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--color-text);
+  }
+
+  .detailed-paragraph {
+    font-size: 1.08rem;
+    line-height: 1.85;
+    color: var(--color-text-body);
+  }
+
+  .procedure-steps-list {
+    .procedure-step-item {
+      position: relative;
+
+      .step-circle-badge {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        border-radius: 50%;
+        background: var(--color-primary);
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1rem;
+        box-shadow: 0 4px 12px rgba(88, 63, 188, 0.3);
+      }
+
+      .step-item-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--color-text);
+      }
+
+      .step-item-desc {
+        font-size: 0.94rem;
+        color: var(--color-text-body);
+        line-height: 1.6;
+      }
+    }
+  }
+
+  .who-needs-card {
+    background: #F9FBFE;
+    border-color: rgba(88, 63, 188, 0.12) !important;
+
+    .dot-bullet {
+      color: var(--color-accent);
+      font-size: 0.85rem;
+      margin-top: 2px;
+    }
+
+    .symptom-text-small {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--color-text);
+      line-height: 1.5;
+    }
+  }
+}

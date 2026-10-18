@@ -1,0 +1,148 @@
+.hayaah-booking-card {
+  background: #FFFFFF;
+  border-radius: var(--radius-card);
+  padding: 36px 32px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(88, 63, 188, 0.1);
+
+  @media (max-width: 768px) {
+    padding: 24px 18px;
+  }
+
+  .form-field-group {
+    position: relative;
+    margin-bottom: 6px;
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 6px;
+    }
+
+    .form-control-custom {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(88, 63, 188, 0.15);
+      background: #F9FBFE;
+      color: var(--color-text);
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        background: #FFFFFF;
+        box-shadow: 0 0 0 4px rgba(88, 63, 188, 0.1);
+      }
+    }
+
+    .form-select-custom {
+      cursor: pointer;
+    }
+
+    &.has-error .form-control-custom {
+      border-color: var(--color-danger);
+      background: #FFF5F5;
+    }
+
+    .error-hint {
+      display: block;
+      color: var(--color-danger);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .friday-warning-badge {
+      color: #B45309;
+      background: #FEF3C7;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+  }
+
+  .btn-submit-booking {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: #25D366;
+    color: #FFFFFF;
+    border: none;
+    padding: 16px 24px;
+    border-radius: var(--radius-btn);
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(37, 211, 102, 0.35);
+    transition: all 0.25s ease;
+
+    &:hover:not(:disabled) {
+      background: #20BD5A;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(37, 211, 102, 0.45);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .whatsapp-icon-btn {
+      font-size: 1.35rem;
+    }
+  }
+
+  .booking-success-box {
+    .success-icon-bubble {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--color-success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      margin: 0 auto;
+    }
+
+    .success-title {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--color-text);
+      margin-bottom: 8px;
+    }
+
+    .success-desc {
+      font-size: 0.98rem;
+      color: var(--color-text-body);
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .btn-reset-form {
+      background: transparent;
+      border: 1.5px solid var(--color-primary);
+      color: var(--color-primary);
+      padding: 10px 22px;
+      border-radius: var(--radius-btn);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--color-primary);
+        color: #FFFFFF;
+      }
+    }
+  }
+}

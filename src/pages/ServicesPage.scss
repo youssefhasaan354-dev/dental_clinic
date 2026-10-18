@@ -1,0 +1,33 @@
+.services-page-layout {
+  .services-header-banner {
+    position: relative;
+
+    .catalog-badge {
+      background: rgba(88, 63, 188, 0.08);
+      color: var(--color-primary);
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .services-hero-h1 {
+      font-size: 2.7rem;
+      font-weight: 900;
+      color: var(--color-text);
+      line-height: 1.25;
+
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+    }
+
+    .services-hero-lead {
+      font-size: 1.08rem;
+      color: var(--color-text-body);
+      line-height: 1.75;
+      max-width: 720px;
+      margin-inline: auto;
+    }
+  }
+}

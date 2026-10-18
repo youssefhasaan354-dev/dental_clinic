@@ -1,0 +1,190 @@
+.main-site-footer {
+  background: #F8FBFE;
+  border-top: 1px solid rgba(88, 63, 188, 0.08);
+  color: var(--color-text-body);
+  position: relative;
+
+  .footer-brand-block {
+    .footer-logo img {
+      max-width: 220px;
+      height: auto;
+    }
+
+    .footer-about-text {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--color-text-body);
+      margin-bottom: 16px;
+    }
+
+    .footer-trust-badge {
+      background: rgba(43, 179, 177, 0.08);
+      color: var(--color-accent-dark);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      border: 1px solid rgba(43, 179, 177, 0.2);
+    }
+
+    .footer-social-wrapper {
+      .social-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--color-muted);
+      }
+
+      .social-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #1877F2;
+        color: #FFFFFF !important;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 4px 14px rgba(24, 119, 242, 0.25);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(24, 119, 242, 0.35);
+        }
+      }
+    }
+  }
+
+  .footer-heading {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 22px;
+    position: relative;
+    padding-bottom: 10px;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      inset-inline-start: 0;
+      width: 32px;
+      height: 3px;
+      background: var(--color-accent);
+      border-radius: 4px;
+    }
+  }
+
+  .footer-links-list {
+    li {
+      margin-bottom: 12px;
+
+      a {
+        color: var(--color-text-body);
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-block;
+
+        &:hover {
+          color: var(--color-primary);
+          transform: translateX(4px);
+        }
+      }
+    }
+  }
+
+  .footer-contact-block {
+    .contact-item {
+      .contact-icon-bubble {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        background: rgba(88, 63, 188, 0.08);
+        color: var(--color-primary);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+      }
+
+      .contact-sub {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--color-muted);
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+
+      .contact-val {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--color-text);
+        line-height: 1.5;
+
+        &.phone-link {
+          color: var(--color-primary);
+          text-decoration: none;
+          font-size: 1.05rem;
+
+          &:hover {
+            color: var(--color-accent);
+          }
+        }
+      }
+
+      .contact-note {
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-top: 2px;
+      }
+
+      .directions-link {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--color-accent-dark);
+        text-decoration: none;
+        border-bottom: 1px dashed var(--color-accent);
+
+        &:hover {
+          color: var(--color-primary);
+        }
+      }
+    }
+  }
+
+  .footer-bottom-bar {
+    border-color: rgba(88, 63, 188, 0.08) !important;
+    font-size: 0.88rem;
+
+    .copyright-text {
+      color: var(--color-muted);
+    }
+
+    .amenity-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFFFFF;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .google-rating-link {
+      color: var(--color-text);
+      font-weight: 700;
+      text-decoration: none;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: var(--color-primary);
+      }
+    }
+  }
+}

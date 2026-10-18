@@ -1,0 +1,108 @@
+.custom-lightbox-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 15, 36, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+
+  .lightbox-content-wrapper {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox-image-box {
+    text-align: center;
+    position: relative;
+
+    img {
+      max-width: 85vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .lightbox-caption {
+      margin-top: 14px;
+      color: #FFFFFF;
+      font-size: 1rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 6px 18px;
+      border-radius: 9999px;
+      display: inline-block;
+      backdrop-filter: blur(6px);
+    }
+  }
+
+  .lightbox-btn-close {
+    position: absolute;
+    top: -45px;
+    inset-inline-end: 0;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #FFFFFF;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: var(--color-danger);
+    }
+  }
+
+  .lightbox-btn-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #FFFFFF;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+
+    &:hover {
+      background: var(--color-primary);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    &.btn-prev {
+      inset-inline-start: -65px;
+
+      @media (max-width: 768px) {
+        inset-inline-start: 10px;
+        background: rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    &.btn-next {
+      inset-inline-end: -65px;
+
+      @media (max-width: 768px) {
+        inset-inline-end: 10px;
+        background: rgba(0, 0, 0, 0.5);
+      }
+    }
+  }
+}

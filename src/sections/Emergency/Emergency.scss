@@ -1,0 +1,112 @@
+.emergency-section {
+  background: linear-gradient(135deg, #FFF1F1 0%, #FFEBEB 50%, #FFF5F5 100%);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-section);
+  margin: var(--section-margin);
+
+  .emergency-img-wrapper {
+    text-align: center;
+
+    .emergency-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--radius-card);
+      box-shadow: 0 16px 36px rgba(239, 68, 68, 0.12);
+    }
+  }
+
+  .emergency-text-content {
+    .emergency-alert-tag {
+      background: #FEE2E2;
+      color: #DC2626;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .emergency-heading {
+      font-size: 2.35rem;
+      font-weight: 800;
+      color: #181945;
+      line-height: 1.25;
+      margin-bottom: 16px;
+
+      @media (max-width: 768px) {
+        font-size: 1.85rem;
+      }
+    }
+
+    .emergency-description {
+      font-size: 1.05rem;
+      color: #555770;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .emergency-actions {
+      .btn-emergency-call {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #EF4444;
+        color: #FFFFFF;
+        padding: 14px 24px;
+        border-radius: var(--radius-btn);
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 8px 24px rgba(239, 68, 68, 0.35);
+        transition: all 0.25s ease;
+
+        &:hover {
+          background: #DC2626;
+          transform: translateY(-2px);
+          box-shadow: 0 12px 30px rgba(239, 68, 68, 0.45);
+        }
+
+        .icon-ring {
+          animation: emergencyRing 1.5s infinite ease-in-out;
+        }
+      }
+
+      .btn-emergency-whatsapp {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #25D366;
+        color: #FFFFFF;
+        padding: 14px 22px;
+        border-radius: var(--radius-btn);
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 8px 24px rgba(37, 211, 102, 0.3);
+        transition: all 0.25s ease;
+
+        &:hover {
+          background: #1EBE5D;
+          transform: translateY(-2px);
+        }
+      }
+    }
+
+    .emergency-hours-note {
+      color: #7B7D96;
+      font-weight: 600;
+    }
+  }
+}
+
+@keyframes emergencyRing {
+  0%, 100% {
+    transform: rotate(0);
+  }
+  20%, 60% {
+    transform: rotate(15deg);
+  }
+  40%, 80% {
+    transform: rotate(-15deg);
+  }
+}

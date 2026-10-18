@@ -1,0 +1,54 @@
+.safety-sterilization-section {
+  position: relative;
+
+  .safety-feature-card {
+    background: #FFFFFF;
+    border-radius: var(--radius-card);
+    border: 1px solid rgba(88, 63, 188, 0.08);
+    box-shadow: var(--shadow-sm);
+    height: 100%;
+    transition: all var(--transition-smooth);
+
+    &:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(43, 179, 177, 0.35);
+
+      .safety-icon-bubble {
+        background: var(--color-accent);
+        color: #FFFFFF;
+        transform: scale(1.08);
+      }
+    }
+
+    .safety-icon-bubble {
+      width: 54px;
+      height: 54px;
+      min-width: 54px;
+      border-radius: 16px;
+      background: rgba(43, 179, 177, 0.12);
+      color: var(--color-accent-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      transition: all 0.25s ease;
+    }
+
+    .safety-text-box {
+      .safety-card-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--color-text);
+        margin-bottom: 8px;
+        line-height: 1.35;
+      }
+
+      .safety-card-desc {
+        font-size: 0.94rem;
+        color: var(--color-text-body);
+        line-height: 1.65;
+        margin-bottom: 0;
+      }
+    }
+  }
+}

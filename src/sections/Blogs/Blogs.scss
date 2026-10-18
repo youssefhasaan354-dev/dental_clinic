@@ -1,0 +1,119 @@
+.blogs-preview-section {
+  position: relative;
+
+  .blog-card-modern {
+    background: #FFFFFF;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid rgba(88, 63, 188, 0.08);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: all var(--transition-smooth);
+
+    &:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(88, 63, 188, 0.22);
+
+      .blog-post-img {
+        transform: scale(1.05);
+      }
+
+      .read-more-arrow {
+        transition: transform 0.2s ease;
+      }
+
+      &:hover .read-more-arrow {
+        [dir="rtl"] & {
+          transform: translateX(-5px);
+        }
+        [dir="ltr"] & {
+          transform: translateX(5px);
+        }
+      }
+    }
+
+    .blog-thumb-box {
+      position: relative;
+      height: 220px;
+      overflow: hidden;
+
+      .blog-post-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+      }
+
+      .blog-category-badge {
+        position: absolute;
+        top: 14px;
+        inset-inline-start: 14px;
+        background: var(--color-primary);
+        color: #FFFFFF;
+        font-size: 0.76rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        box-shadow: 0 4px 12px rgba(88, 63, 188, 0.35);
+      }
+    }
+
+    .blog-meta-row {
+      .meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.8rem;
+        color: var(--color-muted);
+        font-weight: 600;
+      }
+    }
+
+    .blog-card-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      line-height: 1.4;
+
+      a {
+        color: var(--color-text);
+        text-decoration: none;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: var(--color-primary);
+        }
+      }
+    }
+
+    .blog-card-excerpt {
+      font-size: 0.92rem;
+      color: var(--color-text-body);
+      line-height: 1.6;
+      margin-bottom: 0;
+    }
+
+    .blog-card-footer {
+      border-color: rgba(88, 63, 188, 0.08) !important;
+
+      .read-more-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--color-primary);
+        font-weight: 700;
+        font-size: 0.92rem;
+        text-decoration: none;
+
+        .read-more-arrow {
+          transition: transform 0.2s ease;
+        }
+
+        &:hover {
+          color: var(--color-accent);
+        }
+      }
+    }
+  }
+}

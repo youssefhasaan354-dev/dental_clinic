@@ -1,0 +1,72 @@
+.symptoms-section {
+  background: var(--color-bg-alt);
+  border-radius: var(--radius-section);
+  margin: var(--section-margin);
+
+  .symptom-card-box {
+    background: #FFFFFF;
+    border-radius: var(--radius-card);
+    border: 1px solid rgba(88, 63, 188, 0.08);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-smooth);
+
+    &:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(88, 63, 188, 0.25);
+    }
+
+    .symptom-icon-box {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto;
+      border-radius: 16px;
+      background: var(--color-primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        max-width: 32px;
+        height: auto;
+      }
+    }
+
+    .symptom-card-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--color-text);
+    }
+
+    .symptom-card-desc {
+      font-size: 0.92rem;
+      color: var(--color-text-body);
+      line-height: 1.6;
+    }
+  }
+
+  .symptom-pill-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    border: 1px solid rgba(88, 63, 188, 0.1);
+    box-shadow: var(--shadow-sm);
+
+    .symptom-dot {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--color-danger);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .symptom-text {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+  }
+}

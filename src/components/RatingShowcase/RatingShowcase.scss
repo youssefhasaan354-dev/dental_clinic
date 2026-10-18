@@ -1,0 +1,93 @@
+.rating-showcase-section {
+  background: var(--color-bg-soft);
+  border-radius: var(--radius-section);
+  margin: var(--section-margin);
+
+  .rating-hero-card {
+    background: #FFFFFF;
+    border-radius: var(--radius-card);
+    border: 1px solid rgba(88, 63, 188, 0.1);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853);
+    }
+  }
+
+  .google-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #F1F4FA;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-text);
+
+    .google-icon {
+      color: #4285F4;
+    }
+  }
+
+  .rating-big-number-row {
+    .rating-big-number {
+      font-size: 4.5rem;
+      font-weight: 900;
+      color: var(--color-text);
+      line-height: 1;
+      letter-spacing: -2px;
+
+      @media (max-width: 768px) {
+        font-size: 3.5rem;
+      }
+    }
+
+    .stars-column {
+      .stars-graphic {
+        font-size: 1.55rem;
+        color: #FBBC05;
+      }
+
+      .out-of-five {
+        font-size: 0.85rem;
+        color: var(--color-muted);
+        font-weight: 600;
+      }
+    }
+  }
+
+  .rating-count-subtitle {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-text-body);
+  }
+
+  .rating-highlights-pills {
+    .highlight-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #F6FAFC;
+      border: 1px solid rgba(88, 63, 188, 0.08);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+  }
+
+  .btn-google-maps {
+    padding: 14px 28px !important;
+    font-size: 1rem !important;
+  }
+}

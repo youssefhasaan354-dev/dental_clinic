@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="100%" height="100%" fill="none">
+  <defs>
+    <linearGradient id="hayaahGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#583FBC" />
+      <stop offset="60%" stop-color="#3B2696" />
+      <stop offset="100%" stop-color="#2BB3B1" />
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2BB3B1" />
+      <stop offset="100%" stop-color="#48DFDC" />
+    </linearGradient>
+    <filter id="softGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#583FBC" flood-opacity="0.2" />
+    </filter>
+  </defs>
+
+  <!-- Tooth & Leaf Emblem -->
+  <g transform="translate(10, 8)" filter="url(#softGlow)">
+    <!-- Stylized modern tooth contour -->
+    <path d="M32 6C18 6 8 16 8 28C8 38 13 46 16 54C19 61 22 66 26 66C29 66 31 59 32 53C33 59 35 66 38 66C42 66 45 61 48 54C51 46 56 38 56 28C56 16 46 6 32 6Z" fill="url(#hayaahGrad)" />
+    <!-- Inner heart & vitality spark -->
+    <path d="M32 16C26 16 22 20 22 25C22 32 29 37 32 41C35 37 42 32 42 25C42 20 38 16 32 16Z" fill="#FFFFFF" opacity="0.95" />
+    <!-- Flourishing Leaf/Care Accent -->
+    <path d="M42 12C42 12 52 14 54 24C54 30 49 33 46 32C43 31 43 25 43 25C43 25 46 19 42 12Z" fill="url(#leafGrad)" />
+    <!-- Micro sparkle dot -->
+    <circle cx="27" cy="22" r="2" fill="#583FBC" />
+  </g>
+
+  <!-- Typography: Hayaah / حياة -->
+  <!-- Arabic Brand Wordmark -->
+  <text x="82" y="38" font-family="'Cairo', 'Segoe UI', Tahoma, sans-serif" font-size="27" font-weight="800" fill="#181945" letter-spacing="0.5">
+    حياة <tspan fill="#583FBC" font-weight="700">لـطب الأسـنان</tspan>
+  </text>
+  
+  <!-- English Sub-brand -->
+  <text x="83" y="58" font-family="'Montserrat', sans-serif" font-size="11.5" font-weight="600" fill="#74758F" letter-spacing="2.8">
+    HAYAAH DENTAL CLINIC
+  </text>
+</svg>

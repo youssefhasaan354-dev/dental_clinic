@@ -1,0 +1,59 @@
+.process-timeline-section {
+  position: relative;
+
+  .timeline-step-card {
+    background: #FFFFFF;
+    border-radius: var(--radius-card);
+    padding: 30px 24px;
+    height: 100%;
+    border: 1px solid rgba(88, 63, 188, 0.08);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    transition: all var(--transition-smooth);
+
+    &:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(88, 63, 188, 0.25);
+    }
+
+    .step-icon-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      transition: all 0.25s ease;
+    }
+
+    &:hover .step-icon-box {
+      background: var(--color-primary);
+      color: #FFFFFF;
+      transform: scale(1.08);
+    }
+
+    .step-number-tag {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: rgba(88, 63, 188, 0.2);
+      letter-spacing: -1px;
+    }
+
+    .step-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 10px;
+    }
+
+    .step-card-desc {
+      font-size: 0.94rem;
+      color: var(--color-text-body);
+      line-height: 1.65;
+      margin-bottom: 0;
+    }
+  }
+}

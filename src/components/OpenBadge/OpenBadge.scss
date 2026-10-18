@@ -1,0 +1,96 @@
+.open-badge-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+
+  &.is-open {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #065F46;
+
+    .pulse-dot {
+      background: #10B981;
+    }
+    .pulse-ring {
+      border: 2px solid #10B981;
+    }
+  }
+
+  &.is-closed {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #92400E;
+
+    .pulse-dot {
+      background: #F59E0B;
+    }
+    .pulse-ring {
+      border: 2px solid #F59E0B;
+    }
+  }
+
+  .pulse-indicator {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+
+    .pulse-dot {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      top: 0;
+      left: 0;
+    }
+
+    .pulse-ring {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      top: -6px;
+      left: -6px;
+      animation: badgePulse 2s infinite ease-out;
+      opacity: 0.75;
+    }
+  }
+
+  .badge-label {
+    font-weight: 700;
+  }
+
+  .badge-detail {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-inline-start: 1px solid rgba(0, 0, 0, 0.12);
+    padding-inline-start: 8px;
+    opacity: 0.9;
+  }
+}
+
+@keyframes badgePulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
