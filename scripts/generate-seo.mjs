@@ -106,3 +106,12 @@ ${sitemapEntries}
 
 fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), sitemapContent, 'utf-8');
 console.log(`[SEO-GEN] Generated public/sitemap.xml (${sitemapRoutes.length} routes pointing to ${siteUrl})`);
+
+// 3. Ensure public/assets contains static assets (emergency.png, banner/1.png, logo.svg)
+const srcAssetsDir = path.join(rootDir, 'src', 'assets');
+const publicAssetsDir = path.join(publicDir, 'assets');
+if (fs.existsSync(srcAssetsDir)) {
+  fs.cpSync(srcAssetsDir, publicAssetsDir, { recursive: true });
+  console.log('[SEO-GEN] Synced src/assets -> public/assets for static crawler and social availability');
+}
+

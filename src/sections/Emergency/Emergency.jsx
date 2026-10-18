@@ -5,6 +5,7 @@ import { useData } from '../../context/DataContext';
 import { ImageSlotOverlay } from '../../components/VisualEdit/ImageSlotOverlay';
 import { FiPhoneCall, FiAlertCircle, FiShield } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
+import emergencyImg from '../../assets/emergency.png';
 import './Emergency.scss';
 
 const Emergency = () => {
@@ -14,7 +15,9 @@ const Emergency = () => {
 
   const isAr = language === 'ar';
   const emergencySlot = getImageSlot('slot-emergency');
-  const imageUrl = emergencySlot?.currentUrl || '/assets/emergency.png';
+  const imageUrl = (emergencySlot?.currentUrl && emergencySlot.currentUrl !== '/assets/emergency.png')
+    ? emergencySlot.currentUrl
+    : emergencyImg;
 
   const emergencyWhatsAppMsg = isAr
     ? 'مرحباً، لدي حالة طوارئ أسنان عاجلة وأحتاج مساعدة سريعة في العيادة.'

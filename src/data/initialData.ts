@@ -10,6 +10,7 @@ import {
   ImageSlot,
 } from '../types';
 import { CLINIC_RATING } from './clinic';
+import { IMAGES } from './images';
 
 export const initialClinicInfo: ClinicInfo = {
   name: {
@@ -523,8 +524,8 @@ export const initialImageSlots: ImageSlot[] = [
     id: 'slot-hero',
     name: 'صورة الواجهة الرئيسية',
     section: 'hero',
-    currentUrl: '/assets/banner/1.png',
-    defaultUrl: '/assets/banner/1.png',
+    currentUrl: IMAGES.hero.model,
+    defaultUrl: IMAGES.hero.model,
     altText: { ar: 'عيادة حياة لطب الأسنان في مصر الجديدة', en: 'Hayaah Dental Clinic Reception in Heliopolis' },
     caption: { ar: 'صورة توضيحية لبيئة العيادة الهادئة', en: 'Illustrative visual of clinic environment' },
     isAI: false,
@@ -535,8 +536,8 @@ export const initialImageSlots: ImageSlot[] = [
     id: 'slot-about',
     name: 'صورة قسم عن العيادة ومعايير التعقيم',
     section: 'about',
-    currentUrl: '/assets/about/priority.png',
-    defaultUrl: '/assets/about/priority.png',
+    currentUrl: IMAGES.sections.priority,
+    defaultUrl: IMAGES.sections.priority,
     altText: { ar: 'معايير النظافة والتعقيم في عيادة الأسنان', en: 'Sterilization & Hygiene Standards' },
     caption: { ar: 'أجهزة تعقيم طبية وفق المعايير الصحية', en: 'Medical grade sterilization devices' },
     isAI: false,
@@ -547,8 +548,8 @@ export const initialImageSlots: ImageSlot[] = [
     id: 'slot-emergency',
     name: 'صورة قسم الطوارئ والألم الحاد',
     section: 'emergency',
-    currentUrl: '/assets/emergency.png',
-    defaultUrl: '/assets/emergency.png',
+    currentUrl: IMAGES.sections.emergency,
+    defaultUrl: IMAGES.sections.emergency,
     altText: { ar: 'طوارئ وألم الأسنان', en: 'Dental Emergency Care' },
     isAI: false,
     isSample: true,

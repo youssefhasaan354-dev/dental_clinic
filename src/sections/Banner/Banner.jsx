@@ -7,6 +7,7 @@ import { ImageSlotOverlay } from '../../components/VisualEdit/ImageSlotOverlay';
 import { FiCalendar, FiPhoneCall, FiStar, FiShield, FiArrowDown } from 'react-icons/fi';
 import OpenBadge from '../../components/OpenBadge/OpenBadge';
 import { CLINIC_RATING } from '../../data/clinic';
+import heroModelImg from '../../assets/banner/1.png';
 import './Banner.scss';
 
 const Banner = () => {
@@ -17,7 +18,9 @@ const Banner = () => {
 
   const isAr = language === 'ar';
   const heroSlot = getImageSlot('slot-hero');
-  const heroImgUrl = heroSlot?.currentUrl || '/assets/banner/1.png';
+  const heroImgUrl = (heroSlot?.currentUrl && heroSlot.currentUrl !== '/assets/banner/1.png')
+    ? heroSlot.currentUrl
+    : heroModelImg;
 
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
