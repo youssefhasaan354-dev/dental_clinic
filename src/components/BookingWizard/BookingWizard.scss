@@ -1,0 +1,420 @@
+@import '../../styles/variables';
+
+.booking-wizard-card {
+  background: var(--color-bg-card, #ffffff);
+  border-radius: var(--radius-card, 24px);
+  padding: 2.25rem;
+  box-shadow: var(--shadow-lg, 0 16px 40px rgba(88, 63, 188, 0.09));
+  border: 1px solid var(--color-border, rgba(88, 63, 188, 0.12));
+  position: relative;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem 1.25rem;
+    border-radius: 18px;
+  }
+
+  .demo-mode-pill {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+  }
+
+  /* Progress tracker */
+  .booking-progress-tracker {
+    padding: 0 0.5rem;
+
+    .steps-container {
+      position: relative;
+      align-items: center;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 18px;
+        left: 5%;
+        right: 5%;
+        height: 3px;
+        background: #e2e8f0;
+        z-index: 1;
+      }
+    }
+
+    .progress-line-fill {
+      top: 18px;
+      height: 3px;
+      background: var(--color-primary, #583fbc);
+      z-index: 2;
+      transition: width 0.35s ease, right 0.35s ease, left 0.35s ease;
+    }
+
+    .step-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      z-index: 3;
+      user-select: none;
+
+      .step-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid #cbd5e1;
+        color: #64748b;
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s ease;
+      }
+
+      .step-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #64748b;
+        transition: color 0.25s ease;
+      }
+
+      &.active {
+        .step-circle {
+          border-color: var(--color-primary, #583fbc);
+          background: var(--color-primary, #583fbc);
+          color: #ffffff;
+          box-shadow: 0 0 0 4px var(--color-primary-subtle, rgba(88, 63, 188, 0.15));
+        }
+        .step-label {
+          color: var(--color-primary, #583fbc);
+          font-weight: 700;
+        }
+      }
+
+      &.completed {
+        .step-circle {
+          border-color: var(--color-success, #10b981);
+          background: var(--color-success, #10b981);
+          color: #ffffff;
+        }
+        .step-label {
+          color: var(--color-success, #10b981);
+        }
+      }
+    }
+  }
+
+  /* Step 1 Services Grid */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+
+    @media (max-width: 576px) {
+      grid-template-columns: 1fr;
+      max-height: 400px;
+    }
+
+    .service-select-card {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.15rem;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.22s ease;
+
+      &:hover {
+        border-color: var(--color-primary, #583fbc);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(88, 63, 188, 0.08);
+      }
+
+      &.selected {
+        border-color: var(--color-primary, #583fbc);
+        background: var(--color-primary-light, #f1edff);
+        box-shadow: 0 6px 20px rgba(88, 63, 188, 0.12);
+
+        .service-title {
+          color: var(--color-primary, #583fbc);
+        }
+      }
+
+      .selected-badge {
+        position: absolute;
+        top: 10px;
+        inset-inline-end: 10px;
+        color: var(--color-primary, #583fbc);
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  /* Step 2 Doctors Grid */
+  .doctors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+
+    .doctor-select-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.15rem;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.22s ease;
+
+      &:hover {
+        border-color: var(--color-primary, #583fbc);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(88, 63, 188, 0.08);
+      }
+
+      &.selected {
+        border-color: var(--color-primary, #583fbc);
+        background: var(--color-primary-light, #f1edff);
+        box-shadow: 0 6px 20px rgba(88, 63, 188, 0.12);
+
+        .doc-name {
+          color: var(--color-primary, #583fbc);
+        }
+      }
+
+      .doctor-avatar-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--color-primary-light, #f1edff);
+        color: var(--color-primary, #583fbc);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        flex-shrink: 0;
+
+        &.any-doc-avatar {
+          background: var(--color-accent-light, #e7f8f7);
+          color: var(--color-accent, #2bb3b1);
+        }
+      }
+
+      .selected-badge {
+        position: absolute;
+        top: 10px;
+        inset-inline-end: 10px;
+        color: var(--color-primary, #583fbc);
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  /* Custom Calendar Styling */
+  .custom-calendar-container {
+    .btn-cal-nav {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+
+      &:hover {
+        background: var(--color-primary-light, #f1edff);
+        border-color: var(--color-primary, #583fbc);
+        color: var(--color-primary, #583fbc);
+      }
+    }
+
+    .calendar-grid-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.78rem;
+      color: #64748b;
+
+      .friday-col {
+        color: #ef4444;
+      }
+    }
+
+    .calendar-grid-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+
+      .calendar-day-cell {
+        aspect-ratio: 1;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        background: #ffffff;
+        color: #1e293b;
+        font-size: 0.88rem;
+        font-weight: 600;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        padding: 2px;
+
+        &:hover:not(:disabled) {
+          background: var(--color-primary-light, #f1edff);
+          border-color: var(--color-primary, #583fbc);
+          color: var(--color-primary, #583fbc);
+        }
+
+        &.selected {
+          background: var(--color-primary, #583fbc) !important;
+          color: #ffffff !important;
+          border-color: var(--color-primary, #583fbc);
+          font-weight: 700;
+          box-shadow: 0 4px 12px rgba(88, 63, 188, 0.3);
+        }
+
+        &.today:not(.selected) {
+          border-color: var(--color-accent, #2bb3b1);
+          color: var(--color-accent-dark, #197c7a);
+        }
+
+        &.friday-closed {
+          background: #fef2f2;
+          color: #f87171;
+          cursor: not-allowed;
+          opacity: 0.7;
+
+          .closed-indicator {
+            font-size: 0.62rem;
+            color: #ef4444;
+            font-weight: 700;
+          }
+        }
+
+        &.other-month {
+          opacity: 0.3;
+        }
+
+        &:disabled {
+          cursor: not-allowed;
+          opacity: 0.35;
+          background: #f1f5f9;
+        }
+      }
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+
+      &.legend-available {
+        background: var(--color-primary, #583fbc);
+      }
+      &.legend-friday {
+        background: #ef4444;
+      }
+    }
+  }
+
+  /* Time Slot Picker */
+  .time-slot-picker-wrapper {
+    .slot-chips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+      gap: 0.5rem;
+
+      .slot-chip-btn {
+        padding: 0.55rem 0.3rem;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #1e293b;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.18s ease;
+
+        &:hover:not(:disabled) {
+          border-color: var(--color-primary, #583fbc);
+          background: var(--color-primary-light, #f1edff);
+          color: var(--color-primary, #583fbc);
+        }
+
+        &.selected {
+          background: var(--color-primary, #583fbc) !important;
+          color: #ffffff !important;
+          border-color: var(--color-primary, #583fbc);
+          box-shadow: 0 4px 12px rgba(88, 63, 188, 0.25);
+        }
+
+        &.disabled {
+          background: #f1f5f9;
+          color: #94a3b8;
+          border-color: #e2e8f0;
+          cursor: not-allowed;
+          text-decoration: line-through;
+
+          .slot-taken-badge {
+            font-size: 0.62rem;
+            color: #ef4444;
+            font-weight: 700;
+            text-decoration: none;
+          }
+        }
+      }
+    }
+  }
+
+  /* Step 4 Patient Form */
+  .patient-type-pill {
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.18s ease;
+
+    &:has(input:checked) {
+      border-color: var(--color-primary, #583fbc) !important;
+      background: var(--color-primary-light, #f1edff);
+      color: var(--color-primary, #583fbc);
+    }
+  }
+
+  /* Step 6 Success State */
+  .success-pane {
+    .success-icon-bubble {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #ecfdf5;
+      color: #10b981;
+      font-size: 2.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #a7f3d0;
+    }
+
+    .booking-code-card {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+
+      .code-display {
+        font-family: monospace;
+      }
+    }
+  }
+}

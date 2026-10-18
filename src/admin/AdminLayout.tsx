@@ -27,6 +27,8 @@ import {
   Menu,
   X,
   ShieldAlert,
+  UserCheck,
+  Settings as SettingsIcon,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
@@ -51,11 +53,25 @@ export const AdminLayout: React.FC = () => {
     },
     {
       to: '/admin/requests',
-      labelAr: 'طلبات المواعيد (الوارد)',
-      labelEn: 'Appointments Inbox',
+      labelAr: 'المواعيد والحجوزات',
+      labelEn: 'Appointments & Booking',
       icon: Inbox,
       allowed: ['owner', 'receptionist', 'viewer'],
-      badge: 'جديد',
+      badge: 'مباشر',
+    },
+    {
+      to: '/admin/patients',
+      labelAr: 'سجل المرضى',
+      labelEn: 'Patients Directory',
+      icon: UserCheck,
+      allowed: ['owner', 'receptionist', 'viewer'],
+    },
+    {
+      to: '/admin/booking-settings',
+      labelAr: 'إعدادات وقواعد الحجز',
+      labelEn: 'Booking Engine Rules',
+      icon: SettingsIcon,
+      allowed: ['owner', 'viewer'],
     },
     {
       to: '/admin/services',

@@ -93,12 +93,36 @@ export const AdminLogin: React.FC = () => {
           </div>
 
           <h2 className="fw-bold mb-2 text-dark h4">
-            {isAr ? 'تسجيل دخول لوحة الإدارة التجريبية' : 'Admin Demo Login'}
+            {isAr ? 'تسجيل دخول لوحة الإدارة' : 'Clinic Staff Login'}
           </h2>
-          <p className="text-muted small mb-4">
+          <p className="text-muted small mb-3">
             {isAr
-              ? 'اختر الدور الذي ترغب في تجربته للدخول المباشر بنقرة واحدة (بدون الحاجة لكلمات مرور):'
-              : 'Select a role to test immediate one-click demo login (no password required):'}
+              ? 'لوحة إدارة ومتابعة حجوزات عيادة حياة لطب الأسنان'
+              : 'Management and appointment tracking portal for Hayaah Dental Clinic'}
+          </p>
+
+          {/* Demo Credentials Box */}
+          <div className="alert alert-info border-info-subtle d-flex flex-column gap-1 mb-4 p-3 rounded-3 small">
+            <div className="d-flex align-items-center gap-2 fw-bold text-primary">
+              <Shield size={16} />
+              <span>{isAr ? 'بيانات الحساب التجريبي المسبقة (Demo Credentials):' : 'Pre-configured Demo Credentials:'}</span>
+            </div>
+            <div className="d-flex flex-wrap gap-3 mt-1">
+              <div>
+                <span className="text-muted">{isAr ? 'البريد:' : 'Email:'} </span>
+                <code className="text-dark bg-white px-2 py-0.5 rounded border">admin@hayaah.demo</code>
+              </div>
+              <div>
+                <span className="text-muted">{isAr ? 'كلمة المرور:' : 'Password:'} </span>
+                <code className="text-dark bg-white px-2 py-0.5 rounded border">demo1234</code>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-muted small mb-3 fw-bold">
+            {isAr
+              ? 'اختر الدور التجريبي المطلوب للدخول الفوري بنقرة واحدة:'
+              : 'Or select a demo role for immediate one-click entry:'}
           </p>
 
           <div className="role-selector-list d-flex flex-column gap-3 mb-4">

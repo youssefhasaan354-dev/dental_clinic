@@ -16,6 +16,7 @@ import SingleBlog from './pages/SingleBlog';
 import ContactPage from './pages/ContactPage';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsPage } from './pages/TermsPage';
+import { ManageBooking } from './pages/ManageBooking';
 import NotFound from './pages/NotFound';
 
 // Global Public Components
@@ -28,7 +29,10 @@ const AdminLayout = lazy(() => import('./admin/AdminLayout').then(m => ({ defaul
 const AdminLogin = lazy(() => import('./admin/AdminLogin').then(m => ({ default: m.AdminLogin })));
 const AdminGuard = lazy(() => import('./admin/AdminGuard').then(m => ({ default: m.AdminGuard })));
 const DashboardHome = lazy(() => import('./admin/pages/DashboardHome').then(m => ({ default: m.DashboardHome })));
-const RequestsInbox = lazy(() => import('./admin/pages/RequestsInbox').then(m => ({ default: m.RequestsInbox })));
+const AppointmentsManager = lazy(() => import('./admin/pages/AppointmentsManager').then(m => ({ default: m.AppointmentsManager })));
+const PatientsManager = lazy(() => import('./admin/pages/PatientsManager').then(m => ({ default: m.PatientsManager })));
+const BookingSettingsManager = lazy(() => import('./admin/pages/BookingSettingsManager').then(m => ({ default: m.BookingSettingsManager })));
+const RequestsInbox = AppointmentsManager; // Alias so legacy route renders new AppointmentsManager
 const ServicesManager = lazy(() => import('./admin/pages/ServicesManager').then(m => ({ default: m.ServicesManager })));
 const DoctorsManager = lazy(() => import('./admin/pages/DoctorsManager').then(m => ({ default: m.DoctorsManager })));
 const ImageSlotsManager = lazy(() => import('./admin/pages/ImageSlotsManager').then(m => ({ default: m.ImageSlotsManager })));
@@ -107,6 +111,7 @@ function App() {
             <Route path="/blogs" element={<PageTransition><BlogsPage /></PageTransition>} />
             <Route path="/blog/:url" element={<PageTransition><SingleBlog /></PageTransition>} />
             <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
+            <Route path="/booking/manage" element={<PageTransition><ManageBooking /></PageTransition>} />
             <Route path="/privacy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
             <Route path="/terms" element={<PageTransition><TermsPage /></PageTransition>} />
 
@@ -136,7 +141,39 @@ function App() {
                 path="requests"
                 element={
                   <AdminGuard allowedRoles={['owner', 'receptionist', 'viewer']}>
-                    <RequestsInbox />
+                    <AppointmentsManager />
+                  </AdminGuard>
+                }
+              />
+              <Route
+                path="appointments"
+                element={
+                  <AdminGuard allowedRoles={['owner', 'receptionist', 'viewer']}>
+                    <AppointmentsManager />
+                  </AdminGuard>
+                }
+              />
+              <Route
+                path="patients"
+                element={
+                  <AdminGuard allowedRoles={['owner', 'receptionist', 'viewer']}>
+                    <PatientsManager />
+                  </AdminGuard>
+                }
+              />
+              <Route
+                path="booking-settings"
+                element={
+                  <AdminGuard allowedRoles={['owner', 'viewer']}>
+                    <BookingSettingsManager />
+                  </AdminGuard>
+                }
+              />
+              <Route
+                path="settings"
+                element={
+                  <AdminGuard allowedRoles={['owner', 'viewer']}>
+                    <BookingSettingsManager />
                   </AdminGuard>
                 }
               />
