@@ -1,4 +1,4 @@
+# Hayaah Dental Clinic - Robots Configuration
+# In demo / pre-launch mode: search engine indexing is disallowed per Golden Rule 3
 User-agent: *
-Allow: /
-
-Sitemap: https://hayaahdental.com/sitemap.xml
+Disallow: /

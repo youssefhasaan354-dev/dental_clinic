@@ -41,14 +41,14 @@ const ServicesPage = () => {
 
             <p className="services-hero-lead mb-4">
               {language === 'ar'
-                ? 'نقدم في عيادة حياة رعاية فموية تخصصية متكاملة لجميع أفراد الأسرة، بأحدث التقنيات وأفضل الخامات العالمية المعتمدة لضمان نتائج تدوم لسنوات طويلة.'
-                : 'From routine preventative cleanings to advanced dental implants, orthodontics, and smile design, our team provides state-of-the-art care tailored to your comfort.'}
+                ? 'نقدم في عيادة حياة رعاية فموية تخصصية متكاملة لجميع أفراد الأسرة، بأحدث التقنيات وأجود الخامات الطبية المعتمدة لصحة أسنانك.'
+                : 'From routine preventative cleanings to advanced dental implants, orthodontics, and smile design, our team provides evidence-based care tailored to your comfort.'}
             </p>
 
             <div className="d-flex justify-content-center flex-wrap gap-4 text-start">
               <div className="d-flex align-items-center gap-2">
                 <FiCheckCircle className="text-success" />
-                <span className="fw-bold small">{language === 'ar' ? 'تخدير موضعي لطيف بلا ألم' : 'Virtually Painless'}</span>
+                <span className="fw-bold small">{language === 'ar' ? 'تخدير موضعي لطيف وهادئ' : 'Gentle Local Anesthesia'}</span>
               </div>
               <div className="d-flex align-items-center gap-2">
                 <FiCheckCircle className="text-success" />

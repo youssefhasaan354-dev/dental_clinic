@@ -18,8 +18,8 @@ export const FEATURES = [
       en: "Multi-stage autoclaving and single-use sealed medical instruments adhering to rigorous international infection-control protocols.",
     },
     metric: {
-      ar: "تعقيم ١٠٠٪ لكل أداة",
-      en: "100% sterile guarantee",
+      ar: "تعقيم فئة B المعتمد",
+      en: "Class-B Autoclave Certified",
     },
   },
   {
@@ -61,12 +61,12 @@ export const FEATURES = [
     iconKey: "heart",
     number: "04",
     title: {
-      ar: "بيئة مريحة وتقنيات بلا ألم",
-      en: "Comfortable, Fear-Free Experience",
+      ar: "بيئة مريحة وتخدير لطيف",
+      en: "Comfortable, Patient-Centered Care",
     },
     description: {
-      ar: "عيادة مصممة لمنحك الهدوء والاسترخاء مع تكييف كامل، تخدير موضعي حديث غير محسوس، ومواعيد منضبطة تحترم وقتك الثمين.",
-      en: "A calming clinical lounge atmosphere with virtually painless modern numbing techniques and prompt scheduling that respects your time.",
+      ar: "عيادة مصممة لمنحك الهدوء والاسترخاء مع تكييف كامل، تخدير موضعي لطيف، ومواعيد منضبطة تحترم وقتك الثمين.",
+      en: "A calming clinical lounge atmosphere with gentle modern numbing techniques and prompt scheduling that respects your time.",
     },
     metric: {
       ar: "تقييم ٤.٦ ★ على خرائط جوجل",

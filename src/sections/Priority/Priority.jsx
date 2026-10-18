@@ -18,8 +18,8 @@ const Priority = () => {
       descEn: 'We prescribe only evidence-based, medically necessary treatments safeguarding your dental health.',
     },
     {
-      titleAr: 'تجارب علاجية بلا ألم',
-      titleEn: 'Painless Patient Care',
+      titleAr: 'تجارب علاجية هادئة ولطيفة',
+      titleEn: 'Gentle Clinical Care',
       descAr: 'استخدام أحدث أساليب التخدير الموضعي اللطيف لمساعدتك على تخطي أي خوف مسبق من عيادات الأسنان.',
       descEn: 'Gentle, modern numbing and an empathetic approach designed to alleviate dental anxiety.',
     },

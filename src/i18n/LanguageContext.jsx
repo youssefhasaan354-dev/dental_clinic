@@ -93,3 +93,5 @@ export const useTranslation = () => {
   }
   return context;
 };
+
+export const useLanguage = useTranslation;

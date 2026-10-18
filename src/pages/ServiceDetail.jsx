@@ -104,7 +104,7 @@ const ServiceDetail = () => {
                     <FiCheckCircle className="text-success" />
                     <div>
                       <small className="d-block text-muted">{language === 'ar' ? 'الأمان والتعقيم' : 'Safety'}</small>
-                      <strong>{language === 'ar' ? '١٠٠٪ تعقيم فندقي' : '100% Sterile'}</strong>
+                      <strong>{language === 'ar' ? 'تعقيم فندقي معتمد' : 'Hospital-Grade Sterilization'}</strong>
                     </div>
                   </div>
                 </div>
@@ -126,20 +126,20 @@ const ServiceDetail = () => {
                 transition={{ duration: 0.7 }}
               >
                 <h4 className="fw-bold mb-3 text-primary">
-                  {language === 'ar' ? 'لماذا تختارنا في هذا الإجراء؟' : 'Why Choose Hayaah for this Procedure?'}
+                  {language === 'ar' ? 'معايير الرعاية في هذا الإجراء' : 'Clinical Care Standards'}
                 </h4>
                 <ul className="list-unstyled mb-0 d-flex flex-column gap-3">
                   <li className="d-flex align-items-start gap-2">
                     <FiCheck className="text-success mt-1 fs-5" />
-                    <span>{language === 'ar' ? 'تخدير موضعي لطيف وغير مؤلم إطلاقاً' : 'Profound gentle painless anesthesia'}</span>
+                    <span>{language === 'ar' ? 'تخدير موضعي لطيف يراعي راحة المريض' : 'Gentle, patient-paced local anesthesia'}</span>
                   </li>
                   <li className="d-flex align-items-start gap-2">
                     <FiCheck className="text-success mt-1 fs-5" />
-                    <span>{language === 'ar' ? 'أفضل الخامات الطبية المعتمدة حيوياً' : 'Globally certified biocompatible materials'}</span>
+                    <span>{language === 'ar' ? 'خامات طبية متوافقة حيوياً ومعتمدة' : 'Biocompatible certified clinical materials'}</span>
                   </li>
                   <li className="d-flex align-items-start gap-2">
                     <FiCheck className="text-success mt-1 fs-5" />
-                    <span>{language === 'ar' ? 'أطباء متخصصون بخبرة أكثر من 10 سنوات' : 'Specialized practitioners with +10 years experience'}</span>
+                    <span>{language === 'ar' ? 'أطباء معتمدون ومقيدون بنقابة أطباء الأسنان' : 'Licensed practitioners registered with Egyptian Dental Syndicate'}</span>
                   </li>
                   <li className="d-flex align-items-start gap-2">
                     <FiCheck className="text-success mt-1 fs-5" />

@@ -1,19 +1,27 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useTranslation } from '../../i18n/LanguageContext';
-import { CLINIC_DATA } from '../../data/clinic';
-import { IMAGES } from '../../data/images';
-import SectionTitle from '../../components/SectionTitle/SectionTitle';
-import { FiPhoneCall, FiAlertCircle } from 'react-icons/fi';
+import { useTranslation, useLanguage } from '../../i18n/LanguageContext';
+import { useData } from '../../context/DataContext';
+import { ImageSlotOverlay } from '../../components/VisualEdit/ImageSlotOverlay';
+import { FiPhoneCall, FiAlertCircle, FiShield } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import './Emergency.scss';
 
 const Emergency = () => {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+  const { clinicInfo, getImageSlot } = useData();
 
-  const emergencyWhatsAppMsg = language === 'ar'
-    ? 'مرحباً، لدي حالة طوارئ أسنان عاجلة وأحتاج مساعدة سريعة.'
-    : 'Hello, I have an urgent dental emergency and need immediate assistance.';
+  const isAr = language === 'ar';
+  const emergencySlot = getImageSlot('slot-emergency');
+  const imageUrl = emergencySlot?.currentUrl || '/assets/emergency.png';
+
+  const emergencyWhatsAppMsg = isAr
+    ? 'مرحباً، لدي حالة طوارئ أسنان عاجلة وأحتاج مساعدة سريعة في العيادة.'
+    : 'Hello, I have an urgent dental emergency and need prompt evaluation.';
+
+  const emergencyPhone = clinicInfo?.emergencyPhone || clinicInfo?.phone || '02 2635 5669';
+  const telLink = `tel:${emergencyPhone.replace(/\s+/g, '')}`;
 
   return (
     <section className="emergency-section section-common py-5 my-5">
@@ -27,13 +35,16 @@ const Emergency = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <img
-                src={IMAGES.sections.emergency}
-                alt="Dental Emergency Care"
-                className="emergency-image"
-                width="500"
-                height="450"
-              />
+              <ImageSlotOverlay slotId="slot-emergency">
+                <img
+                  src={imageUrl}
+                  alt={isAr ? emergencySlot?.altText?.ar || 'طوارئ الأسنان' : emergencySlot?.altText?.en || 'Dental Emergency'}
+                  className="emergency-image"
+                  width="500"
+                  height="450"
+                  style={{ objectFit: 'cover', borderRadius: '16px', width: '100%' }}
+                />
+              </ImageSlotOverlay>
             </motion.div>
           </div>
 
@@ -47,39 +58,58 @@ const Emergency = () => {
             >
               <div className="emergency-alert-tag d-inline-flex align-items-center gap-2 mb-3">
                 <FiAlertCircle />
-                <span>{t('emergency.subTitle')}</span>
+                <span>{isAr ? 'ألم الأسنان الحاد والطوارئ' : 'Urgent Pain & Dental Emergency'}</span>
               </div>
 
               <h2 className="emergency-heading">
-                {t('emergency.title')}
+                {isAr
+                  ? 'رعاية سريعة وموجهة لحالات الألم الحاد'
+                  : 'Prompt, Focused Care for Acute Dental Pain'}
               </h2>
 
               <p className="emergency-description">
-                {t('emergency.desc')}
+                {isAr
+                  ? 'إذا كنت تعاني من ألم مفاجئ، كسر في السن أو تورم مقلق أثناء ساعات العمل، اتصل بنا فوراً لنرتب لك فحصاً عاجلاً لتسكين الألم وحماية السن.'
+                  : 'If you experience sudden severe pain, tooth fracture, or acute swelling during working hours, contact us immediately so we can prioritize your clinical evaluation.'}
               </p>
 
               <div className="emergency-actions d-flex flex-wrap gap-3 mt-4">
                 <a
-                  href={CLINIC_DATA.phone.telLink}
-                  className="btn-emergency-call"
+                  href={telLink}
+                  className="btn-emergency-call d-inline-flex align-items-center gap-2"
                 >
                   <FiPhoneCall className="icon-ring" />
-                  <span>{t('emergency.callNow')}: {CLINIC_DATA.phone.display}</span>
+                  <span>{isAr ? 'اتصل بالعيادة' : 'Call Clinic'}: {emergencyPhone}</span>
                 </a>
 
                 <a
-                  href={CLINIC_DATA.whatsapp.getChatUrl(emergencyWhatsAppMsg)}
+                  href={`https://wa.me/${clinicInfo?.whatsapp?.replace(/[^0-9]/g, '') || '20226355669'}?text=${encodeURIComponent(emergencyWhatsAppMsg)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-emergency-whatsapp"
+                  className="btn-emergency-whatsapp d-inline-flex align-items-center gap-2"
                 >
                   <FaWhatsapp />
-                  <span>{language === 'ar' ? 'واتساب الطوارئ' : 'Emergency WhatsApp'}</span>
+                  <span>{isAr ? 'واتساب الطوارئ' : 'Emergency WhatsApp'}</span>
                 </a>
               </div>
 
-              <p className="emergency-hours-note mt-3">
-                <small>{t('emergency.availableNote')}</small>
+              {/* National Emergency Directive per Golden Rule 14 */}
+              <div className="alert alert-danger d-flex align-items-start gap-2 mt-4 p-3 rounded-3" style={{ fontSize: '0.85rem' }}>
+                <FiShield className="flex-shrink-0 mt-1" />
+                <div>
+                  <strong>{isAr ? 'توجيه طوارئ وطني:' : 'National Emergency Notice:'}</strong>{' '}
+                  {isAr
+                    ? (clinicInfo?.emergencyNotice?.ar || 'في حالات الطوارئ الطبية التي تهدد الحياة يرجى التوجه فوراً لأقرب مستشفى أو الاتصال بالإسعاف المصري على الرقم 123.')
+                    : (clinicInfo?.emergencyNotice?.en || 'For life-threatening medical emergencies, go to the nearest hospital ER or call Egyptian Ambulance at 123.')}
+                </div>
+              </div>
+
+              <p className="emergency-hours-note mt-2 text-muted">
+                <small>
+                  {isAr
+                    ? (clinicInfo?.emergencyHoursNote?.ar || 'ساعات عمل العيادة: السبت إلى الخميس من 10 ص حتى 10 م')
+                    : (clinicInfo?.emergencyHoursNote?.en || 'Clinic hours: Saturday - Thursday 10:00 AM - 10:00 PM')}
+                </small>
               </p>
             </motion.div>
           </div>

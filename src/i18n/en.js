@@ -71,7 +71,7 @@ export const en = {
     years: { number: "+10", label: "Years of Experience (Since 2015)" },
     rating: { number: "4.6", label: "Google Maps Rating" },
     services: { number: "12+", label: "Specialized Treatments" },
-    hygiene: { number: "100%", label: "Class-B Autoclave Sterilization" },
+    hygiene: { number: "Class-B", label: "Class-B Autoclave Sterilization" },
   },
 
   // Services Section
@@ -125,7 +125,7 @@ export const en = {
     step1Desc: "Pick your preferred time slot online or over the phone; our team confirms promptly.",
     step2Title: "Digital Diagnostics & Exam",
     step2Desc: "Gentle oral inspection, diagnostic evaluation, and a transparent discussion of options.",
-    step3Title: "Painless, Serene Treatment",
+    step3Title: "Gentle, Serene Treatment",
     step3Desc: "Execution using sterile sealed kits and profound gentle numbing for complete ease.",
     step4Title: "Follow-up & Radiant Smile",
     step4Desc: "Personalized home care guidance and scheduled reviews to sustain results for life.",

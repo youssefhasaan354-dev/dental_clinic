@@ -13,8 +13,8 @@ const Safety = () => {
       icon: <FiLock />,
       titleAr: 'تعقيم أوتوكلاف فئة B (Class B Autoclave)',
       titleEn: 'Class-B Vacuum Autoclave',
-      descAr: 'استخدام أعلى مواصفات التعقيم الحراري الفراغي المعتمد بالمستشفيات لقتل 100% من البكتيريا والفيروسات.',
-      descEn: 'Hospital-grade pressurized fractionated vacuum sterilization destroying 100% of bacterial spores and microbes.',
+      descAr: 'استخدام أعلى مواصفات التعقيم الحراري الفراغي المعتمد بالمستشفيات للقضاء على البكتيريا والجراثيم وفق المعايير الطبية.',
+      descEn: 'Hospital-grade pressurized fractionated vacuum sterilization eliminating bacterial spores and microbes per infection standards.',
     },
     {
       icon: <FiPackage />,
@@ -52,7 +52,7 @@ const Safety = () => {
           description={
             language === 'ar'
               ? 'نطبق أدق المعايير الطبية الدولية لمكافحة العدوى، ونوفر بيئة علاجية فندقية فائقة النظافة والأمان.'
-              : 'We strictly implement international infection control protocols ensuring 100% sterile instruments and peace of mind.'
+              : 'We strictly implement international infection control protocols ensuring verified sterile instruments and peace of mind.'
           }
           align="center"
         />
@@ -81,7 +81,7 @@ const Safety = () => {
                   </p>
                   <div className="d-flex align-items-center gap-1 text-success fw-bold small mt-2">
                     <FiCheckCircle />
-                    <span>{language === 'ar' ? 'معتمد ومطبق بنسبة 100%' : '100% Verified Standard'}</span>
+                    <span>{language === 'ar' ? 'معايير تعقيم معتمدة وطبقاً للبروتوكولات' : 'Hospital-Grade Certified Standard'}</span>
                   </div>
                 </div>
               </motion.div>

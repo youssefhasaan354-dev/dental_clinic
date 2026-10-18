@@ -29,7 +29,7 @@ export const TEAM_MEMBERS = [
     roleEn: "Dental Implants & Oral Surgery Specialist",
     departmentAr: "قسم الجراحة والتعويضات الثابتة",
     departmentEn: "Department of Implantology",
-    bioAr: "خبرة متقدمة في الغرسات السويسرية والاندماج العظمي المجهري بدون ألم.",
+    bioAr: "خبرة متقدمة في الغرسات السويسرية والاندماج العظمي المجهري برعاية لطيفة.",
     bioEn: "Advanced proficiency in minimally invasive implants and socket preservation.",
     image: doctor2, // TODO: replace with real doctor photo
     placeholderNameAr: "أخصائي زراعة الأسنان", // TODO: replace with real doctor name
@@ -42,7 +42,7 @@ export const TEAM_MEMBERS = [
     departmentAr: "قسم المعالجة اللبية المجهرية",
     departmentEn: "Department of Endodontics",
     bioAr: "علاج القنوات الجذرية المعقدة بأحدث أجهزة الروتاري والتعقيم الميكروبي.",
-    bioEn: "Specialized in micro-endodontic rotary canal disinfection and painless single-visit therapy.",
+    bioEn: "Specialized in micro-endodontic rotary canal disinfection and gentle single-visit therapy.",
     image: doctor3, // TODO: replace with real doctor photo
     placeholderNameAr: "أخصائي علاج الجذور", // TODO: replace with real doctor name
     placeholderNameEn: "Endodontics Specialist",

@@ -27,7 +27,7 @@ const TrustStrip = () => {
     },
     {
       icon: <FiShield />,
-      number: '100%',
+      number: 'Class-B',
       label: t('trust.hygiene.label'),
     },
   ];

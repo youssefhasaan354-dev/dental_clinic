@@ -167,8 +167,8 @@ export const SERVICES = [
       en: "Root Canal Treatment",
     },
     shortDesc: {
-      ar: "إنقاذ الأسنان المصابة بالتهاب العصب العميق بأحدث أجهزة الروتاري الدقيقة وبدون ألم.",
-      en: "Painless root canal therapy using precision rotary files to save deeply infected natural teeth.",
+      ar: "إنقاذ الأسنان المصابة بالتهاب العصب العميق بأحدث أجهزة الروتاري الدقيقة وبتخدير موضعي لطيف.",
+      en: "Precision rotary endodontic therapy to clean and seal infected root canals to preserve natural teeth.",
     },
     fullDesc: {
       ar: "إجراء علاجي متقدم يهدف للحفاظ على السن الطبيعي ومنع خلعه، من خلال تنظيف وتعقيم قنوات الجذور بدقة بالغة بأجهزة الروتاري الحديثة وحشوها بمواد متوافقة حيوياً تمنع عودة البكتيريا مجدداً.",
@@ -385,15 +385,15 @@ export const SERVICES = [
       en: "Dental Implants",
     },
     shortDesc: {
-      ar: "الحل الدائم والبديل الأمثل للأسنان المفقودة بجذور تيتانيوم حيوية تندمج مع العظم بصلابة مدى الحياة.",
-      en: "Permanent titanium fixture integration replacing missing tooth roots with lifelong biological stability.",
+      ar: "الحل التعويضي الأمثل للأسنان المفقودة بجذور تيتانيوم حيوية تندمج مع العظم بثبات وظيفي وجمالي.",
+      en: "Biocompatible titanium fixture integration replacing missing tooth roots with biological stability.",
     },
     fullDesc: {
-      ar: "زراعة الأسنان هي المعيار الذهبي لتعويض الأسنان المفقودة دون الحاجة لنحت أو لمس الأسنان المجاورة السليمة. نعتمد غرسات تيتانيوم طبية عالمية تندمج حيوياً مع عظام الفك لتعيد لك متعة تناول طعامك براحة وابتسامة كاملة.",
-      en: "The global gold-standard for single and multiple tooth replacement without touching adjacent sound teeth. Biocompatible titanium fixtures osseointegrate directly into jawbone for unmatched chewing confidence.",
+      ar: "زراعة الأسنان هي المعيار لتعويض الأسنان المفقودة دون الحاجة لنحت أو لمس الأسنان المجاورة السليمة. نعتمد غرسات تيتانيوم طبية عالمية تندمج حيوياً مع عظام الفك لتعيد لك متعة تناول طعامك براحة وابتسامة كاملة.",
+      en: "The clinical standard for single and multiple tooth replacement without touching adjacent sound teeth. Biocompatible titanium fixtures osseointegrate directly into jawbone for strong chewing confidence.",
     },
     duration: { ar: "خطة متكاملة على مراحل", en: "Multi-stage planned treatment" },
-    recommendedFrequency: { ar: "حل دائم مدى الحياة", en: "Permanent lifelong solution" },
+    recommendedFrequency: { ar: "حل سريري متين وطويل الأمد", en: "Durable long-term clinical solution" },
     whoNeedsIt: {
       ar: [
         "فقدان سن واحد أو عدة أسنان والرغبة في تعويض ثابت",
@@ -644,7 +644,7 @@ export const SERVICES = [
         titleAr: "تطبيق الفلورايد وسدادات الشقوق (Sealants)",
         titleEn: "Fluoride Varnish & Protective Sealants",
         descAr: "تطبيق طبقة واقية عازلة لحماية شقوق الضروس من بقايا الطعام والبكتيريا.",
-        descEn: "Painless application of cavity-shielding pit sealants on chewing surfaces.",
+        descEn: "Gentle application of cavity-shielding pit sealants on chewing surfaces.",
       },
       {
         step: 4,
@@ -747,12 +747,12 @@ export const SERVICES = [
       en: "Extraction & Oral Surgery",
     },
     shortDesc: {
-      ar: "خلع آمن وبسيط للأسنان التالفة وجراحة ضروس العقل المدفونة بأحدث أساليب التخدير وبدون ألم.",
+      ar: "خلع بسيط للأسنان التالفة وجراحة ضروس العقل المدفونة بأحدث أساليب التخدير الموضعي اللطيف.",
       en: "Atraumatic tooth extractions and surgical wisdom tooth removals with gentle local anesthesia.",
     },
     fullDesc: {
       ar: "إجراءات جراحية دقيقة لخلع الأسنان الميؤوس من علاجها أو ضروس العقل المطمورة جزئياً أو كلياً في عظام الفك، مع الحفاظ على عظام السن وتهيئتها للزراعة المستقبلية، باتباع أقصى معايير التعقيم والراحة.",
-      en: "Precision atraumatic extraction procedures preserving socket bone architecture for future implants, alongside surgical extraction of impacted third molars with zero pain and fast recovery.",
+      en: "Precision atraumatic extraction procedures preserving socket bone architecture for future implants, alongside surgical extraction of impacted third molars with comfort-focused technique and clear aftercare.",
     },
     duration: { ar: "٢٠ - ٤٥ دقيقة", en: "20 - 45 mins" },
     recommendedFrequency: { ar: "إجراء جراحي محدد", en: "Surgical as needed" },

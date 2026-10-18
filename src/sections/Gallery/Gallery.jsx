@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useTranslation } from '../../i18n/LanguageContext';
+import { useTranslation, useLanguage } from '../../i18n/LanguageContext';
+import { useData } from '../../context/DataContext';
 import { IMAGES } from '../../data/images';
 import SectionTitle from '../../components/SectionTitle/SectionTitle';
 import BeforeAfter from '../../components/BeforeAfter/BeforeAfter';
 import Lightbox from '../../components/Lightbox/Lightbox';
-import { FiZoomIn } from 'react-icons/fi';
+import { FiZoomIn, FiShield } from 'react-icons/fi';
 import './Gallery.scss';
 
 const Gallery = () => {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+  const { settings } = useData();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
+  const isAr = language === 'ar';
   const galleryImages = IMAGES.serviceDetails.gallery;
 
   const openLightboxAt = (idx) => {
@@ -24,26 +28,38 @@ const Gallery = () => {
     <section className="smile-gallery-section pt-100 pb-70">
       <div className="container">
         <SectionTitle
-          subTitle={t('gallery.sectionSub')}
-          title={t('gallery.sectionTitle')}
-          description={t('gallery.sectionDesc')}
+          subTitle={isAr ? 'جولة مصورة' : 'Visual Tour'}
+          title={isAr ? 'أجواء عيادة حياة لطب الأسنان' : 'Inside Hayaah Dental Clinic'}
+          description={
+            isAr
+              ? 'بيئة هادئة ومريحة، غرف علاج مجهزة بأحدث أجهزة التعقيم والأشعة الرقمية، لضمان أعلى معايير الأمان الصحي.'
+              : 'A serene clinic atmosphere equipped with certified sterilization and low-dose digital imaging.'
+          }
           align="center"
         />
 
-        {/* Featured Interactive Before / After Slider */}
-        <div className="before-after-spotlight mb-5">
-          <BeforeAfter
-            beforeImg={galleryImages[0].src}
-            afterImg={galleryImages[1].src}
-          />
-        </div>
+        {/* Golden Rule 9: Before/After Spotlight is OFF by default. Only rendered if clinic approved and patient consent verified in admin */}
+        {settings.showBeforeAfter && (
+          <div className="before-after-spotlight mb-5 p-4 rounded-4 bg-light border">
+            <div className="d-flex align-items-center gap-2 mb-3">
+              <FiShield className="text-success" />
+              <span className="badge bg-success">
+                {isAr ? 'حالة سريرية موثقة بموافقة المريض الكتابية' : 'Documented clinical case with patient consent'}
+              </span>
+            </div>
+            <BeforeAfter
+              beforeImg={galleryImages[0].src}
+              afterImg={galleryImages[1].src}
+            />
+          </div>
+        )}
 
-        {/* Gallery Masonry / Grid */}
+        {/* Clinic Environment Gallery Grid */}
         <div className="row g-4">
           {galleryImages.map((img, idx) => (
             <div key={img.id} className="col-lg-4 col-md-6">
               <motion.div
-                className="gallery-item-card"
+                className="gallery-item-card position-relative overflow-hidden rounded-4 shadow-sm"
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
@@ -55,21 +71,22 @@ const Gallery = () => {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') openLightboxAt(idx);
                 }}
-                aria-label={language === 'ar' ? img.altAr : img.altEn}
+                aria-label={isAr ? img.altAr : img.altEn}
               >
                 <div className="gallery-thumb-wrapper">
                   <img
                     src={img.src}
-                    alt={language === 'ar' ? img.altAr : img.altEn}
-                    className="gallery-thumb-img"
+                    alt={isAr ? img.altAr : img.altEn}
+                    className="gallery-thumb-img w-100"
                     loading="lazy"
+                    style={{ height: '240px', objectFit: 'cover' }}
                   />
-                  <div className="gallery-hover-overlay">
-                    <span className="zoom-btn">
-                      <FiZoomIn />
+                  <div className="gallery-hover-overlay d-flex flex-column align-items-center justify-content-center text-white">
+                    <span className="zoom-btn mb-2">
+                      <FiZoomIn size={22} />
                     </span>
-                    <span className="overlay-caption">
-                      {language === 'ar' ? img.altAr : img.altEn}
+                    <span className="overlay-caption px-3 text-center small fw-semibold">
+                      {isAr ? img.altAr : img.altEn}
                     </span>
                   </div>
                 </div>

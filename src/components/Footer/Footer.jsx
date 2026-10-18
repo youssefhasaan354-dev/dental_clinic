@@ -1,40 +1,41 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from '../../i18n/LanguageContext';
-import { CLINIC_DATA } from '../../data/clinic';
+import { useTranslation, useLanguage } from '../../i18n/LanguageContext';
+import { useData } from '../../context/DataContext';
 import logoSvg from '../../assets/logo.svg';
 import {
   FiPhoneCall,
   FiMapPin,
   FiClock,
   FiExternalLink,
-  FiHeart,
-  FiArrowUpRight,
   FiShield,
+  FiInfo,
 } from 'react-icons/fi';
 import { FaFacebookF } from 'react-icons/fa';
 import './Footer.scss';
 
 const Footer = () => {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+  const { clinicInfo, services } = useData();
   const currentYear = new Date().getFullYear();
 
+  const isAr = language === 'ar';
+
   const quickLinks = [
-    { name: t('nav.home'), path: '/' },
-    { name: t('nav.about'), path: '/about' },
-    { name: t('nav.services'), path: '/services' },
-    { name: t('nav.blogs'), path: '/blogs' },
-    { name: t('nav.contact'), path: '/contact' },
+    { name: isAr ? 'الرئيسية' : 'Home', path: '/' },
+    { name: isAr ? 'عن العيادة' : 'About', path: '/about' },
+    { name: isAr ? 'خدماتنا' : 'Services', path: '/services' },
+    { name: isAr ? 'المقالات والتوعية' : 'Health Articles', path: '/blogs' },
+    { name: isAr ? 'طلب موعد والتواصل' : 'Book & Contact', path: '/contact' },
+    { name: isAr ? 'سياسة الخصوصية' : 'Privacy Policy', path: '/privacy' },
+    { name: isAr ? 'الشروط والأحكام' : 'Terms & Disclaimer', path: '/terms' },
   ];
 
-  const topServices = [
-    { name: language === 'ar' ? 'تنظيف وتلميع الأسنان' : 'Scaling & Polishing', path: '/services/scaling-polishing' },
-    { name: language === 'ar' ? 'حشو الأسنان التجميلي' : 'Cosmetic Fillings', path: '/services/cosmetic-fillings' },
-    { name: language === 'ar' ? 'علاج العصب والجذور' : 'Root Canal Treatment', path: '/services/root-canal' },
-    { name: language === 'ar' ? 'زراعة الأسنان' : 'Dental Implants', path: '/services/dental-implants' },
-    { name: language === 'ar' ? 'تقويم الأسنان' : 'Orthodontics', path: '/services/orthodontics' },
-    { name: language === 'ar' ? 'ابتسامة هوليود وفينير' : 'Veneers & Smile Design', path: '/services/veneers' },
-  ];
+  const topServices = services.slice(0, 6);
+
+  const phoneDisplay = clinicInfo?.phone || '02 2635 5669';
+  const telLink = `tel:${phoneDisplay.replace(/\s+/g, '')}`;
 
   return (
     <footer className="main-site-footer pt-100">
@@ -49,27 +50,31 @@ const Footer = () => {
               </Link>
 
               <p className="footer-about-text">
-                {t('footer.aboutText')}
+                {isAr
+                  ? (clinicInfo?.tagline?.ar || 'عيادة حياة لطب الأسنان - رعاية دقيقة مبنية على البراهين الطبية وأحدث بروتوكولات التعقيم.')
+                  : (clinicInfo?.tagline?.en || 'Hayaah Dental Clinic - Evidence-based dentistry with certified sterilization protocols.')}
               </p>
 
               <div className="footer-trust-badge d-inline-flex align-items-center gap-2 mb-4">
                 <FiShield className="text-accent" />
-                <span>{language === 'ar' ? 'مرخصة رسمياً وتعمل منذ عام ٢٠١٥' : 'Licensed clinic serving since 2015'}</span>
+                <span>
+                  {isAr
+                    ? 'مرخصة رسمياً ومقيدة بنقابة أطباء الأسنان المصرية'
+                    : 'Licensed clinic registered with Egyptian Dental Syndicate'}
+                </span>
               </div>
 
               {/* Social Link */}
               <div className="footer-social-wrapper">
-                <span className="social-label">{t('footer.facebookPage')}:</span>
                 <a
-                  href={CLINIC_DATA.social.facebook}
+                  href={clinicInfo?.socialLinks?.facebook || 'https://facebook.com/hayaahdental'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="social-btn facebook"
+                  className="social-btn facebook d-inline-flex align-items-center gap-2"
                   aria-label="Facebook Page"
                 >
                   <FaFacebookF />
-                  <span>Facebook / hayatdental</span>
-                  <FiArrowUpRight />
+                  <span>صفحة العيادة على فيسبوك</span>
                 </a>
               </div>
             </div>
@@ -78,7 +83,7 @@ const Footer = () => {
           {/* Column 2: Quick Links */}
           <div className="col-lg-2 col-md-6 col-6">
             <div className="footer-links-col">
-              <h4 className="footer-heading">{t('common.quickLinks')}</h4>
+              <h4 className="footer-heading">{isAr ? 'روابط سريعة' : 'Quick Links'}</h4>
               <ul className="footer-links-list list-unstyled">
                 {quickLinks.map((link) => (
                   <li key={link.path}>
@@ -92,11 +97,13 @@ const Footer = () => {
           {/* Column 3: Top Services */}
           <div className="col-lg-3 col-md-6 col-6">
             <div className="footer-links-col">
-              <h4 className="footer-heading">{t('nav.services')}</h4>
+              <h4 className="footer-heading">{isAr ? 'خدماتنا السريرية' : 'Clinical Services'}</h4>
               <ul className="footer-links-list list-unstyled">
                 {topServices.map((svc) => (
-                  <li key={svc.path}>
-                    <Link to={svc.path}>{svc.name}</Link>
+                  <li key={svc.id}>
+                    <Link to={`/services/${svc.slug}`}>
+                      {isAr ? svc.title.ar : svc.title.en}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -106,16 +113,16 @@ const Footer = () => {
           {/* Column 4: Contact & Verified Location */}
           <div className="col-lg-3 col-md-6">
             <div className="footer-contact-block">
-              <h4 className="footer-heading">{t('footer.contactTitle')}</h4>
+              <h4 className="footer-heading">{isAr ? 'بيانات التواصل والمقر' : 'Contact & Location'}</h4>
 
               <div className="contact-item d-flex gap-3 mb-3">
                 <div className="contact-icon-bubble">
                   <FiPhoneCall />
                 </div>
                 <div>
-                  <span className="contact-sub">{language === 'ar' ? 'رقم الهاتف المباشر' : 'Direct Phone Line'}</span>
-                  <a href={CLINIC_DATA.phone.telLink} className="contact-val phone-link" dir="ltr">
-                    {CLINIC_DATA.phone.display}
+                  <span className="contact-sub">{isAr ? 'هاتف العيادة' : 'Phone'}</span>
+                  <a href={telLink} className="contact-val phone-link" dir="ltr">
+                    {phoneDisplay}
                   </a>
                 </div>
               </div>
@@ -125,12 +132,12 @@ const Footer = () => {
                   <FiClock />
                 </div>
                 <div>
-                  <span className="contact-sub">{t('common.workingHoursTitle')}</span>
+                  <span className="contact-sub">{isAr ? 'ساعات العمل الرسمية' : 'Clinic Hours'}</span>
                   <span className="contact-val">
-                    {language === 'ar' ? 'السبت - الخميس: ١٠:٠٠ ص - ١٠:٠٠ م' : 'Sat - Thu: 10:00 AM - 10:00 PM'}
+                    {isAr ? 'السبت - الخميس: ١٠:٠٠ ص - ١٠:٠٠ م' : 'Sat - Thu: 10:00 AM - 10:00 PM'}
                   </span>
                   <span className="contact-note text-danger d-block">
-                    {language === 'ar' ? 'الجمعة: عطلة أسبوعية (مغلق)' : 'Friday: Weekly Holiday (Closed)'}
+                    {isAr ? 'الجمعة: عطلة أسبوعية' : 'Friday: Weekly Holiday'}
                   </span>
                 </div>
               </div>
@@ -140,20 +147,17 @@ const Footer = () => {
                   <FiMapPin />
                 </div>
                 <div>
-                  <span className="contact-sub">{language === 'ar' ? 'العنوان' : 'Address'}</span>
+                  <span className="contact-sub">{isAr ? 'العنوان' : 'Address'}</span>
                   <p className="contact-val address-text mb-1">
-                    {language === 'ar' ? CLINIC_DATA.address.ar : CLINIC_DATA.address.en}
+                    {isAr ? clinicInfo?.address?.ar : clinicInfo?.address?.en}
                   </p>
-                  <small className="text-muted d-block mb-2">
-                    {language === 'ar' ? `(${CLINIC_DATA.address.landmarkAr})` : `(${CLINIC_DATA.address.landmarkEn})`}
-                  </small>
                   <a
-                    href={CLINIC_DATA.googleMaps.directionsUrl}
+                    href={clinicInfo?.mapDirectionsUrl || 'https://www.google.com/maps/search/?api=1&query=30.112729,31.336293'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="directions-link d-inline-flex align-items-center gap-1"
                   >
-                    <span>{t('common.getDirections')}</span>
+                    <span>{isAr ? 'الاتجاهات على الخريطة' : 'Get Directions'}</span>
                     <FiExternalLink />
                   </a>
                 </div>
@@ -162,22 +166,40 @@ const Footer = () => {
           </div>
         </div>
 
+        {/* Medical Disclaimer Banner per Golden Rule 13 */}
+        <div className="footer-medical-disclaimer p-3 rounded-3 mb-4 bg-light border text-secondary" style={{ fontSize: '0.82rem', lineHeight: '1.6' }}>
+          <div className="d-flex align-items-start gap-2">
+            <FiInfo className="text-primary flex-shrink-0 mt-1" />
+            <div>
+              <strong>{isAr ? 'إخلاء مسؤولية طبية:' : 'Medical Disclaimer:'}</strong>{' '}
+              {isAr
+                ? (clinicInfo?.disclaimer?.ar || 'المعلومات الواردة في هذا الموقع عامة للتوعية الصحية ولا تغني عن الفحص الطبي السريري المباشر لدى طبيب الأسنان.')
+                : (clinicInfo?.disclaimer?.en || 'Information on this website is for general educational purposes only and does not replace a direct clinical dental examination.')}
+            </div>
+          </div>
+        </div>
+
         {/* Bottom Copyright Bar */}
         <div className="footer-bottom-bar border-top py-4">
           <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <p className="copyright-text mb-0">
-              &copy; 2015 - {currentYear} {language === 'ar' ? CLINIC_DATA.name.ar : CLINIC_DATA.name.en}. {t('common.allRightsReserved')}.
+              &copy; 2015 - {currentYear} {isAr ? clinicInfo?.name?.ar : clinicInfo?.name?.en}. {isAr ? 'كافة الحقوق محفوظة.' : 'All rights reserved.'}
             </p>
 
-            <div className="footer-bottom-links d-flex align-items-center gap-4">
-              <span className="amenity-tag">
-                <FiHeart className="text-danger" /> {language === 'ar' ? 'دورة مياه مجهزة للمرضى' : 'Restroom Available'}
-              </span>
+            <div className="footer-bottom-links d-flex align-items-center gap-3">
+              <Link to="/privacy" className="text-muted text-decoration-none small">
+                {isAr ? 'سياسة الخصوصية' : 'Privacy Policy'}
+              </Link>
+              <span className="text-muted">•</span>
+              <Link to="/terms" className="text-muted text-decoration-none small">
+                {isAr ? 'الشروط والأحكام' : 'Terms of Use'}
+              </Link>
+              <span className="text-muted">•</span>
               <a
-                href={CLINIC_DATA.googleMaps.businessUrl}
+                href={clinicInfo?.mapDirectionsUrl || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="google-rating-link d-flex align-items-center gap-1"
+                className="google-rating-link d-flex align-items-center gap-1 text-decoration-none text-muted small"
               >
                 <span>⭐ 4.6 / 5 (27 Google Reviews)</span>
               </a>
