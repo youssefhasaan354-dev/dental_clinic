@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { useTranslation, useLanguage } from '../../i18n/LanguageContext';
 import { useData } from '../../context/DataContext';
 import { ImageSlotOverlay } from '../../components/VisualEdit/ImageSlotOverlay';
-import OpenBadge from '../../components/OpenBadge/OpenBadge';
 import { FiCalendar, FiPhoneCall, FiStar, FiShield, FiArrowDown } from 'react-icons/fi';
+import { CLINIC_RATING } from '../../data/clinic';
 import './Banner.scss';
 
 const Banner = () => {
@@ -114,7 +114,7 @@ const Banner = () => {
                   ))}
                 </div>
                 <span className="rating-text">
-                  <strong>4.6 ★</strong> {isAr ? '(٢٧ تقييماً موثقاً على خرائط Google)' : '(27 Verified Reviews on Google Maps)'}
+                  <strong>{isAr ? CLINIC_RATING.scoreDisplayAr : CLINIC_RATING.scoreDisplay} ★</strong> {isAr ? `(${CLINIC_RATING.reviewsCountAr} تقييماً موثقاً على خرائط Google)` : `(${CLINIC_RATING.reviewsCount} Verified Reviews on Google Maps)`}
                 </span>
               </div>
             </motion.div>

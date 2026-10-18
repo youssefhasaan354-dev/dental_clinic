@@ -9,6 +9,7 @@ import {
   SectionConfig,
   ImageSlot,
 } from '../types';
+import { CLINIC_RATING } from './clinic';
 
 export const initialClinicInfo: ClinicInfo = {
   name: {
@@ -466,9 +467,9 @@ export const initialFaqs: FaqItem[] = [
 
 export const initialRatings: RatingData = {
   platform: 'Google Maps',
-  score: 4.6,
-  maxScore: 5.0,
-  reviewCount: 27,
+  score: CLINIC_RATING.score,
+  maxScore: CLINIC_RATING.maxScore,
+  reviewCount: CLINIC_RATING.reviewsCount,
   sourceUrl: 'https://www.google.com/maps/search/?api=1&query=30.112729,31.336293',
   isVerified: true,
 };

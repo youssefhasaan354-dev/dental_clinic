@@ -1,7 +1,4 @@
-/**
- * ARABIC DICTIONARY (DEFAULT - RTL)
- * Professional, calm, medical, elegant phrasing.
- */
+import { CLINIC_RATING } from '../data/clinic';
 
 export const ar = {
   // Brand
@@ -61,7 +58,7 @@ export const ar = {
     ctaPrimary: "احجز موعد كشف",
     ctaSecondary: "تحدث مع العيادة",
     emergencyTag: "طوارئ واستفسارات",
-    ratingBadgeText: "تقييم ٤.٦ ★ على خرائط جوجل (٢٧ تقييماً معتمداً)",
+    ratingBadgeText: `تقييم ${CLINIC_RATING.scoreDisplayAr} ★ على خرائط جوجل (${CLINIC_RATING.reviewsCountAr} تقييماً معتمداً)`,
     doctorBadgeTitle: "فريق طبي متخصص",
     doctorBadgeSub: "استشاريون وأخصائيون معتمدون",
   },
@@ -69,7 +66,7 @@ export const ar = {
   // Trust Strip
   trust: {
     years: { number: "+١٠", label: "سنوات خبرة متواصلة (منذ ٢٠١٥)" },
-    rating: { number: "٤.٦", label: "تقييم المرضى على خرائط جوجل" },
+    rating: { number: CLINIC_RATING.scoreDisplayAr, label: "تقييم المرضى على خرائط جوجل" },
     services: { number: "١٢+", label: "تخصصاً علاجياً وتجميلياً" },
     hygiene: { number: "فئة B", label: "تعقيم فندقي بأجهزة Class B" },
   },
@@ -135,8 +132,8 @@ export const ar = {
   ratingShowcase: {
     sectionSub: "آراء المرضى وثقتهم",
     sectionTitle: "سمعة نبنيها بالرعاية والإخلاص يوماً بعد يوم",
-    scoreText: "٤.٦ من ٥ نجوم",
-    basedOn: "بناءً على ٢٧ تقييماً موثقاً على خرائط Google",
+    scoreText: `${CLINIC_RATING.scoreDisplayAr} من ٥ نجوم`,
+    basedOn: `بناءً على ${CLINIC_RATING.reviewsCountAr} تقييماً موثقاً على خرائط Google`,
     buttonText: "تصفح كافة التقييمات على خرائط Google",
     satisfactionText: "نسبة رضا عالية تعكس التزامنا بالشفافية والجودة وراحة المريض.",
   },

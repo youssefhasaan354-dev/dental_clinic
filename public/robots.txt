@@ -1,7 +1,5 @@
-# Hayaah Dental Clinic - Robots Configuration
+# Hayaah Dental Clinic - Robots Configuration (Indexing Disabled / Demo)
 User-agent: *
-Disallow: /admin
-Disallow: /admin/*
-Disallow: /booking/manage
+Disallow: /
 
-Sitemap: https://hayaahdental.com/sitemap.xml
+Sitemap: https://dentallclinic.vercel.app/sitemap.xml

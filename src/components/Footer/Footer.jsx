@@ -12,6 +12,7 @@ import {
   FiInfo,
 } from 'react-icons/fi';
 import { FaFacebookF } from 'react-icons/fa';
+import { CLINIC_RATING } from '../../data/clinic';
 import './Footer.scss';
 
 const Footer = () => {
@@ -201,7 +202,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="google-rating-link d-flex align-items-center gap-1 text-decoration-none text-muted small"
               >
-                <span>⭐ 4.6 / 5 (27 Google Reviews)</span>
+                <span>⭐ {isAr ? `${CLINIC_RATING.scoreDisplayAr} / ٥ (${CLINIC_RATING.reviewsCountAr} تقييم)` : `${CLINIC_RATING.scoreDisplay} / 5 (${CLINIC_RATING.reviewsCount} Google Reviews)`}</span>
               </a>
             </div>
           </div>

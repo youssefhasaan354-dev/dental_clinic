@@ -59,10 +59,14 @@ export const CLINIC_DATA = {
     facebook: "https://www.facebook.com/hayatdental/",
   },
 
+  // TODO: verify against the real Google Maps rating before launch
   rating: {
     score: 4.6,
+    scoreDisplay: "4.6",
+    scoreDisplayAr: "٤.٦",
     maxScore: 5.0,
     reviewsCount: 27,
+    reviewsCountAr: "٢٧",
     source: "Google Maps Reviews",
   },
 
@@ -155,3 +159,6 @@ export function getCairoClinicStatus() {
     };
   }
 }
+
+// TODO: verify against the real Google Maps rating before launch
+export const CLINIC_RATING = CLINIC_DATA.rating;

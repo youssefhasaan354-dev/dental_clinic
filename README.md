@@ -113,6 +113,20 @@ npm test
 
 ---
 
+## 🌐 متغيرات البيئة وإعدادات الفهرسة والـ SEO | Environment Variables & SEO
+
+يحتوي ملف `.env.example` على كافة المتغيرات المدعومة:
+
+| المتغير | القيمة الافتراضية | الوصف |
+| :--- | :--- | :--- |
+| `VITE_SITE_URL` | `https://dentallclinic.vercel.app` | النطاق الأساسي المعتمد للموقع (بدون شرطة مائلة في النهاية). يُستخدم لبناء روابط الـ Canonical، وتوليد ملفي `sitemap.xml` و `robots.txt` تلقائياً عبر سكريبت `prebuild`، والروابط المطلقة لصور السوشيال ميديا (`og:image`, `twitter:image`). |
+| `VITE_ALLOW_INDEXING` | `false` | صمام أمان للتحكم في فهرسة محركات البحث. القيمة الافتراضية `false` تُخرج وسم `<meta name="robots" content="noindex, nofollow">` وتُنشئ `Disallow: /` في `robots.txt`. عند جاهزية العيادة للإطلاق الرسمي، يتم ضبطه إلى `true` في Vercel للسماح بفهرسة الصفحات التسويقية العامة، مع ضمان بقاء لوحة الإدارة `/admin/*` وصفحة إدارة الحجز `/booking/manage` دائماً `noindex, nofollow`. |
+| `VITE_DEMO_MODE` | `true` | تفعيل وضع المحاكاة التجريبي المحلي. |
+| `VITE_SUPABASE_URL` | *(اختياري)* | رابط مشروع Supabase عند التبديل لقاعدة بيانات حقيقية. |
+| `VITE_SUPABASE_ANON_KEY` | *(اختياري)* | المفتاح العام لـ Supabase. |
+
+---
+
 ## 📋 بنية المجلدات الرئيسية | Key Architecture Folders
 
 ```text

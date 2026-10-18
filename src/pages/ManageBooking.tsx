@@ -49,7 +49,8 @@ export const ManageBooking: React.FC = () => {
     metaTag.setAttribute('content', 'noindex, nofollow');
 
     return () => {
-      metaTag?.setAttribute('content', 'index, follow');
+      const allowIndexing = import.meta.env.VITE_ALLOW_INDEXING === 'true';
+      metaTag?.setAttribute('content', allowIndexing ? 'index, follow' : 'noindex, nofollow');
     };
   }, []);
 

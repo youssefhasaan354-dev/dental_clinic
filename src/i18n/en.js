@@ -1,7 +1,4 @@
-/**
- * ENGLISH DICTIONARY (LTR)
- * Professional, calm, medical, high-standard dental phrasing.
- */
+import { CLINIC_RATING } from '../data/clinic';
 
 export const en = {
   // Brand
@@ -61,7 +58,7 @@ export const en = {
     ctaPrimary: "Book Appointment",
     ctaSecondary: "Speak to Clinic",
     emergencyTag: "Emergency & Inquiries",
-    ratingBadgeText: "4.6 ★ Rating on Google Maps (27 Verified Reviews)",
+    ratingBadgeText: `${CLINIC_RATING.scoreDisplay} ★ Rating on Google Maps (${CLINIC_RATING.reviewsCount} Verified Reviews)`,
     doctorBadgeTitle: "Specialized Medical Team",
     doctorBadgeSub: "Board-Certified Practitioners",
   },
@@ -69,7 +66,7 @@ export const en = {
   // Trust Strip
   trust: {
     years: { number: "+10", label: "Years of Experience (Since 2015)" },
-    rating: { number: "4.6", label: "Google Maps Rating" },
+    rating: { number: CLINIC_RATING.scoreDisplay, label: "Google Maps Rating" },
     services: { number: "12+", label: "Specialized Treatments" },
     hygiene: { number: "Class-B", label: "Class-B Autoclave Sterilization" },
   },
@@ -135,8 +132,8 @@ export const en = {
   ratingShowcase: {
     sectionSub: "Patient Trust & Feedback",
     sectionTitle: "A Reputation Built on Consistent Clinical Excellence",
-    scoreText: "4.6 out of 5 Stars",
-    basedOn: "Based on 27 verified Google Maps reviews",
+    scoreText: `${CLINIC_RATING.scoreDisplay} out of 5 Stars`,
+    basedOn: `Based on ${CLINIC_RATING.reviewsCount} verified Google Maps reviews`,
     buttonText: "Read Reviews on Google Maps",
     satisfactionText: "A high patient satisfaction rating reflecting our dedication to gentle, transparent care.",
   },

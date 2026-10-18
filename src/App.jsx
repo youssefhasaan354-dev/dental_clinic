@@ -85,6 +85,31 @@ const AdminFallback = () => (
   </div>
 );
 
+// Dynamic Robots & Indexation Controller
+const SeoMetaController = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const allowIndexing = import.meta.env.VITE_ALLOW_INDEXING === 'true';
+    const isRestrictedRoute = pathname.startsWith('/admin') || pathname.startsWith('/booking/manage');
+
+    let metaTag = document.querySelector('meta[name="robots"]');
+    if (!metaTag) {
+      metaTag = document.createElement('meta');
+      metaTag.setAttribute('name', 'robots');
+      document.head.appendChild(metaTag);
+    }
+
+    if (isRestrictedRoute || !allowIndexing) {
+      metaTag.setAttribute('content', 'noindex, nofollow');
+    } else {
+      metaTag.setAttribute('content', 'index, follow');
+    }
+  }, [pathname]);
+
+  return null;
+};
+
 function App() {
   const location = useLocation();
   const [initialLoading, setInitialLoading] = useState(true);
@@ -96,6 +121,7 @@ function App() {
       <DataProvider>
         {initialLoading && <BrandLoader onFinish={() => setInitialLoading(false)} />}
         <ScrollToTop />
+        <SeoMetaController />
 
         {/* Golden Rule 3: Dismissible demo preview banner on public pages */}
         {!isAdminRoute && <DemoBanner />}

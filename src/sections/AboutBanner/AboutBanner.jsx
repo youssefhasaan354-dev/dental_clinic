@@ -46,7 +46,7 @@ const AboutBanner = () => {
                   <span className="m-label">{language === 'ar' ? 'سنوات من الخبرة' : 'Years of Experience'}</span>
                 </div>
                 <div>
-                  <h3 className="m-num">٤.٦ ★</h3>
+                  <h3 className="m-num">{language === 'ar' ? CLINIC_DATA.rating.scoreDisplayAr : CLINIC_DATA.rating.scoreDisplay} ★</h3>
                   <span className="m-label">{language === 'ar' ? 'تقييم خرائط Google' : 'Google Rating'}</span>
                 </div>
                 <div>

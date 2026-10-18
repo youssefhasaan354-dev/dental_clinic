@@ -17,7 +17,7 @@ const TrustStrip = () => {
     },
     {
       icon: <FiStar />,
-      number: '4.6 ★',
+      number: `${CLINIC_DATA.rating.scoreDisplay} ★`,
       label: t('trust.rating.label') + ` (${CLINIC_DATA.rating.reviewsCount})`,
     },
     {

@@ -21,18 +21,22 @@
     />
     <meta name="author" content="عيادة حياة لطب الأسنان - Hayaah Dental Clinic" />
     
-    <!-- Golden Rule 3: noindex, nofollow during demo preview until owner confirms go-live -->
-    <meta name="robots" content="noindex, nofollow" />
+    <!-- Search Engine Indexing (Controlled by VITE_ALLOW_INDEXING) -->
+    <meta name="robots" content="%VITE_ROBOTS_META%" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="%VITE_SITE_URL%/" />
 
     <!-- Open Graph / Social Tags -->
     <meta property="og:type" content="business.business" />
     <meta property="og:title" content="عيادة حياة لطب الأسنان | Hayaah Dental Clinic" />
     <meta
       property="og:description"
-      content="رعاية دقيقة لطب الأسنان بمصر الجديدة. شارع فريد سميكة، القاهرة. تقييم 4.6★ على خرائط Google."
+      content="رعاية دقيقة وشاملة لطب الأسنان بمصر الجديدة، شارع فريد سميكة، القاهرة. أحدث التقنيات وأعلى معايير التعقيم والراحة."
     />
     <meta property="og:site_name" content="Hayaah Dental Clinic" />
-    <meta property="og:image" content="/assets/banner/1.png" />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
+    <meta property="og:image" content="%VITE_SITE_URL%/assets/banner/1.png" />
     <meta property="business:contact_data:street_address" content="Fareed Semeika St., Heliopolis" />
     <meta property="business:contact_data:locality" content="Cairo" />
     <meta property="business:contact_data:country_name" content="Egypt" />
@@ -43,9 +47,9 @@
     <meta name="twitter:title" content="عيادة حياة لطب الأسنان | Hayaah Dental Clinic" />
     <meta
       name="twitter:description"
-      content="رعاية دقيقة لطب الأسنان بمصر الجديدة. تقييم 4.6★ على خرائط Google."
+      content="رعاية دقيقة وشاملة لطب الأسنان بمصر الجديدة. أحدث التقنيات وأعلى معايير التعقيم والراحة."
     />
-    <meta name="twitter:image" content="/assets/banner/1.png" />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/assets/banner/1.png" />
 
     <!-- Google Fonts: Cairo (Arabic) & Montserrat (English) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -62,7 +66,7 @@
         "@type": "Dentist",
         "name": "عيادة حياة لطب الأسنان - Hayaah Dental Clinic",
         "alternateName": "Hayaah Dental Clinic",
-        "image": "/assets/banner/1.png",
+        "image": "%VITE_SITE_URL%/assets/banner/1.png",
         "telephone": "+20226355669",
         "priceRange": "$$",
         "medicalSpecialty": "Dentistry",
@@ -92,13 +96,6 @@
             "closes": "22:00"
           }
         ],
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.6",
-          "bestRating": "5",
-          "worstRating": "1",
-          "ratingCount": "27"
-        },
         "sameAs": [
           "https://www.google.com/maps/search/?api=1&query=30.112729,31.336293"
         ]

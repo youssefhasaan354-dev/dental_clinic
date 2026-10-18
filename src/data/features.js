@@ -4,6 +4,8 @@
  * (No fake insurance networks or unverified claims)
  */
 
+import { CLINIC_RATING } from './clinic';
+
 export const FEATURES = [
   {
     id: "sterilization-safety",
@@ -69,8 +71,8 @@ export const FEATURES = [
       en: "A calming clinical lounge atmosphere with gentle modern numbing techniques and prompt scheduling that respects your time.",
     },
     metric: {
-      ar: "تقييم ٤.٦ ★ على خرائط جوجل",
-      en: "4.6 ★ Google Rating",
+      ar: `تقييم ${CLINIC_RATING.scoreDisplayAr} ★ على خرائط جوجل`,
+      en: `${CLINIC_RATING.scoreDisplay} ★ Google Rating`,
     },
   },
 ];
