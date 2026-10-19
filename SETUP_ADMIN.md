@@ -79,6 +79,26 @@ VITE_FIREBASE_APP_ID=1:1234567890:web:abcdef123456
 
 > **ملاحظة هامة:** وضع Firebase يتم تفعيله تلقائياً فقط عند توفر كافة المتغيرات الأربعة `VITE_FIREBASE_*`. في حال غياب أي متغير منها، يستمر التطبيق بالعمل في وضع Demo Mode الافتراضي.
 
+### الخطوة 7: تفعيل حماية التطبيق Firebase App Check (اختياري / موصى به للإنتاج)
+لحماية استعلامات Firestore من البوتات والهجمات العشوائية وحصرها على نطاق الموقع فقط:
+1. **إنشاء مفاتيح reCAPTCHA v3:**
+   - توجه إلى كونسول [Google reCAPTCHA](https://www.google.com/recaptcha/admin) وأنشئ مفتاحاً جديداً بنوع **reCAPTCHA v3**.
+   - أضف نطاق العيادة (مثل `dentallclinic.vercel.app` و `localhost`).
+   - انسخ مفتاح الموقع (**Site Key**) والمفتاح السري (**Secret Key**).
+2. **تسجيل تطبيق الويب في Firebase Console (Register App):**
+   - في كونسول Firebase، اذهب إلى القائمة الجانبية **Build -> App Check**.
+   - في تبويب **Apps**، اختر تطبيق الويب الخاص بك واضغط **Register**.
+   - اختر **reCAPTCHA v3** والصق المفتاح السري (**Secret Key**).
+3. **توصيل مفتاح الموقع (Site Key) بالتطبيق:**
+   - أضف متغير البيئة التالي في إعدادات **Vercel** (أو ملف `.env`):
+     ```bash
+     VITE_RECAPTCHA_SITE_KEY=6Ld...site_key_here
+     ```
+   - عند توفر هذا المتغير ووجود وضع Firebase قيد التشغيل، يقوم التطبيق تلقائياً عبر التحميل الديناميكي في `src/services/firebase/client.ts` بتهيئة App Check عبر `ReCaptchaV3Provider` مع تفعيل التحديث التلقائي للرموز (`isTokenAutoRefreshEnabled: true`). وإذا لم يُعين المتغير، لا يتم تحميل أي حزم إضافية.
+4. **المراقبة ثم الفرض الإلزامي (Monitor, then Enforce):**
+   - في كونسول **App Check -> APIs**، راقب حركة استعلامات Firestore لبضعة أيام وتأكد من أن نسبة الطلبات الموثقة (**Verified requests**) تغطي الزوار الطبيعيين.
+   - بعد الاطمئنان، اضغط على **Cloud Firestore** ثم اختر **Enforce** لغلق الباب نهائياً أمام أي طلب خارجي غير موثق.
+
 ---
 
 ## 3. آلية منع الحجز المزدوج وحماية خصوصية المرضى (Architecture)

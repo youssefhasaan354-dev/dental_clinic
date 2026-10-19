@@ -95,8 +95,10 @@ service cloud.firestore {
     // Staff update/delete allowed for owner/receptionist.
     match /appointments/{appointmentId} {
       allow create: if request.resource.data.status in ['pending', 'confirmed']
-                    && request.resource.data.keys().hasAll(['patientName', 'patientPhone', 'serviceId', 'date', 'startTime', 'bookingCode', 'manageToken'])
-                    && !('internalNotes' in request.resource.data);
+                    && request.resource.data.keys().hasAll(['patientName', 'patientPhone', 'serviceId', 'date', 'startTime', 'bookingCode', 'manageToken', 'doctorId'])
+                    && !('internalNotes' in request.resource.data)
+                    && existsAfter(/databases/$(database)/documents/slots/$(request.resource.data.doctorId + '_' + request.resource.data.date + '_' + (request.resource.data.startTime.split(':')[0] + request.resource.data.startTime.split(':')[1])))
+                    && getAfter(/databases/$(database)/documents/slots/$(request.resource.data.doctorId + '_' + request.resource.data.date + '_' + (request.resource.data.startTime.split(':')[0] + request.resource.data.startTime.split(':')[1]))).data.appointmentId == appointmentId;
 
       allow read: if isStaff();
 
@@ -141,7 +143,7 @@ service cloud.firestore {
                     && existsAfter(/databases/$(database)/documents/appointments/$(request.resource.data.appointmentId))
                     && getAfter(/databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)).data.manageToken == token;
 
-      allow update: if isStaff() || (
+      allow update: if isOwnerOrReceptionist() || (
         resource.data.status in ['pending', 'confirmed']
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'status', 'cancelledAt', 'cancellationReason', 'updatedAt', 'date', 'startTime', 'endTime', 'doctorId'
@@ -167,7 +169,7 @@ service cloud.firestore {
         )
       );
 
-      allow delete: if isStaff();
+      allow delete: if isOwnerOrReceptionist();
     }
 
     // --- Doctor Schedules (Booking availability & doctor hours) ---

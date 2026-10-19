@@ -43,6 +43,25 @@ export function isFirebaseConfigured(): boolean {
   );
 }
 
+let appCheckInitialized = false;
+
+async function maybeInitAppCheck(app: FirebaseApp): Promise<void> {
+  if (appCheckInitialized) return;
+  const recaptchaKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+  if (!recaptchaKey || typeof window === 'undefined') return;
+
+  try {
+    const { initializeAppCheck, ReCaptchaV3Provider } = await import('firebase/app-check');
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider(recaptchaKey),
+      isTokenAutoRefreshEnabled: true,
+    });
+    appCheckInitialized = true;
+  } catch (err) {
+    console.warn('[Firebase AppCheck] Initialization failed or skipped:', err);
+  }
+}
+
 /**
  * Lazily initialize and return the FirebaseApp instance.
  */
@@ -70,6 +89,8 @@ export async function getFirebaseApp(): Promise<FirebaseApp> {
   } else {
     appInstance = getApp();
   }
+
+  await maybeInitAppCheck(appInstance);
 
   return appInstance;
 }

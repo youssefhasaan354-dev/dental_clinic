@@ -369,6 +369,46 @@ async function run() {
     );
     console.log('✓ PASS (f): Reschedule without creating new slot doc denied');
 
+    // Anonymous appointment create without slot fails
+    console.log('Testing: Anonymous appointment create without claiming first slot fails...');
+    const apptIdNoSlot = 'apt-no-slot-test';
+    const tokenNoSlot = 'tok-no-slot-test';
+    await assertFails(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'appointments', apptIdNoSlot), {
+          id: apptIdNoSlot,
+          bookingCode: 'HAY-NOSLOT',
+          manageToken: tokenNoSlot,
+          patientName: 'No Slot Patient',
+          patientPhone: '+201012345678',
+          patientType: 'new',
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '12:00',
+          endTime: '12:30',
+          doctorId: 'doc-1',
+          status: 'confirmed',
+          consentGiven: true,
+          createdAt: nowIso,
+          updatedAt: nowIso,
+        });
+        tx.set(doc(unauthedDb, 'bookingLookup', tokenNoSlot), {
+          appointmentId: apptIdNoSlot,
+          bookingCode: 'HAY-NOSLOT',
+          manageToken: tokenNoSlot,
+          date: '2026-11-01',
+          startTime: '12:00',
+          endTime: '12:30',
+          serviceId: 'root-canal',
+          doctorId: 'doc-1',
+          status: 'confirmed',
+          createdAt: nowIso,
+        });
+        // Intentionally OMIT tx.set on slots/doc-1_2026-11-01_1200
+      })
+    );
+    console.log('✓ PASS: Anonymous appointment create without first slot doc rejected');
+
     // Staff role checks
     console.log('Testing staff role protections...');
     await assertFails(getDoc(doc(unauthedDb, 'appointments', apptIdF)));
@@ -386,6 +426,46 @@ async function run() {
         active: false,
       })
     );
+
+    // Viewer cannot update or delete bookingLookup (only Owner and Receptionist can)
+    console.log('Testing: Viewer cannot update or delete bookingLookup...');
+    const testLookupToken = 'tok-lookup-viewer-check';
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, 'bookingLookup', testLookupToken), {
+        appointmentId: 'apt-lookup-viewer',
+        bookingCode: 'HAY-VIEW1',
+        manageToken: testLookupToken,
+        status: 'confirmed',
+        date: '2026-11-01',
+        startTime: '10:00',
+        endTime: '10:30',
+        doctorId: 'doc-1',
+      });
+    });
+
+    // Viewer read is allowed (list is isStaff, get is public)
+    await assertSucceeds(getDoc(doc(viewerDb, 'bookingLookup', testLookupToken)));
+
+    // Viewer update fails
+    await assertFails(
+      updateDoc(doc(viewerDb, 'bookingLookup', testLookupToken), {
+        status: 'cancelled',
+      })
+    );
+
+    // Viewer delete fails
+    await assertFails(deleteDoc(doc(viewerDb, 'bookingLookup', testLookupToken)));
+
+    // Receptionist and Owner update and delete succeed
+    await assertSucceeds(
+      updateDoc(doc(recepDb, 'bookingLookup', testLookupToken), {
+        status: 'cancelled',
+      })
+    );
+    await assertSucceeds(deleteDoc(doc(ownerDb, 'bookingLookup', testLookupToken)));
+    console.log('✓ PASS: Viewer cannot update/delete bookingLookup (receptionist/owner allowed)');
+
     console.log('✓ PASS: Staff role permissions strictly enforced');
 
     console.log('--- ALL EXACT TRANSACTION RULES TESTS PASSED! ---');
