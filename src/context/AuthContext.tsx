@@ -14,6 +14,7 @@ interface AuthContextType {
   user: AdminUser | null;
   role: UserRole | null;
   isAuthenticated: boolean;
+  authLoading: boolean;
   isFirebaseMode: boolean;
   authError: string | null;
   clearAuthError: () => void;
@@ -46,6 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [authError, setAuthError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState<boolean>(isFirebaseMode);
   const [isVisualEditActive, setVisualEditActive] = useState<boolean>(true);
 
   // Sync to localStorage only in Demo Mode
@@ -60,7 +62,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Subscribe to Firebase Auth state when Firebase mode is active
   useEffect(() => {
-    if (!isFirebaseMode) return;
+    if (!isFirebaseMode) {
+      setAuthLoading(false);
+      return;
+    }
 
     let unsubscribe: (() => void) | undefined;
 
@@ -74,6 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
           if (!firebaseUser) {
             setUser(null);
+            setAuthLoading(false);
             return;
           }
 
@@ -93,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   email: firebaseUser.email || '',
                 });
                 setAuthError(null);
+                setAuthLoading(false);
                 return;
               }
             }
@@ -108,10 +115,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await signOut(auth);
             setUser(null);
             setAuthError('حدث خطأ أثناء التحقق من صلاحيات الحساب / Error verifying permissions');
+          } finally {
+            setAuthLoading(false);
           }
         });
       } catch (err) {
         console.warn('Firebase Auth initialization skipped or failed:', err);
+        setAuthLoading(false);
       }
     })();
 
@@ -261,6 +271,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         role,
         isAuthenticated,
+        authLoading,
         isFirebaseMode,
         authError,
         clearAuthError,

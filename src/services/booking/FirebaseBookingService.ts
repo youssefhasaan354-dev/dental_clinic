@@ -2,6 +2,7 @@
  * Hayaah Dental Clinic - Firebase Production Booking Adapter
  * Connects to Google Cloud Firestore with real-time double-booking prevention,
  * transactional atomic slot claiming, and strict patient privacy separation.
+ * Uses doctor_schedules collection to avoid collision with CMS doctor profiles.
  */
 
 import { IBookingService } from './IBookingService';
@@ -36,9 +37,11 @@ import {
   generateManageToken,
   hashPhoneForLookup,
 } from './slotUtils';
-import { INITIAL_DOCTORS, INITIAL_BLOCKED_SLOTS } from './seedData';
+import { INITIAL_DOCTORS } from './seedData';
 import { notify } from './notificationService';
-import { getFirebaseFirestore } from '../firebase/client';
+import { getFirebaseFirestore, getFirebaseAuth } from '../firebase/client';
+import { getCachedData, setCachedData, invalidateCachedData } from '../../utils/firestoreCache';
+import { stripUndefined } from '../../utils/stripUndefined';
 
 export class FirebaseBookingService implements IBookingService {
   readonly isDemo = false;
@@ -173,7 +176,8 @@ export class FirebaseBookingService implements IBookingService {
         const apptRef = doc(collection(db, 'appointments'));
         const lookupRef = doc(db, 'bookingLookup', manageToken);
 
-        const appointmentPayload: Appointment = {
+        // Appointment payload - stripped of any undefined values and internalNotes for public creation
+        const appointmentPayload: Appointment = stripUndefined({
           id: apptRef.id,
           bookingCode,
           manageToken,
@@ -192,15 +196,15 @@ export class FirebaseBookingService implements IBookingService {
           date: data.date,
           startTime: data.startTime,
           endTime,
-          status: settings.autoConfirm ? 'confirmed' : 'pending',
+          status: (settings.autoConfirm ? 'confirmed' : 'pending') as AppointmentStatus,
           notes: data.notes?.trim() || undefined,
           consentGiven: data.consentGiven,
           isWalkIn: Boolean(data.isWalkIn),
           createdAt: nowIso,
           updatedAt: nowIso,
-        };
+        });
 
-        const lookupPayload = {
+        const lookupPayload = stripUndefined({
           appointmentId: apptRef.id,
           bookingCode,
           manageToken,
@@ -215,7 +219,7 @@ export class FirebaseBookingService implements IBookingService {
           status: appointmentPayload.status,
           phoneHash,
           createdAt: nowIso,
-        };
+        });
 
         // Step B: All Firestore transaction WRITES
         // 1. Claim deterministic slot docs
@@ -307,25 +311,25 @@ export class FirebaseBookingService implements IBookingService {
 
     try {
       await runTransaction(db, async (tx) => {
-        // Delete all occupied slot documents
+        // Transaction READS first
+        const apptRef = doc(db, 'appointments', apt.id);
+        const lookupRef = doc(db, 'bookingLookup', token);
+        await Promise.all([tx.get(apptRef), tx.get(lookupRef)]);
+
+        // Transaction WRITES all together: slots delete, bookingLookup update, appointments update
         slotDocIds.forEach((slotId) => {
           tx.delete(doc(db, 'slots', slotId));
         });
 
-        // Update bookingLookup
-        tx.update(doc(db, 'bookingLookup', token), {
-          status: 'cancelled',
-          cancelledAt: nowIso,
-          cancellationReason: reason || 'Cancelled by patient online',
-        });
-
-        // Update appointment
-        tx.update(doc(db, 'appointments', apt.id), {
+        const cancelUpdates = stripUndefined({
           status: 'cancelled',
           cancelledAt: nowIso,
           cancellationReason: reason || 'Cancelled by patient online',
           updatedAt: nowIso,
         });
+
+        tx.update(lookupRef, cancelUpdates);
+        tx.update(apptRef, cancelUpdates);
       });
 
       notify({
@@ -365,17 +369,23 @@ export class FirebaseBookingService implements IBookingService {
     const newBlocks = getServiceSlotBlocks(params.newStartTime, apt.serviceDuration);
     const newSlotIds = newBlocks.map((b) => getSlotDocId(chosenDoctorId, params.newDate, b));
     const nowIso = new Date().toISOString();
+    const targetStatus = (settings.autoConfirm ? 'confirmed' : 'pending') as AppointmentStatus;
 
     try {
       const updated = await runTransaction(db, async (tx) => {
-        // Read new slots to prevent double-booking
-        const newSlotSnaps = await Promise.all(
-          newSlotIds.map((id) => tx.get(doc(db, 'slots', id)))
-        );
+        // Transaction READS first: check existing doc and new slot availability
+        const apptRef = doc(db, 'appointments', apt.id);
+        const lookupRef = doc(db, 'bookingLookup', params.token);
+
+        const [, , ...newSlotSnaps] = await Promise.all([
+          tx.get(apptRef),
+          tx.get(lookupRef),
+          ...newSlotIds.map((id) => tx.get(doc(db, 'slots', id))),
+        ]);
 
         const isCollision = newSlotSnaps.some((snap) => {
           if (!snap.exists()) return false;
-          // OK if the existing slot doc belongs to this same appointment
+          // Collision if existing slot doc does not belong to this appointment
           return snap.data()?.appointmentId !== apt.id;
         });
 
@@ -383,12 +393,11 @@ export class FirebaseBookingService implements IBookingService {
           throw new Error('SLOT_TAKEN');
         }
 
-        // Delete old slot docs
+        // Transaction WRITES: delete old slots, set new slots, update bookingLookup, update appointments
         oldSlotIds.forEach((id) => {
           tx.delete(doc(db, 'slots', id));
         });
 
-        // Create new slot docs
         newBlocks.forEach((block) => {
           const slotId = getSlotDocId(chosenDoctorId, params.newDate, block);
           tx.set(doc(db, 'slots', slotId), {
@@ -400,25 +409,17 @@ export class FirebaseBookingService implements IBookingService {
           });
         });
 
-        // Update bookingLookup
-        tx.update(doc(db, 'bookingLookup', params.token), {
+        const rescheduleUpdates = stripUndefined({
           date: params.newDate,
           startTime: params.newStartTime,
           endTime: newEndTime,
           doctorId: chosenDoctorId,
-          status: settings.autoConfirm ? 'confirmed' : 'pending',
+          status: targetStatus,
           updatedAt: nowIso,
         });
 
-        // Update appointment
-        tx.update(doc(db, 'appointments', apt.id), {
-          date: params.newDate,
-          startTime: params.newStartTime,
-          endTime: newEndTime,
-          doctorId: chosenDoctorId,
-          status: settings.autoConfirm ? 'confirmed' : 'pending',
-          updatedAt: nowIso,
-        });
+        tx.update(lookupRef, rescheduleUpdates);
+        tx.update(apptRef, rescheduleUpdates);
 
         return {
           ...apt,
@@ -426,7 +427,7 @@ export class FirebaseBookingService implements IBookingService {
           startTime: params.newStartTime,
           endTime: newEndTime,
           doctorId: chosenDoctorId,
-          status: (settings.autoConfirm ? 'confirmed' : 'pending') as AppointmentStatus,
+          status: targetStatus,
         };
       });
 
@@ -625,7 +626,7 @@ export class FirebaseBookingService implements IBookingService {
     };
     if (internalNotes !== undefined) updates.internalNotes = internalNotes;
 
-    await updateDoc(apptRef, updates);
+    await updateDoc(apptRef, stripUndefined(updates));
 
     // If cancelled by staff, delete the slot docs
     if (status === 'cancelled') {
@@ -658,7 +659,7 @@ export class FirebaseBookingService implements IBookingService {
     const snap = await getDoc(apptRef);
     if (!snap.exists()) throw new Error('Appointment not found');
 
-    const payload = { ...updates, updatedAt: new Date().toISOString() };
+    const payload = stripUndefined({ ...updates, updatedAt: new Date().toISOString() });
     await updateDoc(apptRef, payload);
 
     return { ...(snap.data() as Appointment), ...payload, id };
@@ -668,10 +669,10 @@ export class FirebaseBookingService implements IBookingService {
     const db = await this.getDB();
     const { collection, addDoc } = await import('firebase/firestore');
 
-    const docData = {
+    const docData = stripUndefined({
       ...data,
       createdAt: new Date().toISOString(),
-    };
+    });
     const res = await addDoc(collection(db, 'blocked_slots'), docData);
 
     return {
@@ -697,10 +698,7 @@ export class FirebaseBookingService implements IBookingService {
       ...(d.data() as Omit<BlockedSlot, 'id'>),
     }));
 
-    if (slots.length === 0) {
-      slots = INITIAL_BLOCKED_SLOTS;
-    }
-
+    // In Firebase mode, do NOT fall back to seed data when collection is empty
     if (dateRange?.from) {
       slots = slots.filter((s) => s.date >= dateRange.from!);
     }
@@ -712,12 +710,17 @@ export class FirebaseBookingService implements IBookingService {
   }
 
   async getSettings(): Promise<BookingSettings> {
+    const cached = getCachedData<BookingSettings>('booking_settings');
+    if (cached) return cached;
+
     const db = await this.getDB();
     const { doc, getDoc } = await import('firebase/firestore');
 
     const snap = await getDoc(doc(db, 'booking_settings', 'global'));
     if (!snap.exists()) return DEFAULT_BOOKING_SETTINGS;
-    return snap.data() as BookingSettings;
+    const data = snap.data() as BookingSettings;
+    setCachedData('booking_settings', data);
+    return data;
   }
 
   async updateSettings(settings: Partial<BookingSettings>): Promise<BookingSettings> {
@@ -725,8 +728,9 @@ export class FirebaseBookingService implements IBookingService {
     const { doc, setDoc } = await import('firebase/firestore');
 
     const current = await this.getSettings();
-    const updated = { ...current, ...settings };
+    const updated = stripUndefined({ ...current, ...settings });
     await setDoc(doc(db, 'booking_settings', 'global'), updated);
+    invalidateCachedData('booking_settings');
     return updated;
   }
 
@@ -762,18 +766,44 @@ export class FirebaseBookingService implements IBookingService {
 
   async deletePatient(phone: string): Promise<boolean> {
     const db = await this.getDB();
-    const { collection, getDocs, query, where, deleteDoc } = await import('firebase/firestore');
+    const { collection, getDocs, query, where, deleteDoc, doc } = await import('firebase/firestore');
 
     const q = query(collection(db, 'appointments'), where('patientPhone', '==', phone));
     const snap = await getDocs(q);
 
-    await Promise.all(snap.docs.map((d) => deleteDoc(d.ref)));
+    for (const docSnap of snap.docs) {
+      const apt = docSnap.data() as Appointment;
+
+      // 1. Delete matching bookingLookup doc
+      if (apt.manageToken) {
+        try {
+          await deleteDoc(doc(db, 'bookingLookup', apt.manageToken));
+        } catch (err) {
+          console.warn('[FirebaseBookingService] Could not delete bookingLookup:', err);
+        }
+      }
+
+      // 2. Delete all slot docs
+      const slotDocIds = getSlotDocIdsForBooking(apt.doctorId, apt.date, apt.startTime, apt.serviceDuration);
+      for (const slotId of slotDocIds) {
+        try {
+          await deleteDoc(doc(db, 'slots', slotId));
+        } catch (err) {
+          console.warn('[FirebaseBookingService] Could not delete slot:', err);
+        }
+      }
+
+      // 3. Delete appointment doc
+      await deleteDoc(docSnap.ref);
+    }
+
     return true;
   }
 
   async getStats(): Promise<BookingStats> {
     const appointments = await this.listAppointments();
-    const todayStr = formatCairoDate(getCairoNow());
+    const cairoNow = getCairoNow();
+    const todayStr = formatCairoDate(cairoNow);
 
     const todayApts = appointments.filter((a) => a.date === todayStr);
     const todayPending = todayApts.filter((a) => a.status === 'pending').length;
@@ -786,11 +816,23 @@ export class FirebaseBookingService implements IBookingService {
     const noShowRate = past > 0 ? Math.round((noShow / past) * 100) : 0;
     const newPatients = appointments.filter((a) => a.patientType === 'new').length;
 
+    // Calculate current Cairo week Saturday (start) to Thursday (end)
+    const dayOfWeek = cairoNow.getDay(); // 0: Sun, 1: Mon, 2: Tue, 3: Wed, 4: Thu, 5: Fri, 6: Sat
+    const daysSinceSaturday = (dayOfWeek + 1) % 7;
+    const saturdayDate = new Date(cairoNow.getTime() - daysSinceSaturday * 24 * 60 * 60 * 1000);
+    const thursdayDate = new Date(saturdayDate.getTime() + 5 * 24 * 60 * 60 * 1000);
+    const saturdayStr = formatCairoDate(saturdayDate);
+    const thursdayStr = formatCairoDate(thursdayDate);
+
+    const thisWeekTotal = appointments.filter(
+      (a) => a.date >= saturdayStr && a.date <= thursdayStr
+    ).length;
+
     return {
       todayTotal: todayApts.length,
       todayPending,
       todayConfirmed,
-      thisWeekTotal: appointments.filter((a) => Math.abs(a.date.localeCompare(todayStr)) <= 3).length,
+      thisWeekTotal,
       pendingConfirmations,
       noShowRate,
       newPatientsCount: newPatients,
@@ -801,26 +843,60 @@ export class FirebaseBookingService implements IBookingService {
   }
 
   async getDoctors(): Promise<DoctorSchedule[]> {
-    const db = await this.getDB();
-    const { collection, getDocs } = await import('firebase/firestore');
+    const cached = getCachedData<DoctorSchedule[]>('booking_doctors');
+    if (cached) return cached;
 
-    const snap = await getDocs(collection(db, 'doctors'));
-    if (snap.empty) {
-      return INITIAL_DOCTORS;
+    const db = await this.getDB();
+    const { collection, getDocs, doc, setDoc, getDoc } = await import('firebase/firestore');
+
+    const [schedulesSnap, profilesSnap] = await Promise.all([
+      getDocs(collection(db, 'doctor_schedules')),
+      getDocs(collection(db, 'doctors')),
+    ]);
+
+    // Profiles map from CMS
+    const profileMap = new Map<string, any>();
+    profilesSnap.docs.forEach((d) => profileMap.set(d.id, d.data()));
+
+    let rawSchedules = schedulesSnap.docs.map((d) => ({
+      doctorId: d.id,
+      ...d.data(),
+    }));
+
+    // Seed doctor_schedules from INITIAL_DOCTORS only when empty AND user is owner
+    if (rawSchedules.length === 0) {
+      try {
+        const auth = await getFirebaseAuth();
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const adminDoc = await getDoc(doc(db, 'admins', currentUser.uid));
+          if (adminDoc.exists() && adminDoc.data()?.role === 'owner') {
+            for (const docObj of INITIAL_DOCTORS) {
+              await setDoc(doc(db, 'doctor_schedules', docObj.doctorId), stripUndefined(docObj));
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[FirebaseBookingService] Could not auto-seed doctor_schedules:', err);
+      }
+      rawSchedules = INITIAL_DOCTORS as any[];
     }
 
-    return snap.docs.map((d) => {
-      const data = d.data();
+    const merged: DoctorSchedule[] = rawSchedules.map((s: any) => {
+      const profile = profileMap.get(s.doctorId);
       return {
-        doctorId: d.id,
-        doctorName: data.doctorName || { ar: data.name_ar || '', en: data.name_en || '' },
-        title: data.title || { ar: data.title_ar || '', en: data.title_en || '' },
-        avatar: data.avatar || data.avatar_url,
-        isActive: data.isActive !== undefined ? data.isActive : data.is_active !== undefined ? data.is_active : true,
-        services: data.services || ['*'],
-        weeklyHours: data.weeklyHours || data.weekly_hours || INITIAL_DOCTORS[0].weeklyHours,
+        doctorId: s.doctorId,
+        doctorName: profile?.name || s.doctorName || { ar: profile?.name_ar || '', en: profile?.name_en || '' },
+        title: profile?.title || s.title || { ar: profile?.title_ar || '', en: profile?.title_en || '' },
+        avatar: profile?.photo_url || profile?.avatar || s.avatar,
+        isActive: s.isActive !== undefined ? s.isActive : true,
+        services: s.services || ['*'],
+        weeklyHours: s.weeklyHours || INITIAL_DOCTORS[0].weeklyHours,
       };
     });
+
+    setCachedData('booking_doctors', merged);
+    return merged;
   }
 
   async updateDoctor(id: string, updates: Partial<DoctorSchedule>): Promise<DoctorSchedule> {
@@ -829,9 +905,10 @@ export class FirebaseBookingService implements IBookingService {
 
     const doctors = await this.getDoctors();
     const existing = doctors.find((d) => d.doctorId === id) || INITIAL_DOCTORS[0];
-    const updated = { ...existing, ...updates, doctorId: id };
+    const updated = stripUndefined({ ...existing, ...updates, doctorId: id });
 
-    await setDoc(doc(db, 'doctors', id), updated);
+    await setDoc(doc(db, 'doctor_schedules', id), updated);
+    invalidateCachedData('booking_doctors');
     return updated;
   }
 

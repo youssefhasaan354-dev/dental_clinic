@@ -9,8 +9,18 @@ interface AdminGuardProps {
 }
 
 export const AdminGuard: React.FC<AdminGuardProps> = ({ children, allowedRoles }) => {
-  const { isAuthenticated, role } = useAuth();
+  const { isAuthenticated, role, authLoading } = useAuth();
   const location = useLocation();
+
+  if (authLoading) {
+    return (
+      <div className="d-flex align-items-center justify-content-center min-vh-100 bg-light">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading Admin...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/admin/login" state={{ from: location }} replace />;

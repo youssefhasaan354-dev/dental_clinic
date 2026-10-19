@@ -3,6 +3,7 @@
  * Implements IDataStorageService using Google Cloud Firestore.
  * Does NOT use Firebase Storage. Images are compressed client-side to WebP (max 200KB)
  * and stored as data URLs in Firestore documents.
+ * Includes localStorage client-side caching (10-minute TTL) for public getters to reduce read operations.
  */
 
 import { IDataStorageService } from './IDataStorageService';
@@ -35,6 +36,8 @@ import {
 } from '../../data/initialData';
 import { compressImageToWebP, MAX_CMS_IMAGE_SIZE_BYTES } from '../../utils/imageCompressor';
 import { getFirebaseFirestore } from '../firebase/client';
+import { getCachedData, setCachedData, invalidateCachedData } from '../../utils/firestoreCache';
+import { stripUndefined } from '../../utils/stripUndefined';
 
 export class FirebaseStorageService implements IDataStorageService {
   private initialized = false;
@@ -58,37 +61,30 @@ export class FirebaseStorageService implements IDataStorageService {
       const settingsSnap = await getDoc(doc(db, 'site_settings', 'global'));
       if (!settingsSnap.exists()) {
         await Promise.all([
-          setDoc(doc(db, 'site_settings', 'global'), initialSiteSettings),
-          setDoc(doc(db, 'clinic_info', 'global'), initialClinicInfo),
+          setDoc(doc(db, 'site_settings', 'global'), stripUndefined(initialSiteSettings)),
+          setDoc(doc(db, 'clinic_info', 'global'), stripUndefined(initialClinicInfo)),
           setDoc(doc(db, 'sections', 'global'), { list: initialSections }),
-          setDoc(doc(db, 'ratings', 'global'), initialRatings),
+          setDoc(doc(db, 'ratings', 'global'), stripUndefined(initialRatings)),
         ]);
 
         // Seed collections
         for (const s of initialServices) {
-          await setDoc(doc(db, 'services', s.id), s);
+          await setDoc(doc(db, 'services', s.id), stripUndefined(s));
         }
         for (const d of initialDoctors) {
-          await setDoc(doc(db, 'doctors', d.id), d);
+          await setDoc(doc(db, 'doctors', d.id), stripUndefined(d));
         }
         for (const a of initialArticles) {
-          await setDoc(doc(db, 'articles', a.id), a);
+          await setDoc(doc(db, 'articles', a.id), stripUndefined(a));
         }
         for (const f of initialFaqs) {
-          await setDoc(doc(db, 'faqs', f.id), f);
+          await setDoc(doc(db, 'faqs', f.id), stripUndefined(f));
         }
         for (const slot of initialImageSlots) {
-          await setDoc(doc(db, 'image_slots', slot.id), slot);
+          await setDoc(doc(db, 'image_slots', slot.id), stripUndefined(slot));
         }
 
-        await setDoc(doc(db, 'activity_logs', `log_${Date.now()}`), {
-          id: `log_${Date.now()}`,
-          timestamp: new Date().toISOString(),
-          userRole: 'owner',
-          userName: 'System',
-          action: 'System Initialized',
-          details: 'Initialized Firestore database with verified Hayaah Clinic seed data.',
-        });
+        invalidateCachedData();
       }
       this.initialized = true;
     } catch (err) {
@@ -104,11 +100,16 @@ export class FirebaseStorageService implements IDataStorageService {
   // --- Settings ---
 
   async getSettings(): Promise<SiteSettings> {
+    const cached = getCachedData<SiteSettings>('site_settings');
+    if (cached) return cached;
+
     const db = await this.getDB();
     const { doc, getDoc } = await import('firebase/firestore');
     const snap = await getDoc(doc(db, 'site_settings', 'global'));
     if (!snap.exists()) return initialSiteSettings;
-    return snap.data() as SiteSettings;
+    const data = snap.data() as SiteSettings;
+    setCachedData('site_settings', data);
+    return data;
   }
 
   async updateSettings(settings: Partial<SiteSettings>): Promise<SiteSettings> {
@@ -116,18 +117,24 @@ export class FirebaseStorageService implements IDataStorageService {
     const { doc, setDoc } = await import('firebase/firestore');
     const current = await this.getSettings();
     const updated = { ...current, ...settings };
-    await setDoc(doc(db, 'site_settings', 'global'), updated);
+    await setDoc(doc(db, 'site_settings', 'global'), stripUndefined(updated));
+    invalidateCachedData('site_settings');
     return updated;
   }
 
   // --- Clinic Info ---
 
   async getClinicInfo(): Promise<ClinicInfo> {
+    const cached = getCachedData<ClinicInfo>('clinic_info');
+    if (cached) return cached;
+
     const db = await this.getDB();
     const { doc, getDoc } = await import('firebase/firestore');
     const snap = await getDoc(doc(db, 'clinic_info', 'global'));
     if (!snap.exists()) return initialClinicInfo;
-    return snap.data() as ClinicInfo;
+    const data = snap.data() as ClinicInfo;
+    setCachedData('clinic_info', data);
+    return data;
   }
 
   async updateClinicInfo(info: Partial<ClinicInfo>): Promise<ClinicInfo> {
@@ -135,42 +142,55 @@ export class FirebaseStorageService implements IDataStorageService {
     const { doc, setDoc } = await import('firebase/firestore');
     const current = await this.getClinicInfo();
     const updated = { ...current, ...info };
-    await setDoc(doc(db, 'clinic_info', 'global'), updated);
+    await setDoc(doc(db, 'clinic_info', 'global'), stripUndefined(updated));
+    invalidateCachedData('clinic_info');
     return updated;
   }
 
   // --- Sections ---
 
   async getSections(): Promise<SectionConfig[]> {
+    const cached = getCachedData<SectionConfig[]>('sections');
+    if (cached) return cached;
+
     const db = await this.getDB();
     const { doc, getDoc } = await import('firebase/firestore');
     const snap = await getDoc(doc(db, 'sections', 'global'));
     if (!snap.exists()) return initialSections;
-    return (snap.data() as { list: SectionConfig[] }).list || initialSections;
+    const list = (snap.data() as { list: SectionConfig[] }).list || initialSections;
+    setCachedData('sections', list);
+    return list;
   }
 
   async updateSections(sections: SectionConfig[]): Promise<SectionConfig[]> {
     const db = await this.getDB();
     const { doc, setDoc } = await import('firebase/firestore');
     await setDoc(doc(db, 'sections', 'global'), { list: sections });
+    invalidateCachedData('sections');
     return sections;
   }
 
   // --- Services ---
 
   async getServices(): Promise<ServiceItem[]> {
+    const cached = getCachedData<ServiceItem[]>('services');
+    if (cached) return cached;
+
     const db = await this.getDB();
     const { collection, getDocs } = await import('firebase/firestore');
     const snap = await getDocs(collection(db, 'services'));
     if (snap.empty) return initialServices;
     const list = snap.docs.map((d) => ({ ...d.data(), id: d.id } as ServiceItem));
-    return list.sort((a, b) => (a.order || 0) - (b.order || 0));
+    const sorted = list.sort((a, b) => (a.order || 0) - (b.order || 0));
+    setCachedData('services', sorted);
+    return sorted;
   }
 
   async saveService(service: ServiceItem): Promise<ServiceItem> {
     const db = await this.getDB();
     const { doc, setDoc } = await import('firebase/firestore');
-    await setDoc(doc(db, 'services', service.id), service);
+    await setDoc(doc(db, 'services', service.id), stripUndefined(service));
+    invalidateCachedData('services');
     return service;
   }
 
@@ -178,6 +198,7 @@ export class FirebaseStorageService implements IDataStorageService {
     const db = await this.getDB();
     const { doc, deleteDoc } = await import('firebase/firestore');
     await deleteDoc(doc(db, 'services', id));
+    invalidateCachedData('services');
   }
 
   async reorderServices(serviceIds: string[]): Promise<void> {
@@ -188,23 +209,31 @@ export class FirebaseStorageService implements IDataStorageService {
         await this.saveService({ ...s, order: i });
       }
     }
+    invalidateCachedData('services');
   }
 
-  // --- Doctors ---
+  // --- Doctors Profiles (CMS) ---
 
   async getDoctors(): Promise<DoctorProfile[]> {
+    const cached = getCachedData<DoctorProfile[]>('doctors');
+    if (cached) return cached;
+
     const db = await this.getDB();
     const { collection, getDocs } = await import('firebase/firestore');
     const snap = await getDocs(collection(db, 'doctors'));
     if (snap.empty) return initialDoctors;
     const list = snap.docs.map((d) => ({ ...d.data(), id: d.id } as DoctorProfile));
-    return list.sort((a, b) => (a.order || 0) - (b.order || 0));
+    const sorted = list.sort((a, b) => (a.order || 0) - (b.order || 0));
+    setCachedData('doctors', sorted);
+    return sorted;
   }
 
   async saveDoctor(doctor: DoctorProfile): Promise<DoctorProfile> {
     const db = await this.getDB();
     const { doc, setDoc } = await import('firebase/firestore');
-    await setDoc(doc(db, 'doctors', doctor.id), doctor);
+    await setDoc(doc(db, 'doctors', doctor.id), stripUndefined(doctor));
+    invalidateCachedData('doctors');
+    invalidateCachedData('booking_doctors');
     return doctor;
   }
 
@@ -212,23 +241,31 @@ export class FirebaseStorageService implements IDataStorageService {
     const db = await this.getDB();
     const { doc, deleteDoc } = await import('firebase/firestore');
     await deleteDoc(doc(db, 'doctors', id));
+    invalidateCachedData('doctors');
+    invalidateCachedData('booking_doctors');
   }
 
   // --- Articles ---
 
   async getArticles(): Promise<ArticleItem[]> {
+    const cached = getCachedData<ArticleItem[]>('articles');
+    if (cached) return cached;
+
     const db = await this.getDB();
     const { collection, getDocs } = await import('firebase/firestore');
     const snap = await getDocs(collection(db, 'articles'));
     if (snap.empty) return initialArticles;
     const list = snap.docs.map((d) => ({ ...d.data(), id: d.id } as ArticleItem));
-    return list.sort((a, b) => (b.publishDate || '').localeCompare(a.publishDate || ''));
+    const sorted = list.sort((a, b) => (b.publishDate || '').localeCompare(a.publishDate || ''));
+    setCachedData('articles', sorted);
+    return sorted;
   }
 
   async saveArticle(article: ArticleItem): Promise<ArticleItem> {
     const db = await this.getDB();
     const { doc, setDoc } = await import('firebase/firestore');
-    await setDoc(doc(db, 'articles', article.id), article);
+    await setDoc(doc(db, 'articles', article.id), stripUndefined(article));
+    invalidateCachedData('articles');
     return article;
   }
 
@@ -236,23 +273,30 @@ export class FirebaseStorageService implements IDataStorageService {
     const db = await this.getDB();
     const { doc, deleteDoc } = await import('firebase/firestore');
     await deleteDoc(doc(db, 'articles', id));
+    invalidateCachedData('articles');
   }
 
   // --- FAQ ---
 
   async getFaqs(): Promise<FaqItem[]> {
+    const cached = getCachedData<FaqItem[]>('faqs');
+    if (cached) return cached;
+
     const db = await this.getDB();
     const { collection, getDocs } = await import('firebase/firestore');
     const snap = await getDocs(collection(db, 'faqs'));
     if (snap.empty) return initialFaqs;
     const list = snap.docs.map((d) => ({ ...d.data(), id: d.id } as FaqItem));
-    return list.sort((a, b) => (a.order || 0) - (b.order || 0));
+    const sorted = list.sort((a, b) => (a.order || 0) - (b.order || 0));
+    setCachedData('faqs', sorted);
+    return sorted;
   }
 
   async saveFaq(faq: FaqItem): Promise<FaqItem> {
     const db = await this.getDB();
     const { doc, setDoc } = await import('firebase/firestore');
-    await setDoc(doc(db, 'faqs', faq.id), faq);
+    await setDoc(doc(db, 'faqs', faq.id), stripUndefined(faq));
+    invalidateCachedData('faqs');
     return faq;
   }
 
@@ -260,16 +304,22 @@ export class FirebaseStorageService implements IDataStorageService {
     const db = await this.getDB();
     const { doc, deleteDoc } = await import('firebase/firestore');
     await deleteDoc(doc(db, 'faqs', id));
+    invalidateCachedData('faqs');
   }
 
   // --- Ratings ---
 
   async getRatings(): Promise<RatingData> {
+    const cached = getCachedData<RatingData>('ratings');
+    if (cached) return cached;
+
     const db = await this.getDB();
     const { doc, getDoc } = await import('firebase/firestore');
     const snap = await getDoc(doc(db, 'ratings', 'global'));
     if (!snap.exists()) return initialRatings;
-    return snap.data() as RatingData;
+    const data = snap.data() as RatingData;
+    setCachedData('ratings', data);
+    return data;
   }
 
   async updateRatings(ratings: Partial<RatingData>): Promise<RatingData> {
@@ -277,18 +327,24 @@ export class FirebaseStorageService implements IDataStorageService {
     const { doc, setDoc } = await import('firebase/firestore');
     const current = await this.getRatings();
     const updated = { ...current, ...ratings };
-    await setDoc(doc(db, 'ratings', 'global'), updated);
+    await setDoc(doc(db, 'ratings', 'global'), stripUndefined(updated));
+    invalidateCachedData('ratings');
     return updated;
   }
 
   // --- Image Slots & Media (WebP <= 200KB) ---
 
   async getImageSlots(): Promise<ImageSlot[]> {
+    const cached = getCachedData<ImageSlot[]>('image_slots');
+    if (cached) return cached;
+
     const db = await this.getDB();
     const { collection, getDocs } = await import('firebase/firestore');
     const snap = await getDocs(collection(db, 'image_slots'));
     if (snap.empty) return initialImageSlots;
-    return snap.docs.map((d) => ({ ...d.data(), id: d.id } as ImageSlot));
+    const list = snap.docs.map((d) => ({ ...d.data(), id: d.id } as ImageSlot));
+    setCachedData('image_slots', list);
+    return list;
   }
 
   async updateImageSlot(slotId: string, updates: Partial<ImageSlot>): Promise<ImageSlot> {
@@ -299,7 +355,8 @@ export class FirebaseStorageService implements IDataStorageService {
     if (!snap.exists()) throw new Error(`Image slot ${slotId} not found`);
 
     const updated = { ...(snap.data() as ImageSlot), ...updates, id: slotId };
-    await updateDoc(slotRef, updates);
+    await updateDoc(slotRef, stripUndefined(updates));
+    invalidateCachedData('image_slots');
     return updated;
   }
 
@@ -313,14 +370,14 @@ export class FirebaseStorageService implements IDataStorageService {
     const { doc, setDoc } = await import('firebase/firestore');
     const mediaId = `media_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
-    await setDoc(doc(db, 'media_files', mediaId), {
+    await setDoc(doc(db, 'media_files', mediaId), stripUndefined({
       id: mediaId,
       url: webpDataUrl,
       name: file.name,
       size: Math.round(webpDataUrl.length * 0.75),
       date: new Date().toISOString(),
       metadata: metadata || null,
-    });
+    }));
 
     return webpDataUrl;
   }
@@ -363,7 +420,7 @@ export class FirebaseStorageService implements IDataStorageService {
       status: 'new',
       isDemoSubmission: false,
     };
-    await setDoc(newRef, payload);
+    await setDoc(newRef, stripUndefined(payload));
     return payload;
   }
 
@@ -375,7 +432,7 @@ export class FirebaseStorageService implements IDataStorageService {
       contactedAt: status === 'contacted' ? new Date().toISOString() : undefined,
     };
     if (internalNotes !== undefined) updates.internalNotes = internalNotes;
-    await updateDoc(doc(db, 'appointment_requests', id), updates);
+    await updateDoc(doc(db, 'appointment_requests', id), stripUndefined(updates));
   }
 
   async deleteAppointmentRequest(id: string): Promise<void> {
@@ -408,7 +465,7 @@ export class FirebaseStorageService implements IDataStorageService {
       },
     };
 
-    await setDoc(newRef, snapshot);
+    await setDoc(newRef, stripUndefined(snapshot));
     return snapshot;
   }
 
@@ -453,6 +510,8 @@ export class FirebaseStorageService implements IDataStorageService {
         await this.saveFaq(f);
       }
     }
+
+    invalidateCachedData();
   }
 
   // --- Activity Logs ---
@@ -470,7 +529,7 @@ export class FirebaseStorageService implements IDataStorageService {
         action,
         details,
       };
-      await setDoc(newRef, log);
+      await setDoc(newRef, stripUndefined(log));
     } catch (err) {
       console.warn('Could not record activity log:', err);
     }

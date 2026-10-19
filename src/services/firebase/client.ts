@@ -74,8 +74,12 @@ export async function getFirebaseFirestore(): Promise<Firestore> {
   if (firestoreInstance) return firestoreInstance;
 
   const app = await getFirebaseApp();
-  const { getFirestore } = await import('firebase/firestore');
-  firestoreInstance = getFirestore(app);
+  const { initializeFirestore, getFirestore } = await import('firebase/firestore');
+  try {
+    firestoreInstance = initializeFirestore(app, { ignoreUndefinedProperties: true });
+  } catch {
+    firestoreInstance = getFirestore(app);
+  }
   return firestoreInstance;
 }
 

@@ -14,6 +14,7 @@ import {
 import { CustomCalendar } from '../components/BookingWizard/CustomCalendar';
 import { TimeSlotPicker } from '../components/BookingWizard/TimeSlotPicker';
 import { CLINIC_DATA } from '../data/clinic';
+import { isFirebaseConfigured } from '../services/firebase/client';
 import {
   FiSearch,
   FiCalendar,
@@ -54,6 +55,7 @@ export const ManageBooking: React.FC = () => {
     };
   }, []);
 
+  const isFirebaseMode = isFirebaseConfigured();
   const bookingService = useMemo(() => getBookingService(), []);
 
   const [bookingCode, setBookingCode] = useState(searchParams.get('code') || '');
@@ -304,82 +306,136 @@ export const ManageBooking: React.FC = () => {
             {isAr ? 'إدارة وتعديل موعد الحجز' : 'Manage Your Appointment'}
           </h2>
           <p className="text-muted small mx-auto" style={{ maxWidth: '580px' }}>
-            {isAr
+            {isFirebaseMode && !urlToken
+              ? isAr
+                ? 'إدارة الموعد متاحة عبر الرابط الخاص المرسل مع تأكيد الحجز، أو بالتواصل المباشر مع العيادة.'
+                : 'Appointment management is available via the private link in your confirmation, or by contacting the clinic.'
+              : isAr
               ? 'أدخل كود الحجز (HAY-XXXXX) ورقم هاتفك للاطلاع على تفاصيل موعدك، أو إعادة جدولته، أو إلغائه.'
               : 'Enter your booking code (HAY-XXXXX) and registered mobile phone to view, reschedule, or cancel your visit.'}
           </p>
         </div>
 
-        {/* Search / Lookup Form */}
-        <div className="lookup-card card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-5 mx-auto" style={{ maxWidth: '640px' }}>
-          <form onSubmit={handleSearchSubmit}>
-            <div className="row g-3">
-              <div className="col-md-6">
-                <label className="form-label small fw-bold text-dark">
-                  {isAr ? 'كود الحجز المرجعي *' : 'Booking Code *'}
-                </label>
-                <input
-                  type="text"
-                  className="form-control text-uppercase"
-                  placeholder="HAY-4F7K2"
-                  value={bookingCode}
-                  onChange={(e) => setBookingCode(e.target.value.toUpperCase())}
-                  required
-                />
-              </div>
-
-              <div className="col-md-6">
-                <label className="form-label small fw-bold text-dark">
-                  {isAr ? 'رقم الهاتف المسجل *' : 'Registered Phone *'}
-                </label>
-                <input
-                  type="tel"
-                  className="form-control"
-                  placeholder="01012345678"
-                  dir="ltr"
-                  value={patientPhone}
-                  onChange={(e) => setPatientPhone(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="col-12 mt-4">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="btn btn-primary w-100 py-2 rounded-pill d-flex align-items-center justify-content-center gap-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-                      <span>{isAr ? 'جاري البحث عن الحجز...' : 'Searching...'}</span>
-                    </>
-                  ) : (
-                    <>
-                      <FiSearch />
-                      <span>{isAr ? 'عرض تفاصيل الحجز' : 'Find Booking'}</span>
-                    </>
-                  )}
-                </button>
+        {/* If in Firebase mode and no token in URL, show friendly message with WhatsApp & phone */}
+        {isFirebaseMode && !urlToken ? (
+          <div className="lookup-card card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-5 mx-auto text-center" style={{ maxWidth: '640px' }}>
+            <div
+              className="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mx-auto mb-3"
+              style={{ width: '64px', height: '64px' }}
+            >
+              <FiShield size={30} />
+            </div>
+            <h4 className="fw-bold mb-3">
+              {isAr ? 'رابط إدارة الحجز الشخصي' : 'Personal Booking Link Required'}
+            </h4>
+            <p className="text-muted mb-4" style={{ lineHeight: '1.7' }}>
+              {isAr
+                ? 'للحفاظ على خصوصية بياناتك الطبية، يمكنك الاطلاع على تفاصيل موعدك أو إعادة جدولته أو إلغائه عبر الرابط الشخصي السري المرسل إليك في رسالة تأكيد الحجز (عبر البريد الإلكتروني أو رسائل العيادة).'
+                : 'To protect your medical privacy, please access your booking management details via the secure personal link sent to you in your booking confirmation message.'}
+            </p>
+            <div className="alert alert-light border d-flex align-items-start gap-2 mb-4 text-start" dir={isAr ? 'rtl' : 'ltr'}>
+              <FiAlertCircle className="text-primary mt-1 flex-shrink-0" size={18} />
+              <div className="small text-muted">
+                {isAr
+                  ? 'إذا لم تتمكن من العثور على رسالة التأكيد أو الرابط، يمكنك التواصل فوراً مع فريق الاستقبال وسنقوم بمساعدتك على الفور.'
+                  : 'If you cannot locate your confirmation link, please contact our reception directly and we will be delighted to assist you.'}
               </div>
             </div>
-          </form>
-
-          {/* Feedback Alerts */}
-          {errorMsg && (
-            <div className="alert alert-danger d-flex align-items-center gap-2 mt-4 p-3 rounded-3 mb-0">
-              <FiAlertCircle className="flex-shrink-0" />
-              <span className="small">{errorMsg}</span>
+            <div className="d-flex flex-column flex-sm-row justify-content-center gap-3">
+              <a
+                href={CLINIC_DATA.whatsapp.getChatUrl(
+                  isAr
+                    ? 'مرحباً، أود الاستفسار عن رابط إدارة وتعديل موعد حجزي في عيادة حياة.'
+                    : 'Hello, I would like to inquire about managing my booking at Hayaah Clinic.'
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-success rounded-pill px-4 py-2 d-inline-flex align-items-center justify-content-center gap-2"
+              >
+                <FaWhatsapp size={18} />
+                <span>{isAr ? 'تواصل عبر واتساب' : 'WhatsApp'}</span>
+              </a>
+              <a
+                href={CLINIC_DATA.phone.telLink}
+                className="btn btn-outline-primary rounded-pill px-4 py-2 d-inline-flex align-items-center justify-content-center gap-2"
+              >
+                <FiPhone size={18} />
+                <span>{isAr ? `اتصال بالعيادة (${CLINIC_DATA.phone.display})` : `Call Clinic (${CLINIC_DATA.phone.display})`}</span>
+              </a>
             </div>
-          )}
+          </div>
+        ) : (
+          /* Search / Lookup Form (Used in Demo Mode or when token lookup has feedback) */
+          <div className="lookup-card card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-5 mx-auto" style={{ maxWidth: '640px' }}>
+            <form onSubmit={handleSearchSubmit}>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label className="form-label small fw-bold text-dark">
+                    {isAr ? 'كود الحجز المرجعي *' : 'Booking Code *'}
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control text-uppercase"
+                    placeholder="HAY-4F7K2"
+                    value={bookingCode}
+                    onChange={(e) => setBookingCode(e.target.value.toUpperCase())}
+                    required
+                  />
+                </div>
 
-          {actionSuccessMsg && (
-            <div className="alert alert-success d-flex align-items-center gap-2 mt-4 p-3 rounded-3 mb-0">
-              <FiCheckCircle className="flex-shrink-0" />
-              <span className="small">{actionSuccessMsg}</span>
-            </div>
-          )}
-        </div>
+                <div className="col-md-6">
+                  <label className="form-label small fw-bold text-dark">
+                    {isAr ? 'رقم الهاتف المسجل *' : 'Registered Phone *'}
+                  </label>
+                  <input
+                    type="tel"
+                    className="form-control"
+                    placeholder="01012345678"
+                    dir="ltr"
+                    value={patientPhone}
+                    onChange={(e) => setPatientPhone(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="col-12 mt-4">
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="btn btn-primary w-100 py-2 rounded-pill d-flex align-items-center justify-content-center gap-2"
+                  >
+                    {isLoading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+                        <span>{isAr ? 'جاري البحث عن الحجز...' : 'Searching...'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <FiSearch />
+                        <span>{isAr ? 'عرض تفاصيل الحجز' : 'Find Booking'}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            {/* Feedback Alerts */}
+            {errorMsg && (
+              <div className="alert alert-danger d-flex align-items-center gap-2 mt-4 p-3 rounded-3 mb-0">
+                <FiAlertCircle className="flex-shrink-0" />
+                <span className="small">{errorMsg}</span>
+              </div>
+            )}
+
+            {actionSuccessMsg && (
+              <div className="alert alert-success d-flex align-items-center gap-2 mt-4 p-3 rounded-3 mb-0">
+                <FiCheckCircle className="flex-shrink-0" />
+                <span className="small">{actionSuccessMsg}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Appointment Details Display */}
         {appointment && (

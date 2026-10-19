@@ -24,7 +24,7 @@ service cloud.firestore {
     }
 
     function isEditor() {
-      return isAdmin() && (getRole() == 'owner' || getRole() == 'editor');
+      return isAdmin() && (getRole() in ['owner', 'editor']);
     }
 
     function isStaff() {
@@ -35,9 +35,13 @@ service cloud.firestore {
       return isAdmin() && (getRole() in ['owner', 'receptionist']);
     }
 
+    function getAutoConfirm() {
+      return get(/databases/$(database)/documents/booking_settings/global).data.autoConfirm;
+    }
+
     // --- Admins Collection ---
     // Readable only by the signed-in user for their own doc.
-    // Client write is disabled: admins must be provisioned via console or backend.
+    // Client write is completely disabled.
     match /admins/{uid} {
       allow get: if isAuthenticated() && request.auth.uid == uid;
       allow list: if isOwner();
@@ -45,44 +49,100 @@ service cloud.firestore {
     }
 
     // --- Slots Collection (Double-booking prevention, no patient info) ---
-    // Public read: Booking wizard needs to know occupied 30-minute blocks.
-    // Create: Allowed if the slot doc does NOT already exist and payload contains required keys.
-    // Delete: Staff or via matching booking cancellation transaction.
-    // Update: Strictly denied.
+    // Public read: wizard needs to know occupied 30-min blocks.
+    // Create: requires deterministic ID `${doctorId}_${date}_${HHmm}`, existsAfter on appointment,
+    // and matching doctorId and date on the appointment.
+    // Delete: allowed for staff, or when released by the patient via the matching appointment & bookingLookup.
+    // Update: strictly denied.
     match /slots/{slotId} {
       allow read: if true;
+
       allow create: if !exists(/databases/$(database)/documents/slots/$(slotId))
                     && request.resource.data.keys().hasAll(['doctorId', 'date', 'startTime', 'appointmentId'])
-                    && request.resource.data.doctorId is string
-                    && request.resource.data.date is string
-                    && request.resource.data.startTime is string;
-      allow delete: if isOwnerOrReceptionist() || true;
+                    && request.resource.data.startTime.matches('^[0-9]{2}:[0-9]{2}$')
+                    && slotId == (
+                      request.resource.data.doctorId + '_' +
+                      request.resource.data.date + '_' +
+                      (request.resource.data.startTime.split(':')[0] + request.resource.data.startTime.split(':')[1])
+                    )
+                    && existsAfter(/databases/$(database)/documents/appointments/$(request.resource.data.appointmentId))
+                    && getAfter(/databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)).data.doctorId == request.resource.data.doctorId
+                    && getAfter(/databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)).data.date == request.resource.data.date;
+
+      allow delete: if isOwnerOrReceptionist() || (
+        exists(/databases/$(database)/documents/appointments/$(resource.data.appointmentId))
+        && existsAfter(/databases/$(database)/documents/bookingLookup/$(get(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.manageToken))
+        && (
+          getAfter(/databases/$(database)/documents/bookingLookup/$(get(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.manageToken)).data.status == 'cancelled'
+          || getAfter(/databases/$(database)/documents/bookingLookup/$(get(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.manageToken)).data.doctorId != resource.data.doctorId
+          || getAfter(/databases/$(database)/documents/bookingLookup/$(get(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.manageToken)).data.date != resource.data.date
+          || getAfter(/databases/$(database)/documents/bookingLookup/$(get(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.manageToken)).data.startTime != resource.data.startTime
+        )
+      );
+
       allow update: if false;
     }
 
     // --- Appointments Collection (Contains patient data) ---
     // Public clients must NOT be able to list or read appointments.
-    // Public create allowed only with valid initial status ('pending' or 'confirmed').
-    // Read/update/delete restricted to staff roles (viewer read-only).
+    // Public create allowed only with valid fields and without internalNotes.
+    // Patient update allowed ONLY when synchronized with bookingLookup via manageToken.
+    // Staff update/delete allowed for owner/receptionist.
     match /appointments/{appointmentId} {
       allow create: if request.resource.data.status in ['pending', 'confirmed']
-                    && request.resource.data.keys().hasAll(['patientName', 'patientPhone', 'serviceId', 'date', 'startTime', 'bookingCode']);
+                    && request.resource.data.keys().hasAll(['patientName', 'patientPhone', 'serviceId', 'date', 'startTime', 'bookingCode', 'manageToken'])
+                    && !('internalNotes' in request.resource.data);
+
       allow read: if isStaff();
-      allow update, delete: if isOwnerOrReceptionist();
+
+      allow update: if isOwnerOrReceptionist() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'cancelledAt', 'cancellationReason', 'date', 'startTime', 'endTime', 'doctorId', 'updatedAt'
+        ])
+        && existsAfter(/databases/$(database)/documents/bookingLookup/$(resource.data.manageToken))
+        && getAfter(/databases/$(database)/documents/bookingLookup/$(resource.data.manageToken)).data.status == request.resource.data.status
+        && getAfter(/databases/$(database)/documents/bookingLookup/$(resource.data.manageToken)).data.date == request.resource.data.date
+        && getAfter(/databases/$(database)/documents/bookingLookup/$(resource.data.manageToken)).data.startTime == request.resource.data.startTime
+        && getAfter(/databases/$(database)/documents/bookingLookup/$(resource.data.manageToken)).data.endTime == request.resource.data.endTime
+        && getAfter(/databases/$(database)/documents/bookingLookup/$(resource.data.manageToken)).data.doctorId == request.resource.data.doctorId
+        && (
+          request.resource.data.status == 'cancelled'
+          || request.resource.data.status == (getAutoConfirm() == true ? 'confirmed' : 'pending')
+        )
+      );
+
+      allow delete: if isOwnerOrReceptionist();
     }
 
     // --- BookingLookup Collection (Patient self-service without login) ---
-    // Public get by exact manageToken ID is allowed.
-    // List is NEVER public (staff only).
-    // Update allowed only to cancel (setting status to 'cancelled') or by staff.
+    // Public get by exact token ID is allowed; list is NEVER public.
+    // Create requires matching appointment existsAfter and manageToken equals document ID.
+    // Update allowed only for patient self-service (status -> cancelled, or reschedule pending/confirmed).
     match /bookingLookup/{token} {
       allow get: if true;
       allow list: if isStaff();
-      allow create: if request.resource.data.status in ['pending', 'confirmed'];
+
+      allow create: if request.resource.data.status in ['pending', 'confirmed']
+                    && existsAfter(/databases/$(database)/documents/appointments/$(request.resource.data.appointmentId))
+                    && getAfter(/databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)).data.manageToken == token;
+
       allow update: if isStaff() || (
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'cancelledAt', 'cancellationReason', 'updatedAt', 'date', 'startTime', 'endTime', 'doctorId'])
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'cancelledAt', 'cancellationReason', 'updatedAt', 'date', 'startTime', 'endTime', 'doctorId'
+        ])
+        && (
+          request.resource.data.status == 'cancelled'
+          || request.resource.data.status == (getAutoConfirm() == true ? 'confirmed' : 'pending')
+        )
       );
+
       allow delete: if isStaff();
+    }
+
+    // --- Doctor Schedules (Booking availability & doctor hours) ---
+    match /doctor_schedules/{id} {
+      allow read: if true;
+      allow write: if isEditor();
     }
 
     // --- Blocked Slots (Doctor breaks and clinic closures) ---
@@ -160,7 +220,7 @@ service cloud.firestore {
 
     match /activity_logs/{id} {
       allow read: if isStaff();
-      allow create: if true;
+      allow create: if isStaff();
       allow update, delete: if isOwner();
     }
 
