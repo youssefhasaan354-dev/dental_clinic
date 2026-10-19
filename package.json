@@ -10,7 +10,7 @@
     "build": "npm run lint && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:rules": "firebase emulators:exec --only firestore \"node scripts/test-rules.mjs\""
+    "test:rules": "firebase emulators:exec --only firestore \"node scripts/test-rules.mjs && vitest run src/services/booking/__tests__/serviceIntegration.test.ts\""
   },
   "dependencies": {
     "bootstrap": "^5.3.3",

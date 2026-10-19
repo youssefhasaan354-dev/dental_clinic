@@ -172,7 +172,7 @@ export class DemoBookingService implements IBookingService {
     }
 
     // 5. Build appointment entity
-    const assignedDoctorId = data.doctorId && data.doctorId !== 'any' ? data.doctorId : (targetSlot.doctorId || 'doc-ortho');
+    const assignedDoctorId = data.doctorId && data.doctorId !== 'any' ? data.doctorId : (targetSlot.doctorId || 'doc-1');
     const doctorObj = doctors.find((d) => d.doctorId === assignedDoctorId);
     const endTime = addMinutesToTime(data.startTime, duration);
     const bookingCode = generateBookingCode();

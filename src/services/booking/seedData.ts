@@ -11,17 +11,17 @@ import { DEFAULT_BOOKING_SETTINGS, getCairoNow } from './slotEngine';
 
 export const INITIAL_DOCTORS: DoctorSchedule[] = [
   {
-    doctorId: 'doc-ortho',
+    doctorId: 'doc-1',
     doctorName: {
-      ar: 'استشاري تقويم الأسنان والفكين', // Neutral title (no invented names)
-      en: 'Orthodontics & Dentofacial Consultant',
+      ar: 'فريق طب وجراحة الفم والأسنان',
+      en: 'Oral & Dental Surgery Team',
     },
     title: {
-      ar: 'استشاري تقويم وتجميل الابتسامة',
-      en: 'Orthodontics Consultant',
+      ar: 'أطباء أسنان معتمدون',
+      en: 'Certified Dental Practitioners',
     },
     isActive: true,
-    services: ['orthodontics-consult', 'checkup-cleaning', 'general-checkup'],
+    services: ['checkup-cleaning', 'general-checkup', 'scaling-polishing', 'teeth-whitening', 'pediatric-dentistry', 'laser-whitening'],
     weeklyHours: {
       0: { isWorking: true, start: '10:00', end: '22:00' }, // Sun
       1: { isWorking: true, start: '10:00', end: '22:00' }, // Mon
@@ -33,61 +33,17 @@ export const INITIAL_DOCTORS: DoctorSchedule[] = [
     },
   },
   {
-    doctorId: 'doc-implants',
+    doctorId: 'doc-2',
     doctorName: {
-      ar: 'أخصائي زراعة وجراحة الأسنان',
-      en: 'Dental Implants & Oral Surgery Specialist',
+      ar: 'استشاريو علاج الجذور والتركيبات',
+      en: 'Endodontics & Prosthodontics Consultants',
     },
     title: {
-      ar: 'أخصائي جراحة وزراعة الأسنان',
-      en: 'Implantology Specialist',
+      ar: 'أخصائيو علاج العصب والتركيبات الثابتة',
+      en: 'Endodontic & Restorative Specialists',
     },
     isActive: true,
-    services: ['dental-implants', 'implants-consult', 'checkup-cleaning', 'general-checkup'],
-    weeklyHours: {
-      0: { isWorking: true, start: '10:00', end: '22:00' },
-      1: { isWorking: true, start: '10:00', end: '22:00' },
-      2: { isWorking: true, start: '10:00', end: '22:00' },
-      3: { isWorking: true, start: '10:00', end: '22:00' },
-      4: { isWorking: true, start: '10:00', end: '22:00' },
-      5: { isWorking: false, start: '00:00', end: '00:00' },
-      6: { isWorking: true, start: '10:00', end: '22:00' },
-    },
-  },
-  {
-    doctorId: 'doc-endo',
-    doctorName: {
-      ar: 'أخصائي علاج الجذور وعصب الأسنان',
-      en: 'Endodontics & Root Canal Specialist',
-    },
-    title: {
-      ar: 'أخصائي المعالجة اللبية وحشو العصب',
-      en: 'Endodontics Specialist',
-    },
-    isActive: true,
-    services: ['root-canal', 'endodontics', 'cosmetic-fillings', 'checkup-cleaning', 'general-checkup'],
-    weeklyHours: {
-      0: { isWorking: true, start: '10:00', end: '22:00' },
-      1: { isWorking: true, start: '10:00', end: '22:00' },
-      2: { isWorking: true, start: '10:00', end: '22:00' },
-      3: { isWorking: true, start: '10:00', end: '22:00' },
-      4: { isWorking: true, start: '10:00', end: '22:00' },
-      5: { isWorking: false, start: '00:00', end: '00:00' },
-      6: { isWorking: true, start: '10:00', end: '22:00' },
-    },
-  },
-  {
-    doctorId: 'doc-pediatric',
-    doctorName: {
-      ar: 'أخصائية طب أسنان الأطفال وتجميل الأسنان',
-      en: 'Pediatric & Aesthetic Dentistry Specialist',
-    },
-    title: {
-      ar: 'أخصائية أسنان الأطفال والتجميل',
-      en: 'Pediatric & Cosmetic Dentist',
-    },
-    isActive: true,
-    services: ['pediatric-dentistry', 'teeth-whitening', 'laser-whitening', 'scaling-polishing', 'general-checkup'],
+    services: ['root-canal', 'endodontics', 'cosmetic-fillings', 'dental-implants', 'implants-consult', 'orthodontics-consult', 'crowns-bridges'],
     weeklyHours: {
       0: { isWorking: true, start: '10:00', end: '22:00' },
       1: { isWorking: true, start: '10:00', end: '22:00' },
@@ -126,14 +82,14 @@ export function generateSeedAppointments(): Appointment[] {
   ];
 
   const sampleServices = [
-    { id: 'scaling-polishing', ar: 'تنظيف وتلميع الأسنان', en: 'Scaling & Polishing', dur: 30, doc: 'doc-pediatric' },
-    { id: 'teeth-whitening', ar: 'تبييض الأسنان بالليزر', en: 'Laser Teeth Whitening', dur: 60, doc: 'doc-pediatric' },
-    { id: 'root-canal', ar: 'علاج جذور الأسنان (حشو عصب)', en: 'Root Canal Treatment', dur: 60, doc: 'doc-endo' },
-    { id: 'dental-implants', ar: 'استشارة وزراعة الأسنان', en: 'Dental Implants Consult', dur: 45, doc: 'doc-implants' },
-    { id: 'cosmetic-fillings', ar: 'حشو الأسنان التجميلي', en: 'Cosmetic Fillings', dur: 45, doc: 'doc-endo' },
-    { id: 'pediatric-dentistry', ar: 'طب أسنان الأطفال والوقاية', en: 'Pediatric Dentistry', dur: 30, doc: 'doc-pediatric' },
-    { id: 'orthodontics-consult', ar: 'استشارة تقويم الأسنان', en: 'Orthodontics Consultation', dur: 45, doc: 'doc-ortho' },
-    { id: 'general-checkup', ar: 'كشف واستشارة عامة', en: 'General Dental Checkup', dur: 30, doc: 'doc-ortho' },
+    { id: 'scaling-polishing', ar: 'تنظيف وتلميع الأسنان', en: 'Scaling & Polishing', dur: 30, doc: 'doc-1' },
+    { id: 'teeth-whitening', ar: 'تبييض الأسنان بالليزر', en: 'Laser Teeth Whitening', dur: 60, doc: 'doc-1' },
+    { id: 'root-canal', ar: 'علاج جذور الأسنان (حشو عصب)', en: 'Root Canal Treatment', dur: 60, doc: 'doc-2' },
+    { id: 'dental-implants', ar: 'استشارة وزراعة الأسنان', en: 'Dental Implants Consult', dur: 45, doc: 'doc-2' },
+    { id: 'cosmetic-fillings', ar: 'حشو الأسنان التجميلي', en: 'Cosmetic Fillings', dur: 45, doc: 'doc-2' },
+    { id: 'pediatric-dentistry', ar: 'طب أسنان الأطفال والوقاية', en: 'Pediatric Dentistry', dur: 30, doc: 'doc-1' },
+    { id: 'orthodontics-consult', ar: 'استشارة تقويم الأسنان', en: 'Orthodontics Consultation', dur: 45, doc: 'doc-2' },
+    { id: 'general-checkup', ar: 'كشف واستشارة عامة', en: 'General Dental Checkup', dur: 30, doc: 'doc-1' },
   ];
 
   // Distribution:

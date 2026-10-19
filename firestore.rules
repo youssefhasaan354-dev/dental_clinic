@@ -35,8 +35,12 @@ service cloud.firestore {
       return isAdmin() && (getRole() in ['owner', 'receptionist']);
     }
 
+    function hasBookingSettings() {
+      return exists(/databases/$(database)/documents/booking_settings/global);
+    }
+
     function getAutoConfirm() {
-      return get(/databases/$(database)/documents/booking_settings/global).data.autoConfirm;
+      return hasBookingSettings() && get(/databases/$(database)/documents/booking_settings/global).data.autoConfirm == true;
     }
 
     // --- Admins Collection ---
@@ -76,7 +80,8 @@ service cloud.firestore {
           getAfter(/databases/$(database)/documents/bookingLookup/$(get(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.manageToken)).data.status == 'cancelled'
           || getAfter(/databases/$(database)/documents/bookingLookup/$(get(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.manageToken)).data.doctorId != resource.data.doctorId
           || getAfter(/databases/$(database)/documents/bookingLookup/$(get(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.manageToken)).data.date != resource.data.date
-          || getAfter(/databases/$(database)/documents/bookingLookup/$(get(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.manageToken)).data.startTime != resource.data.startTime
+          || resource.data.startTime < getAfter(/databases/$(database)/documents/bookingLookup/$(get(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.manageToken)).data.startTime
+          || resource.data.startTime >= getAfter(/databases/$(database)/documents/bookingLookup/$(get(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.manageToken)).data.endTime
         )
       );
 
@@ -96,7 +101,8 @@ service cloud.firestore {
       allow read: if isStaff();
 
       allow update: if isOwnerOrReceptionist() || (
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        resource.data.status in ['pending', 'confirmed']
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'status', 'cancelledAt', 'cancellationReason', 'date', 'startTime', 'endTime', 'doctorId', 'updatedAt'
         ])
         && existsAfter(/databases/$(database)/documents/bookingLookup/$(resource.data.manageToken))
@@ -107,7 +113,16 @@ service cloud.firestore {
         && getAfter(/databases/$(database)/documents/bookingLookup/$(resource.data.manageToken)).data.doctorId == request.resource.data.doctorId
         && (
           request.resource.data.status == 'cancelled'
-          || request.resource.data.status == (getAutoConfirm() == true ? 'confirmed' : 'pending')
+          || (
+            request.resource.data.status == (getAutoConfirm() == true ? 'confirmed' : 'pending')
+            && (
+              !(request.resource.data.date != resource.data.date || request.resource.data.startTime != resource.data.startTime || request.resource.data.doctorId != resource.data.doctorId)
+              || (
+                existsAfter(/databases/$(database)/documents/slots/$(request.resource.data.doctorId + '_' + request.resource.data.date + '_' + (request.resource.data.startTime.split(':')[0] + request.resource.data.startTime.split(':')[1])))
+                && getAfter(/databases/$(database)/documents/slots/$(request.resource.data.doctorId + '_' + request.resource.data.date + '_' + (request.resource.data.startTime.split(':')[0] + request.resource.data.startTime.split(':')[1]))).data.appointmentId == appointmentId
+              )
+            )
+          )
         )
       );
 
@@ -127,12 +142,28 @@ service cloud.firestore {
                     && getAfter(/databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)).data.manageToken == token;
 
       allow update: if isStaff() || (
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        resource.data.status in ['pending', 'confirmed']
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'status', 'cancelledAt', 'cancellationReason', 'updatedAt', 'date', 'startTime', 'endTime', 'doctorId'
         ])
+        && existsAfter(/databases/$(database)/documents/appointments/$(resource.data.appointmentId))
+        && getAfter(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.status == request.resource.data.status
+        && getAfter(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.date == request.resource.data.date
+        && getAfter(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.startTime == request.resource.data.startTime
+        && getAfter(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.endTime == request.resource.data.endTime
+        && getAfter(/databases/$(database)/documents/appointments/$(resource.data.appointmentId)).data.doctorId == request.resource.data.doctorId
         && (
           request.resource.data.status == 'cancelled'
-          || request.resource.data.status == (getAutoConfirm() == true ? 'confirmed' : 'pending')
+          || (
+            request.resource.data.status == (getAutoConfirm() == true ? 'confirmed' : 'pending')
+            && (
+              !(request.resource.data.date != resource.data.date || request.resource.data.startTime != resource.data.startTime || request.resource.data.doctorId != resource.data.doctorId)
+              || (
+                existsAfter(/databases/$(database)/documents/slots/$(request.resource.data.doctorId + '_' + request.resource.data.date + '_' + (request.resource.data.startTime.split(':')[0] + request.resource.data.startTime.split(':')[1])))
+                && getAfter(/databases/$(database)/documents/slots/$(request.resource.data.doctorId + '_' + request.resource.data.date + '_' + (request.resource.data.startTime.split(':')[0] + request.resource.data.startTime.split(':')[1]))).data.appointmentId == resource.data.appointmentId
+              )
+            )
+          )
         )
       );
 

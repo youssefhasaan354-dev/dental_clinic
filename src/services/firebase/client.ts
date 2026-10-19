@@ -22,6 +22,10 @@ export function isFirebaseConfigured(): boolean {
     return false;
   }
 
+  if (import.meta.env.DEV && import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true') {
+    return true;
+  }
+
   const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
   const authDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN;
   const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
@@ -52,10 +56,13 @@ export async function getFirebaseApp(): Promise<FirebaseApp> {
   const { initializeApp, getApps, getApp } = await import('firebase/app');
 
   const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'emulator-api-key',
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'emulator.firebaseapp.com',
+    projectId:
+      import.meta.env.VITE_FIREBASE_PROJECT_ID ||
+      (typeof process !== 'undefined' && (process.env?.TEST_PROJECT_ID || process.env?.GCLOUD_PROJECT)) ||
+      'test-rules-project',
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:1234567890:web:abcdef',
   };
 
   if (getApps().length === 0) {
@@ -80,6 +87,28 @@ export async function getFirebaseFirestore(): Promise<Firestore> {
   } catch {
     firestoreInstance = getFirestore(app);
   }
+
+  // Connect to Firestore emulator in dev/test when enabled
+  if (
+    import.meta.env.DEV &&
+    (import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true' ||
+      (typeof process !== 'undefined' && process.env?.FIRESTORE_EMULATOR_HOST))
+  ) {
+    try {
+      const { connectFirestoreEmulator } = await import('firebase/firestore');
+      const host =
+        (typeof process !== 'undefined' && process.env?.FIRESTORE_EMULATOR_HOST?.split(':')[0]) ||
+        '127.0.0.1';
+      const port = Number(
+        (typeof process !== 'undefined' && process.env?.FIRESTORE_EMULATOR_HOST?.split(':')[1]) ||
+        8080
+      );
+      connectFirestoreEmulator(firestoreInstance, host, port);
+    } catch {
+      // Ignore if already connected
+    }
+  }
+
   return firestoreInstance;
 }
 

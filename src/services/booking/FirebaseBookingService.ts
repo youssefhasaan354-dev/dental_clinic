@@ -311,10 +311,16 @@ export class FirebaseBookingService implements IBookingService {
 
     try {
       await runTransaction(db, async (tx) => {
-        // Transaction READS first
-        const apptRef = doc(db, 'appointments', apt.id);
+        // Transaction READS: only read bookingLookup (non-staff cannot read appointments)
         const lookupRef = doc(db, 'bookingLookup', token);
-        await Promise.all([tx.get(apptRef), tx.get(lookupRef)]);
+        const lookupSnap = await tx.get(lookupRef);
+        if (!lookupSnap.exists()) {
+          throw new Error('Appointment not found');
+        }
+        const currentStatus = lookupSnap.data()?.status;
+        if (currentStatus !== 'pending' && currentStatus !== 'confirmed') {
+          throw new Error('This appointment cannot be cancelled.');
+        }
 
         // Transaction WRITES all together: slots delete, bookingLookup update, appointments update
         slotDocIds.forEach((slotId) => {
@@ -329,7 +335,7 @@ export class FirebaseBookingService implements IBookingService {
         });
 
         tx.update(lookupRef, cancelUpdates);
-        tx.update(apptRef, cancelUpdates);
+        tx.update(doc(db, 'appointments', apt.id), cancelUpdates);
       });
 
       notify({
@@ -371,17 +377,29 @@ export class FirebaseBookingService implements IBookingService {
     const nowIso = new Date().toISOString();
     const targetStatus = (settings.autoConfirm ? 'confirmed' : 'pending') as AppointmentStatus;
 
+    const oldSet = new Set(oldSlotIds);
+    const newSet = new Set(newSlotIds);
+
+    const slotsToDelete = oldSlotIds.filter((id) => !newSet.has(id));
+    const slotsToCreate = newBlocks.filter((b) => !oldSet.has(getSlotDocId(chosenDoctorId, params.newDate, b)));
+
     try {
       const updated = await runTransaction(db, async (tx) => {
-        // Transaction READS first: check existing doc and new slot availability
-        const apptRef = doc(db, 'appointments', apt.id);
+        // Transaction READS: only read bookingLookup and new slot availability (NEVER read appointments)
         const lookupRef = doc(db, 'bookingLookup', params.token);
 
-        const [, , ...newSlotSnaps] = await Promise.all([
-          tx.get(apptRef),
+        const [lookupSnap, ...newSlotSnaps] = await Promise.all([
           tx.get(lookupRef),
           ...newSlotIds.map((id) => tx.get(doc(db, 'slots', id))),
         ]);
+
+        if (!lookupSnap.exists()) {
+          throw new Error('Appointment not found');
+        }
+        const currentStatus = lookupSnap.data()?.status;
+        if (currentStatus !== 'pending' && currentStatus !== 'confirmed') {
+          throw new Error('This appointment cannot be rescheduled.');
+        }
 
         const isCollision = newSlotSnaps.some((snap) => {
           if (!snap.exists()) return false;
@@ -393,12 +411,14 @@ export class FirebaseBookingService implements IBookingService {
           throw new Error('SLOT_TAKEN');
         }
 
-        // Transaction WRITES: delete old slots, set new slots, update bookingLookup, update appointments
-        oldSlotIds.forEach((id) => {
+        // Transaction WRITES:
+        // Delete only slots in old but not new
+        slotsToDelete.forEach((id) => {
           tx.delete(doc(db, 'slots', id));
         });
 
-        newBlocks.forEach((block) => {
+        // Create only slots in new but not old
+        slotsToCreate.forEach((block) => {
           const slotId = getSlotDocId(chosenDoctorId, params.newDate, block);
           tx.set(doc(db, 'slots', slotId), {
             doctorId: chosenDoctorId,
@@ -419,7 +439,7 @@ export class FirebaseBookingService implements IBookingService {
         });
 
         tx.update(lookupRef, rescheduleUpdates);
-        tx.update(apptRef, rescheduleUpdates);
+        tx.update(doc(db, 'appointments', apt.id), rescheduleUpdates);
 
         return {
           ...apt,
@@ -522,6 +542,12 @@ export class FirebaseBookingService implements IBookingService {
     const newSlotIds = newBlocks.map((b) => getSlotDocId(chosenDoctorId, params.newDate, b));
     const nowIso = new Date().toISOString();
 
+    const oldSet = new Set(oldSlotIds);
+    const newSet = new Set(newSlotIds);
+
+    const slotsToDelete = oldSlotIds.filter((id) => !newSet.has(id));
+    const slotsToCreate = newBlocks.filter((b) => !oldSet.has(getSlotDocId(chosenDoctorId, params.newDate, b)));
+
     try {
       const updated = await runTransaction(db, async (tx) => {
         const snaps = await Promise.all(newSlotIds.map((id) => tx.get(doc(db, 'slots', id))));
@@ -529,8 +555,8 @@ export class FirebaseBookingService implements IBookingService {
           throw new Error('SLOT_TAKEN');
         }
 
-        oldSlotIds.forEach((id) => tx.delete(doc(db, 'slots', id)));
-        newBlocks.forEach((block) => {
+        slotsToDelete.forEach((id) => tx.delete(doc(db, 'slots', id)));
+        slotsToCreate.forEach((block) => {
           tx.set(doc(db, 'slots', getSlotDocId(chosenDoctorId, params.newDate, block)), {
             doctorId: chosenDoctorId,
             date: params.newDate,
@@ -540,13 +566,18 @@ export class FirebaseBookingService implements IBookingService {
           });
         });
 
-        tx.update(doc(db, 'appointments', apt.id), {
+        const updates = stripUndefined({
           date: params.newDate,
           startTime: params.newStartTime,
           endTime: newEndTime,
           doctorId: chosenDoctorId,
           updatedAt: nowIso,
         });
+
+        if (apt.manageToken) {
+          tx.update(doc(db, 'bookingLookup', apt.manageToken), updates);
+        }
+        tx.update(doc(db, 'appointments', apt.id), updates);
 
         return {
           ...apt,
@@ -714,11 +745,28 @@ export class FirebaseBookingService implements IBookingService {
     if (cached) return cached;
 
     const db = await this.getDB();
-    const { doc, getDoc } = await import('firebase/firestore');
+    const { doc, getDoc, setDoc } = await import('firebase/firestore');
 
     const snap = await getDoc(doc(db, 'booking_settings', 'global'));
-    if (!snap.exists()) return DEFAULT_BOOKING_SETTINGS;
-    const data = snap.data() as BookingSettings;
+    if (!snap.exists()) {
+      try {
+        const auth = await getFirebaseAuth();
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const adminDoc = await getDoc(doc(db, 'admins', currentUser.uid));
+          if (adminDoc.exists() && adminDoc.data()?.role === 'owner') {
+            await setDoc(doc(db, 'booking_settings', 'global'), stripUndefined(DEFAULT_BOOKING_SETTINGS));
+          }
+        }
+      } catch (err) {
+        console.warn('[FirebaseBookingService] Could not auto-seed booking_settings/global:', err);
+      }
+      return DEFAULT_BOOKING_SETTINGS;
+    }
+    const data: BookingSettings = {
+      ...DEFAULT_BOOKING_SETTINGS,
+      ...(snap.data() as Partial<BookingSettings>),
+    };
     setCachedData('booking_settings', data);
     return data;
   }

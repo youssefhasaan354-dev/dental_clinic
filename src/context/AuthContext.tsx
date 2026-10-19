@@ -100,6 +100,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 });
                 setAuthError(null);
                 setAuthLoading(false);
+
+                // Auto-seed booking_settings/global if owner session and doc missing
+                if (data.role === 'owner') {
+                  (async () => {
+                    try {
+                      const settingsSnap = await getDoc(doc(db, 'booking_settings', 'global'));
+                      if (!settingsSnap.exists()) {
+                        const { DEFAULT_BOOKING_SETTINGS } = await import('../services/booking/slotEngine');
+                        const { setDoc } = await import('firebase/firestore');
+                        await setDoc(doc(db, 'booking_settings', 'global'), DEFAULT_BOOKING_SETTINGS);
+                      }
+                    } catch (e) {
+                      console.warn('[AuthContext] Auto-seed booking_settings/global skipped:', e);
+                    }
+                  })();
+                }
                 return;
               }
             }
@@ -200,6 +216,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           role: data.role as UserRole,
           email: cred.user.email || email,
         };
+
+        if (data.role === 'owner') {
+          try {
+            const settingsSnap = await getDoc(doc(db, 'booking_settings', 'global'));
+            if (!settingsSnap.exists()) {
+              const { DEFAULT_BOOKING_SETTINGS } = await import('../services/booking/slotEngine');
+              const { setDoc } = await import('firebase/firestore');
+              await setDoc(doc(db, 'booking_settings', 'global'), DEFAULT_BOOKING_SETTINGS);
+            }
+          } catch (e) {
+            console.warn('[AuthContext] Auto-seed booking_settings/global skipped:', e);
+          }
+        }
 
         setUser(loggedInUser);
         return { success: true };

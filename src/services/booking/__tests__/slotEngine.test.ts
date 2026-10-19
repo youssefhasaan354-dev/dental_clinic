@@ -14,7 +14,7 @@ import { DoctorSchedule, Appointment, BlockedSlot } from '../types';
 // Mock doctors with Saturday-Thursday 10:00-22:00 schedule (Friday closed)
 const mockDoctors: DoctorSchedule[] = [
   {
-    doctorId: 'doc-ortho',
+    doctorId: 'doc-1',
     doctorName: { ar: 'استشاري التقويم', en: 'Orthodontics Consultant' },
     title: { ar: 'استشاري تقويم الأسنان', en: 'Orthodontics Consultant' },
     isActive: true,
@@ -30,7 +30,7 @@ const mockDoctors: DoctorSchedule[] = [
     },
   },
   {
-    doctorId: 'doc-implants',
+    doctorId: 'doc-2',
     doctorName: { ar: 'أخصائي الزراعة', en: 'Implantology Specialist' },
     title: { ar: 'أخصائي زراعة الأسنان', en: 'Implantology Specialist' },
     isActive: true,
@@ -115,7 +115,7 @@ describe('Slot Engine - Core Rules & Availability', () => {
         serviceId: 'checkup-cleaning',
         serviceName: { ar: 'كشف وتنظيف', en: 'Checkup' },
         serviceDuration: 30,
-        doctorId: 'doc-ortho',
+        doctorId: 'doc-1',
         date: monday,
         startTime: '11:00',
         endTime: '11:30',
@@ -126,11 +126,11 @@ describe('Slot Engine - Core Rules & Availability', () => {
       },
     ];
 
-    // Check with doc-ortho specifically
+    // Check with doc-1 specifically
     const orthoResult = computeDayAvailability({
       date: monday,
       serviceDurationMinutes: 30,
-      doctorId: 'doc-ortho',
+      doctorId: 'doc-1',
       existingAppointments: existing,
       blockedSlots: [],
       doctors: mockDoctors,
@@ -290,7 +290,7 @@ describe('Cancellation Window Enforcement', () => {
       serviceId: 'checkup-cleaning',
       serviceName: { ar: 'كشف', en: 'Checkup' },
       serviceDuration: 30,
-      doctorId: 'doc-ortho',
+      doctorId: 'doc-1',
       date: '2026-10-25',
       startTime: '14:00',
       endTime: '14:30',
@@ -315,7 +315,7 @@ describe('Cancellation Window Enforcement', () => {
       serviceId: 'checkup-cleaning',
       serviceName: { ar: 'كشف', en: 'Checkup' },
       serviceDuration: 30,
-      doctorId: 'doc-ortho',
+      doctorId: 'doc-1',
       date: '2026-10-25',
       startTime: '14:00',
       endTime: '14:30',
