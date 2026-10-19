@@ -42,6 +42,11 @@ export interface IBookingService {
   getAppointmentByCode(code: string, phone: string): Promise<Appointment | null>;
 
   /**
+   * Patient self-service lookup by secret manageToken (no login required)
+   */
+  getAppointmentByToken?(token: string): Promise<Appointment | null>;
+
+  /**
    * Cancel appointment respecting clinic cancellation window policy
    */
   cancelAppointment(
@@ -51,9 +56,31 @@ export interface IBookingService {
   ): Promise<{ success: boolean; error?: string }>;
 
   /**
+   * Cancel appointment by patient manageToken
+   */
+  cancelAppointmentByToken?(
+    token: string,
+    reason?: string
+  ): Promise<{ success: boolean; error?: string }>;
+
+  /**
    * Reschedule an existing appointment to a new date/time
    */
   rescheduleAppointment(params: RescheduleAppointmentDTO): Promise<{
+    success: boolean;
+    appointment?: Appointment;
+    error?: string;
+  }>;
+
+  /**
+   * Reschedule appointment by patient manageToken
+   */
+  rescheduleAppointmentByToken?(params: {
+    token: string;
+    newDate: string;
+    newStartTime: string;
+    newDoctorId?: string;
+  }): Promise<{
     success: boolean;
     appointment?: Appointment;
     error?: string;

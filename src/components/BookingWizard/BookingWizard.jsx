@@ -1067,12 +1067,16 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
             {/* Manage booking direct link */}
             <div className="manage-booking-footer-link pt-3 border-top">
               <Link
-                to={`/booking/manage?code=${confirmedAppointment.bookingCode}&phone=${encodeURIComponent(
-                  confirmedAppointment.patientPhone
-                )}`}
+                to={
+                  confirmedAppointment.manageToken
+                    ? `/booking/manage?token=${confirmedAppointment.manageToken}`
+                    : `/booking/manage?code=${confirmedAppointment.bookingCode}&phone=${encodeURIComponent(
+                        confirmedAppointment.patientPhone
+                      )}`
+                }
                 className="text-primary fw-bold text-decoration-none small d-inline-flex align-items-center gap-1"
               >
-                <span>{isAr ? 'عرض أو تعديل أو إلغاء هذا الحجز' : 'View, Reschedule or Cancel this Booking'}</span>
+                <span>{isAr ? 'عرض أو تعديل أو إلغاء هذا الحجز (رابط مباشر)' : 'View, Reschedule or Cancel this Booking'}</span>
                 {isAr ? <FiArrowLeft /> : <FiArrowRight />}
               </Link>
             </div>

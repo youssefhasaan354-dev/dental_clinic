@@ -1,18 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Shield, UserCheck, Edit3, Eye, PhoneCall, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Shield, Edit3, Eye, PhoneCall, ArrowRight, ArrowLeft, Lock, Mail, AlertCircle } from 'lucide-react';
 import { UserRole } from '../types';
 
 export const AdminLogin: React.FC = () => {
-  const { loginAsDemoUser, isAuthenticated } = useAuth();
+  const { loginAsDemoUser, loginWithEmail, isAuthenticated, role, isFirebaseMode, authError, clearAuthError } = useAuth();
   const { language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
+
+  // Demo mode state
   const [selectedRole, setSelectedRole] = useState<UserRole>('owner');
+
+  // Email/password form state
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const isAr = language === 'ar';
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (role === 'receptionist') {
+        navigate('/admin/requests');
+      } else {
+        navigate('/admin');
+      }
+    }
+  }, [isAuthenticated, role, navigate]);
 
   const rolesList: {
     role: UserRole;
@@ -61,21 +78,50 @@ export const AdminLogin: React.FC = () => {
     },
   ];
 
-  const handleLogin = async (roleToUse: UserRole) => {
+  const handleDemoRoleLogin = async (roleToUse: UserRole) => {
     setIsLoggingIn(true);
-    await loginAsDemoUser(roleToUse);
-    setIsLoggingIn(false);
-    if (roleToUse === 'receptionist') {
-      navigate('/admin/requests');
-    } else {
-      navigate('/admin');
+    setLocalError(null);
+    clearAuthError();
+    try {
+      await loginAsDemoUser(roleToUse);
+      if (roleToUse === 'receptionist') {
+        navigate('/admin/requests');
+      } else {
+        navigate('/admin');
+      }
+    } catch (err: any) {
+      setLocalError(err.message || 'Login failed');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
+
+  const handleEmailPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !password) {
+      setLocalError(isAr ? 'يرجى إدخال البريد الإلكتروني وكلمة المرور' : 'Please enter email and password');
+      return;
+    }
+
+    setIsLoggingIn(true);
+    setLocalError(null);
+    clearAuthError();
+
+    const res = await loginWithEmail(email, password);
+    setIsLoggingIn(false);
+
+    if (!res.success) {
+      setLocalError(res.error || (isAr ? 'فشل تسجيل الدخول' : 'Login failed'));
+    }
+  };
+
+  const displayedError = localError || authError;
 
   return (
     <div
       className="admin-login-wrapper min-vh-100 d-flex align-items-center justify-content-center p-3"
       style={{ backgroundColor: '#f0fdfa' }}
+      dir={isAr ? 'rtl' : 'ltr'}
     >
       <div className="card border-0 shadow-lg rounded-4 overflow-hidden" style={{ maxWidth: '640px', width: '100%' }}>
         <div className="p-4 p-md-5 bg-white">
@@ -96,88 +142,162 @@ export const AdminLogin: React.FC = () => {
             {isAr ? 'تسجيل دخول لوحة الإدارة' : 'Clinic Staff Login'}
           </h2>
           <p className="text-muted small mb-3">
-            {isAr
-              ? 'لوحة إدارة ومتابعة حجوزات عيادة حياة لطب الأسنان'
-              : 'Management and appointment tracking portal for Hayaah Dental Clinic'}
+            {isFirebaseMode
+              ? (isAr ? 'وضع الإنتاج المباشر (Firebase) - يرجى تسجيل الدخول بحساب المشرف المصرح له' : 'Firebase Production Mode Active - Enter your authorized clinic staff credentials')
+              : (isAr ? 'لوحة إدارة ومتابعة حجوزات عيادة حياة لطب الأسنان (الوضع التجريبي الافتراضي)' : 'Hayaah Dental Management Portal (Default Demo Mode)')}
           </p>
 
-          {/* Demo Credentials Box */}
-          <div className="alert alert-info border-info-subtle d-flex flex-column gap-1 mb-4 p-3 rounded-3 small">
-            <div className="d-flex align-items-center gap-2 fw-bold text-primary">
-              <Shield size={16} />
-              <span>{isAr ? 'بيانات الحساب التجريبي المسبقة (Demo Credentials):' : 'Pre-configured Demo Credentials:'}</span>
+          {/* Error Banner */}
+          {displayedError && (
+            <div className="alert alert-danger d-flex align-items-start gap-2 mb-4 p-3 rounded-3 small">
+              <AlertCircle size={18} className="flex-shrink-0 mt-0.5 text-danger" />
+              <span className="text-danger fw-semibold">{displayedError}</span>
             </div>
-            <div className="d-flex flex-wrap gap-3 mt-1">
+          )}
+
+          {isFirebaseMode ? (
+            /* ================= FIREBASE PRODUCTION MODE LOGIN FORM ================= */
+            <form onSubmit={handleEmailPasswordSubmit} className="d-flex flex-column gap-3 mb-4">
               <div>
-                <span className="text-muted">{isAr ? 'البريد:' : 'Email:'} </span>
-                <code className="text-dark bg-white px-2 py-0.5 rounded border">admin@hayaah.demo</code>
+                <label className="form-label small fw-bold text-dark">
+                  {isAr ? 'البريد الإلكتروني للمشرف *' : 'Staff Admin Email *'}
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text bg-light border-end-0">
+                    <Mail size={16} className="text-muted" />
+                  </span>
+                  <input
+                    type="email"
+                    className="form-control border-start-0"
+                    placeholder="doctor@hayaahclinic.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    dir="ltr"
+                    required
+                  />
+                </div>
               </div>
+
               <div>
-                <span className="text-muted">{isAr ? 'كلمة المرور:' : 'Password:'} </span>
-                <code className="text-dark bg-white px-2 py-0.5 rounded border">demo1234</code>
+                <label className="form-label small fw-bold text-dark">
+                  {isAr ? 'كلمة المرور *' : 'Password *'}
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text bg-light border-end-0">
+                    <Lock size={16} className="text-muted" />
+                  </span>
+                  <input
+                    type="password"
+                    className="form-control border-start-0"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    dir="ltr"
+                    required
+                  />
+                </div>
               </div>
-            </div>
-          </div>
 
-          <p className="text-muted small mb-3 fw-bold">
-            {isAr
-              ? 'اختر الدور التجريبي المطلوب للدخول الفوري بنقرة واحدة:'
-              : 'Or select a demo role for immediate one-click entry:'}
-          </p>
+              <div className="p-3 bg-light rounded-3 border small text-muted">
+                <span className="fw-semibold text-dark d-block mb-1">
+                  {isAr ? 'ملاحظة الأمان والصلاحيات:' : 'Security & Permissions Notice:'}
+                </span>
+                {isAr
+                  ? 'يتم التحقق من الحساب عبر Firebase Auth والتحقق الصارم من وثيقة الصلاحيات في Firestore (admins/{uid}). الحسابات غير المسجلة في وثيقة المشرفين لن يُسمح لها بالدخول.'
+                  : 'Authentication is handled via Firebase Auth with strict role verification in Firestore (admins/{uid}). Unassigned accounts will be denied entry.'}
+              </div>
 
-          <div className="role-selector-list d-flex flex-column gap-3 mb-4">
-            {rolesList.map((r) => {
-              const IconComp = r.icon;
-              const isSelected = selectedRole === r.role;
-
-              return (
-                <div
-                  key={r.role}
-                  className={`p-3 rounded-3 border role-card cursor-pointer transition ${
-                    isSelected ? 'border-primary bg-light shadow-sm' : 'bg-white'
-                  }`}
-                  style={{ cursor: 'pointer', transition: 'all 0.2s ease' }}
-                  onClick={() => setSelectedRole(r.role)}
-                >
-                  <div className="d-flex align-items-start gap-3">
-                    <div
-                      className="p-2 rounded-3 text-white flex-shrink-0"
-                      style={{ backgroundColor: r.color }}
-                    >
-                      <IconComp size={22} />
-                    </div>
-                    <div className="flex-grow-1">
-                      <div className="d-flex justify-content-between align-items-center mb-1">
-                        <strong className="text-dark small">
-                          {isAr ? r.titleAr : r.titleEn}
-                        </strong>
-                        <input
-                          type="radio"
-                          name="roleRadio"
-                          checked={isSelected}
-                          onChange={() => setSelectedRole(r.role)}
-                          className="form-check-input"
-                        />
-                      </div>
-                      <p className="text-muted small mb-0" style={{ fontSize: '0.8rem', lineHeight: '1.5' }}>
-                        {isAr ? r.descAr : r.descEn}
-                      </p>
-                    </div>
+              <button
+                type="submit"
+                className="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 mt-2"
+                disabled={isLoggingIn}
+              >
+                <span>{isLoggingIn ? (isAr ? 'جاري التحقق...' : 'Authenticating...') : (isAr ? 'تسجيل الدخول' : 'Sign In')}</span>
+                {isAr ? <ArrowLeft size={18} /> : <ArrowRight size={18} />}
+              </button>
+            </form>
+          ) : (
+            /* ================= DEMO MODE (PRESERVED EXACTLY AS BEFORE) ================= */
+            <>
+              {/* Demo Credentials Box */}
+              <div className="alert alert-info border-info-subtle d-flex flex-column gap-1 mb-4 p-3 rounded-3 small">
+                <div className="d-flex align-items-center gap-2 fw-bold text-primary">
+                  <Shield size={16} />
+                  <span>{isAr ? 'بيانات الحساب التجريبي المسبقة (Demo Credentials):' : 'Pre-configured Demo Credentials:'}</span>
+                </div>
+                <div className="d-flex flex-wrap gap-3 mt-1">
+                  <div>
+                    <span className="text-muted">{isAr ? 'البريد:' : 'Email:'} </span>
+                    <code className="text-dark bg-white px-2 py-0.5 rounded border">admin@hayaah.demo</code>
+                  </div>
+                  <div>
+                    <span className="text-muted">{isAr ? 'كلمة المرور:' : 'Password:'} </span>
+                    <code className="text-dark bg-white px-2 py-0.5 rounded border">demo1234</code>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
 
-          <button
-            type="button"
-            className="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2"
-            onClick={() => handleLogin(selectedRole)}
-            disabled={isLoggingIn}
-          >
-            <span>{isLoggingIn ? (isAr ? 'جاري الدخول...' : 'Logging in...') : (isAr ? 'الدخول كـ ' + rolesList.find(r => r.role === selectedRole)?.titleAr : 'Enter as ' + selectedRole)}</span>
-            {isAr ? <ArrowLeft size={18} /> : <ArrowRight size={18} />}
-          </button>
+              <p className="text-muted small mb-3 fw-bold">
+                {isAr
+                  ? 'اختر الدور التجريبي المطلوب للدخول الفوري بنقرة واحدة:'
+                  : 'Or select a demo role for immediate one-click entry:'}
+              </p>
+
+              <div className="role-selector-list d-flex flex-column gap-3 mb-4">
+                {rolesList.map((r) => {
+                  const IconComp = r.icon;
+                  const isSelected = selectedRole === r.role;
+
+                  return (
+                    <div
+                      key={r.role}
+                      className={`p-3 rounded-3 border role-card cursor-pointer transition ${
+                        isSelected ? 'border-primary bg-light shadow-sm' : 'bg-white'
+                      }`}
+                      style={{ cursor: 'pointer', transition: 'all 0.2s ease' }}
+                      onClick={() => setSelectedRole(r.role)}
+                    >
+                      <div className="d-flex align-items-start gap-3">
+                        <div
+                          className="p-2 rounded-3 text-white flex-shrink-0"
+                          style={{ backgroundColor: r.color }}
+                        >
+                          <IconComp size={22} />
+                        </div>
+                        <div className="flex-grow-1">
+                          <div className="d-flex justify-content-between align-items-center mb-1">
+                            <strong className="text-dark small">
+                              {isAr ? r.titleAr : r.titleEn}
+                            </strong>
+                            <input
+                              type="radio"
+                              name="roleRadio"
+                              checked={isSelected}
+                              onChange={() => setSelectedRole(r.role)}
+                              className="form-check-input"
+                            />
+                          </div>
+                          <p className="text-muted small mb-0" style={{ fontSize: '0.8rem', lineHeight: '1.5' }}>
+                            {isAr ? r.descAr : r.descEn}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                className="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2"
+                onClick={() => handleDemoRoleLogin(selectedRole)}
+                disabled={isLoggingIn}
+              >
+                <span>{isLoggingIn ? (isAr ? 'جاري الدخول...' : 'Logging in...') : (isAr ? 'الدخول كـ ' + rolesList.find(r => r.role === selectedRole)?.titleAr : 'Enter as ' + selectedRole)}</span>
+                {isAr ? <ArrowLeft size={18} /> : <ArrowRight size={18} />}
+              </button>
+            </>
+          )}
 
           <div className="text-center mt-4 pt-3 border-top">
             <button

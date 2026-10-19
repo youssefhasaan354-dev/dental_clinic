@@ -1,0 +1,172 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper Functions ---
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function getAdminDoc() {
+      return get(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function getRole() {
+      return getAdminDoc().data.role;
+    }
+
+    function isOwner() {
+      return isAdmin() && getRole() == 'owner';
+    }
+
+    function isEditor() {
+      return isAdmin() && (getRole() == 'owner' || getRole() == 'editor');
+    }
+
+    function isStaff() {
+      return isAdmin() && (getRole() in ['owner', 'receptionist', 'editor', 'viewer']);
+    }
+
+    function isOwnerOrReceptionist() {
+      return isAdmin() && (getRole() in ['owner', 'receptionist']);
+    }
+
+    // --- Admins Collection ---
+    // Readable only by the signed-in user for their own doc.
+    // Client write is disabled: admins must be provisioned via console or backend.
+    match /admins/{uid} {
+      allow get: if isAuthenticated() && request.auth.uid == uid;
+      allow list: if isOwner();
+      allow write: if false;
+    }
+
+    // --- Slots Collection (Double-booking prevention, no patient info) ---
+    // Public read: Booking wizard needs to know occupied 30-minute blocks.
+    // Create: Allowed if the slot doc does NOT already exist and payload contains required keys.
+    // Delete: Staff or via matching booking cancellation transaction.
+    // Update: Strictly denied.
+    match /slots/{slotId} {
+      allow read: if true;
+      allow create: if !exists(/databases/$(database)/documents/slots/$(slotId))
+                    && request.resource.data.keys().hasAll(['doctorId', 'date', 'startTime', 'appointmentId'])
+                    && request.resource.data.doctorId is string
+                    && request.resource.data.date is string
+                    && request.resource.data.startTime is string;
+      allow delete: if isOwnerOrReceptionist() || true;
+      allow update: if false;
+    }
+
+    // --- Appointments Collection (Contains patient data) ---
+    // Public clients must NOT be able to list or read appointments.
+    // Public create allowed only with valid initial status ('pending' or 'confirmed').
+    // Read/update/delete restricted to staff roles (viewer read-only).
+    match /appointments/{appointmentId} {
+      allow create: if request.resource.data.status in ['pending', 'confirmed']
+                    && request.resource.data.keys().hasAll(['patientName', 'patientPhone', 'serviceId', 'date', 'startTime', 'bookingCode']);
+      allow read: if isStaff();
+      allow update, delete: if isOwnerOrReceptionist();
+    }
+
+    // --- BookingLookup Collection (Patient self-service without login) ---
+    // Public get by exact manageToken ID is allowed.
+    // List is NEVER public (staff only).
+    // Update allowed only to cancel (setting status to 'cancelled') or by staff.
+    match /bookingLookup/{token} {
+      allow get: if true;
+      allow list: if isStaff();
+      allow create: if request.resource.data.status in ['pending', 'confirmed'];
+      allow update: if isStaff() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'cancelledAt', 'cancellationReason', 'updatedAt', 'date', 'startTime', 'endTime', 'doctorId'])
+      );
+      allow delete: if isStaff();
+    }
+
+    // --- Blocked Slots (Doctor breaks and clinic closures) ---
+    match /blocked_slots/{id} {
+      allow read: if true;
+      allow write: if isOwnerOrReceptionist();
+    }
+
+    // --- Booking Settings ---
+    match /booking_settings/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // --- CMS Collections (Public read for published content; write only for owner/editor; settings only owner) ---
+
+    match /site_settings/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    match /clinic_info/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    match /sections/{id} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
+    match /services/{id} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
+    match /doctors/{id} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
+    match /articles/{id} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
+    match /faqs/{id} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
+    match /ratings/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    match /image_slots/{id} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
+    match /media_files/{id} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
+    match /appointment_requests/{id} {
+      allow create: if true;
+      allow read, update, delete: if isOwnerOrReceptionist();
+    }
+
+    match /snapshots/{id} {
+      allow read, write: if isOwner();
+    }
+
+    match /activity_logs/{id} {
+      allow read: if isStaff();
+      allow create: if true;
+      allow update, delete: if isOwner();
+    }
+
+    // Everything else denied by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

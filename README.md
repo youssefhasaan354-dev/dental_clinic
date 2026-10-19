@@ -56,25 +56,23 @@
 
 ---
 
-## ⚙️ التبديل إلى قاعدة بيانات Supabase الحقيقية (Step-by-Step)
+## ⚙️ التبديل إلى قاعدة بيانات Firebase و Firestore الحقيقية (Step-by-Step)
 
-النظام يعمل تلقائياً بوضع Demo Mode في حال عدم توفر بيانات Supabase. لتفعيل الربط السحابي الحقيقي:
+النظام يعمل تلقائياً بوضع Demo Mode في حال عدم توفر متغيرات Firebase. لتفعيل الربط السحابي الحقيقي:
 
-1. أنشئ مشروعاً جديداً مجانياً على [Supabase](https://supabase.com).
-2. من لوحة تحكم Supabase، افتح **SQL Editor** ونفّذ ملف المخطط الجاهز المرفق في المشروع:
-   ```
-   supabase/schema.sql
-   ```
-   هذا الملف ينشئ الجداول (`appointments`, `doctors`, `blocked_slots`, `booking_settings`)، وقيد منع التضارب `UNIQUE(date, start_time, doctor_id)`، وسياسات الأمان Row Level Security (RLS)، والبيانات الأولية.
-3. انسخ بيانات الاتصال من **Project Settings -> API**:
-   - `Project URL`
-   - `anon public key`
-4. أنشئ ملف `.env` في جذر المشروع (مستوحى من `.env.example`):
+1. أنشئ مشروعاً جديداً مجانياً على [Firebase Console](https://console.firebase.google.com).
+2. فعّل قاعدة بيانات **Cloud Firestore** بوضع الإنتاج (**Production Mode**).
+3. فعّل **Firebase Authentication** وافتح موفر **Email/Password**.
+4. أضف مستخدم المشرف الأول في Authentication، ثم أنشئ مستنداً في Firestore ضمن مجموعة `admins` بالمعرف الخاص به `admins/{uid}` وضع حقلاً `role: "owner"`.
+5. انشر قواعد الأمان والفهارس باستخدام `firebase deploy --only firestore:rules,firestore:indexes` أو بالنسخ المباشر من [firestore.rules](firestore.rules) و [firestore.indexes.json](firestore.indexes.json).
+6. أنشئ ملف `.env` محلياً وفي Vercel (مستوحى من `.env.example`) وضع المتغيرات الأربعة:
    ```bash
-   VITE_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
-   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   VITE_FIREBASE_API_KEY=AIzaSy...
+   VITE_FIREBASE_AUTH_DOMAIN=hayaah-dental.firebaseapp.com
+   VITE_FIREBASE_PROJECT_ID=hayaah-dental
+   VITE_FIREBASE_APP_ID=1:1234567890:web:abcdef123456
    ```
-5. أعد تشغيل السيرفر (`npm run dev`). سيكتشف تطبيق الويب المفاتيح تلقائياً ويتحول من وضع Demo Mode إلى وضع Supabase السحابي المباشر.
+7. أعد تشغيل السيرفر (`npm run dev`). سيكتشف تطبيق الويب المفاتيح تلقائياً ويتحول من وضع Demo Mode إلى وضع Firebase السحابي المباشر.
 
 ---
 

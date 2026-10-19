@@ -1,27 +1,25 @@
 /**
  * Hayaah Dental Clinic - Booking Service Factory
  * Switches automatically between DemoBookingService (localStorage default) and
- * SupabaseBookingService (when environment credentials exist).
+ * FirebaseBookingService (when 4 Firebase environment variables exist).
  */
 
 import { IBookingService } from './IBookingService';
 import { DemoBookingService } from './DemoBookingService';
-import { SupabaseBookingService } from './SupabaseBookingService';
+import { FirebaseBookingService } from './FirebaseBookingService';
+import { isFirebaseConfigured } from '../firebase/client';
 
 let serviceInstance: IBookingService | null = null;
 
 export function getBookingService(): IBookingService {
   if (serviceInstance) return serviceInstance;
 
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-  if (supabaseUrl && supabaseAnonKey && supabaseUrl !== 'https://your-project.supabase.co') {
+  if (isFirebaseConfigured()) {
     try {
-      console.info('[BookingService] Initializing Supabase production adapter');
-      serviceInstance = new SupabaseBookingService(supabaseUrl, supabaseAnonKey);
+      console.info('[BookingService] Initializing Firebase production adapter');
+      serviceInstance = new FirebaseBookingService();
     } catch (err) {
-      console.warn('[BookingService] Supabase initialization failed, falling back to Demo adapter:', err);
+      console.warn('[BookingService] Firebase initialization failed, falling back to Demo adapter:', err);
       serviceInstance = new DemoBookingService();
     }
   } else {
@@ -35,4 +33,5 @@ export function getBookingService(): IBookingService {
 export * from './types';
 export * from './IBookingService';
 export * from './slotEngine';
+export * from './slotUtils';
 export * from './notificationService';

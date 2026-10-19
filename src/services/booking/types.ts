@@ -63,6 +63,7 @@ export interface Appointment {
   updatedAt: string;
   cancelledAt?: string;
   cancellationReason?: string;
+  manageToken?: string;
 }
 
 export interface TimeSlot {

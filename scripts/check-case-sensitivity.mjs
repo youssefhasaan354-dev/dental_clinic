@@ -22,7 +22,7 @@ function getAllFiles(dir, extensions = ['.js', '.jsx', '.ts', '.tsx', '.scss', '
 
 // Check case of each segment in a relative path on disk
 function verifyPathCasing(fromFile, importPath) {
-  // Ignore non-relative packages like 'react', '@supabase/supabase-js'
+  // Ignore non-relative packages like 'react', 'firebase'
   if (!importPath.startsWith('.') && !importPath.startsWith('@/')) {
     return { ok: true };
   }

@@ -1,5 +1,5 @@
 # Hayaah Dental Clinic - Admin & Backend Setup Guide
-# دليل تشغيل لوحة الإدارة وقاعدة البيانات السحابية
+# دليل تشغيل لوحة الإدارة وقاعدة البيانات السحابية (Firebase / Firestore)
 
 ---
 
@@ -7,7 +7,7 @@
 تم بناء المنصة بطبقة بيانات موحدة تدعم وضعين للتشغيل:
 
 ### أ) وضع العرض التجريبي (Demo Mode - الافتراضي)
-- **آلية العمل:** يعمل الموقع بالكامل دون الحاجة لأي خادم خلفي أو قاعدة بيانات سحابية.
+- **آلية العمل:** يعمل الموقع بالكامل دون الحاجة لأي خادم خلفي أو قاعدة بيانات سحابية (Zero-Config).
 - **تخزين البيانات:** النصوص والإعدادات وسجل التعديلات تُحفظ في `localStorage`، بينما تُحفظ صور المرضى والعيادة المرفوعة في قاعدة بيانات المتصفح `IndexedDB` لتفادي قيود الحجم.
 - **تسجيل الدخول التجريبي:** دخول مباشر بنقرة واحدة من صفحة `/admin/login` بأربعة أدوار مختلفة:
   1. **مالك العيادة (Owner):** صلاحيات كاملة، قائمة الجاهزية للإطلاق، استعادة النسخ وإعادة الضبط.
@@ -17,140 +17,79 @@
 
 ---
 
-## 2. التحويل إلى الوضع الحي (Live Mode مع Supabase)
-عند الرغبة في ربط الموقع بقاعدة بيانات Postgres وتخزين سحابي مع توثيق حقيقي:
+## 2. التحويل إلى الوضع الحي (Live Production Mode مع Firebase)
+عند الرغبة في ربط الموقع بقاعدة بيانات Firestore السحابية وتوثيق حقيقي عبر Firebase Auth:
 
-### الخطوة 1: إنشاء مشروع Supabase مجاني
-1. اذهب إلى [https://supabase.com](https://supabase.com) وأنشئ حساباً جديداً.
-2. انقر على **New Project** واختر اسم المشروع (مثلاً: `hayaah-dental`).
-3. اختر منطقة الاستضافة الأقرب لمصر (مثل Frankfurt أو London).
+### الخطوة 1: إنشاء مشروع Firebase جديد
+1. اذهب إلى [Google Firebase Console](https://console.firebase.google.com) وأنشئ مشروعاً جديداً (مثلاً: `hayaah-dental`).
+2. قم بتعطيل أو تمكين Google Analytics بحسب رغبتك.
 
-### الخطوة 2: تشغيل كود إنشاء الجداول وتأمين الصلاحيات (SQL Schema)
-افتح **SQL Editor** داخل لوحة Supabase والصق الكود التالي واضغط **Run**:
+### الخطوة 2: تفعيل قاعدة بيانات Cloud Firestore
+1. من القائمة الجانبية في Firebase Console، اختر **Build -> Firestore Database**.
+2. اضغط على **Create database**.
+3. اختر وضع الإنتاج (**Start in production mode**).
+4. اختر الموقع الجغرافي الأقرب للشرق الأوسط ومصر (مثلاً: `eur3` في أوروبا).
 
-```sql
--- 1. جدول إعدادات الموقع
-CREATE TABLE IF NOT EXISTS site_settings (
-  id INT PRIMARY KEY DEFAULT 1,
-  demo_mode BOOLEAN DEFAULT false,
-  show_prices BOOLEAN DEFAULT false,
-  show_before_after BOOLEAN DEFAULT false,
-  show_announcement BOOLEAN DEFAULT false,
-  announcement_text JSONB,
-  primary_color TEXT DEFAULT '#0c6674',
-  secondary_color TEXT DEFAULT '#2ca49a',
-  noindex BOOLEAN DEFAULT true,
-  data_version INT DEFAULT 1,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
+### الخطوة 3: تفعيل المصادقة (Firebase Authentication)
+1. من القائمة الجانبية، اختر **Build -> Authentication**.
+2. اضغط **Get started**.
+3. في تبويب **Sign-in method**، فعّل خيار **Email/Password**.
 
--- 2. جدول بيانات العيادة ومواعيد العمل
-CREATE TABLE IF NOT EXISTS clinic_info (
-  id INT PRIMARY KEY DEFAULT 1,
-  name JSONB NOT NULL,
-  tagline JSONB NOT NULL,
-  phone TEXT NOT NULL,
-  emergency_phone TEXT NOT NULL,
-  whatsapp TEXT NOT NULL,
-  address JSONB NOT NULL,
-  map_directions_url TEXT NOT NULL,
-  coordinates JSONB NOT NULL,
-  regular_hours JSONB NOT NULL,
-  disclaimer JSONB NOT NULL,
-  emergency_notice JSONB NOT NULL
-);
+### الخطوة 4: إنشاء مستخدم المشرف الأول وتحديد صلاحياته (First Admin Setup)
+1. في تبويب **Users** داخل Authentication، اضغط **Add user**.
+2. أدخل البريد الإلكتروني للمالك (مثلاً: `owner@hayaahclinic.com`) وكلمة مرور قوية.
+3. انسخ المعرّف الفريد للمستخدم (**User UID**).
+4. اذهب إلى **Firestore Database**، وأنشئ مجموعة باسم: `admins`.
+5. أضف مستنداً جديداً بحيث يكون **Document ID** هو الـ `UID` المنسوخ بالضبط.
+6. أضف الحقول التالية داخل المستند:
+   - `role`: (string) بقيمة `"owner"`
+   - `name`: (string) بقيمة `"د. مالك العيادة"`
 
--- 3. جدول طلبات حجز المواعيد
-CREATE TABLE IF NOT EXISTS appointment_requests (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
-  patient_name TEXT NOT NULL,
-  patient_phone TEXT NOT NULL,
-  preferred_date TEXT NOT NULL,
-  preferred_time TEXT NOT NULL,
-  service_id TEXT NOT NULL,
-  service_name TEXT NOT NULL,
-  notes TEXT,
-  status TEXT DEFAULT 'new',
-  internal_notes TEXT,
-  contacted_at TIMESTAMP WITH TIME ZONE,
-  is_demo_submission BOOLEAN DEFAULT false
-);
+> **ملاحظة أمنية هامة:** المنصة تطبق فحصاً صارماً في Firestore؛ أي مستخدم يسجل دخوله وليس لديه مستند في `admins/{uid}` بدور صالح (`owner`, `receptionist`, `editor`, `viewer`) سيتم رفض وصوله فوراً وتسجيل خروجه تلقائياً.
 
--- 4. جدول الخدمات السريرية
-CREATE TABLE IF NOT EXISTS services (
-  id TEXT PRIMARY KEY,
-  slug TEXT UNIQUE NOT NULL,
-  title JSONB NOT NULL,
-  category TEXT NOT NULL,
-  short_desc JSONB NOT NULL,
-  full_desc JSONB,
-  duration JSONB,
-  starting_price NUMERIC,
-  is_confirmed BOOLEAN DEFAULT true,
-  is_visible BOOLEAN DEFAULT true,
-  "order" INT DEFAULT 1
-);
+### الخطوة 5: نشر قواعد الأمان والفهارس (Security Rules & Indexes)
+يمكنك نشر القواعد بإحدى طريقتين:
 
--- 5. جدول كادر الأطباء
-CREATE TABLE IF NOT EXISTS doctors (
-  id TEXT PRIMARY KEY,
-  name JSONB NOT NULL,
-  title JSONB NOT NULL,
-  specialty JSONB NOT NULL,
-  bio JSONB NOT NULL,
-  languages TEXT[],
-  credentials JSONB[],
-  photo_url TEXT,
-  is_real_photo BOOLEAN DEFAULT false,
-  is_visible BOOLEAN DEFAULT true,
-  "order" INT DEFAULT 1
-);
-
--- تأمين حماية البيانات (Row Level Security - RLS)
-ALTER TABLE appointment_requests ENABLE ROW LEVEL SECURITY;
-
--- السماح للجمهور بإرسال طلب الموعد فقط
-CREATE POLICY "Public can insert appointment requests"
-  ON appointment_requests FOR INSERT
-  WITH CHECK (true);
-
--- منع قراءة الطلبات إلا للموظفين المسجلين
-CREATE POLICY "Only authenticated staff can view appointment requests"
-  ON appointment_requests FOR SELECT
-  USING (auth.role() = 'authenticated');
-
--- السماح للموظفين بتحديث حالات الملاحظات
-CREATE POLICY "Only authenticated staff can update appointment requests"
-  ON appointment_requests FOR UPDATE
-  USING (auth.role() = 'authenticated');
+**الطريقة أ (عبر Firebase CLI):**
+```bash
+npm install -g firebase-tools
+firebase login
+firebase use --add  # اختر معرف مشروعك
+firebase deploy --only firestore:rules,firestore:indexes
 ```
 
-### الخطوة 3: إنشاء مستودع تخزين الصور (Storage Bucket)
-1. في لوحة تحكم Supabase، ادخل على **Storage**.
-2. أنشئ مستودعاً جديداً باسم: `clinic-media`.
-3. اضبط خيار **Public bucket** على مفعّل (Enabled).
+**الطريقة ب (نسخ ولصق عبر الكونسول):**
+1. افتح تبويب **Rules** في Firestore، والصق محتوى ملف [firestore.rules](firestore.rules) واضغط **Publish**.
+2. افتح تبويب **Indexes** في Firestore للتأكد من وجود فهارس الاستعلام المركبة الموضحة في [firestore.indexes.json](firestore.indexes.json).
 
-### الخطوة 4: توصيل المتغيرات البيئية
-في ملف البيئة `.env` محلياً أو في إعدادات استضافة Vercel:
+### الخطوة 6: توصيل المتغيرات البيئية
+من **Project Settings -> General** في Firebase Console، أنشئ تطبيق ويب (**Web App `</>`**) وانسخ بيانات الاتصال.
+أضف المتغيرات الأربعة التالية في ملف `.env` محلياً وفي إعدادات استضافة **Vercel** (Environment Variables):
+
 ```bash
 VITE_DEMO_MODE=false
-VITE_SITE_URL=https://hayaah-dental.vercel.app
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOi...
+VITE_SITE_URL=https://dentallclinic.vercel.app
+VITE_FIREBASE_API_KEY=AIzaSy...
+VITE_FIREBASE_AUTH_DOMAIN=hayaah-dental.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=hayaah-dental
+VITE_FIREBASE_APP_ID=1:1234567890:web:abcdef123456
 ```
 
----
-
-## 3. توصيات الأمان والحماية (Security Recommendations)
-1. **تفعيل التحقق بخطوتين (MFA / 2FA):** نوصي مالك العيادة بشدة بتفعيل المصادقة الثنائية عبر تطبيق Google Authenticator على حساب Supabase والبريد الإلكتروني للعيادة.
-2. **عدم رفع أي ملفات سرية:** لا تقم برفع ملف `.env` إطلاقاً إلى مستودعات Git العامة؛ تم تضمين `.env` تلقائياً في ملف `.gitignore`.
-3. **حماية بيانات المرضى:** لا يتم إرسال أو تسجيل أي معلومات طبية أو تشخيصية في النموذج وفقاً لمعايير تقليل البيانات (Data Minimization).
+> **ملاحظة هامة:** وضع Firebase يتم تفعيله تلقائياً فقط عند توفر كافة المتغيرات الأربعة `VITE_FIREBASE_*`. في حال غياب أي متغير منها، يستمر التطبيق بالعمل في وضع Demo Mode الافتراضي.
 
 ---
 
-## 4. خطوات النشر على Vercel (Deployment)
-1. اربط مستودع GitHub بحسابك على [Vercel](https://vercel.com).
-2. اختر إطار العمل: **Vite**.
-3. أضف المتغير البيئي `VITE_SITE_URL` مع رابط النطاق الخاص بك.
-4. اضغط **Deploy**.
+## 3. آلية منع الحجز المزدوج وحماية خصوصية المرضى (Architecture)
+1. **منع الحجز المزدوج دون SQL:**
+   - تستخدم المنصة مجموعة `slots` بحيث يحمل كل حجز معرفاً حتمياً لكل فترة ٣٠ دقيقة: `${doctorId}_${YYYY-MM-DD}_${HHmm}`.
+   - تتم عملية الحجز ومعاملات التعديل والإلغاء عبر معاملات ذرية `runTransaction` في Firestore تفحص خلو كافة الفترات قبل الإنشاء دفعة واحدة.
+2. **فصل بيانات المرضى وبوابة المريض الذاتية:**
+   - بيانات المرضى في `appointments/{id}` محجوبة بالكامل عن الاستعلامات العامة ومحصورة لكادر العيادة المصرح له فقط.
+   - للمرضى، يتم توليد رمز أمان سري طويل `manageToken` (أكثر من 20 حرفاً عشوائياً مشفراً) يُخزن في `bookingLookup/{manageToken}` بدون رقم الهاتف الصريح. يتيح الرابط المباشر للمريض مراجعة أو تعديل أو إلغاء موعده دون حاجة لإنشاء حساب أو كلمة مرور.
+
+---
+
+## 4. توصيات الأمان والحماية (Security Recommendations)
+1. **عدم رفع أي ملفات سرية:** لا تقم برفع ملف `.env` إطلاقاً إلى مستودعات Git العامة؛ تم تضمين `.env` تلقائياً في ملف `.gitignore`.
+2. **إدارة المشرفين:** لا يمكن تعديل وثائق `admins` من واجهة العميل إطلاقاً؛ تضاف الصلاحيات حصرياً عبر كونسول Firebase لضمان أعلى درجات الأمان.
+3. **خطة الترقية المستقبلية:** يرجى العلم بأن استخدام `manageToken` هو الحل الأكثر أماناً على باقة Spark المجانية بدون خادم خلفي. للانتقال إلى نظام التحقق التام عبر الرسائل النصية القصيرة OTP، يمكن الترقية إلى باقة Blaze وتفعيل Firebase Cloud Functions.

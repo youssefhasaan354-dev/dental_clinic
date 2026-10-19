@@ -37,6 +37,7 @@ import {
   generateSeedAppointments,
 } from './seedData';
 import { notify } from './notificationService';
+import { generateManageToken } from './slotUtils';
 
 const STORAGE_KEYS = {
   APPOINTMENTS: 'hayaah_appointments_v1',
@@ -201,6 +202,7 @@ export class DemoBookingService implements IBookingService {
       isWalkIn: data.isWalkIn,
       createdAt: nowIso,
       updatedAt: nowIso,
+      manageToken: generateManageToken(),
     };
 
     appointments.unshift(newAppointment);
@@ -216,6 +218,45 @@ export class DemoBookingService implements IBookingService {
       success: true,
       appointment: newAppointment,
     };
+  }
+
+  async getAppointmentByToken(token: string): Promise<Appointment | null> {
+    const appointments = this.getItem<Appointment[]>(STORAGE_KEYS.APPOINTMENTS, []);
+    const clean = token.trim();
+    const match = appointments.find(
+      (apt) => apt.manageToken === clean || apt.bookingCode.toUpperCase() === clean.toUpperCase()
+    );
+    return match ? { ...match } : null;
+  }
+
+  async cancelAppointmentByToken(
+    token: string,
+    reason?: string
+  ): Promise<{ success: boolean; error?: string }> {
+    const apt = await this.getAppointmentByToken(token);
+    if (!apt) {
+      return { success: false, error: 'Appointment not found' };
+    }
+    return this.cancelAppointment(apt.bookingCode, apt.patientPhone, reason);
+  }
+
+  async rescheduleAppointmentByToken(params: {
+    token: string;
+    newDate: string;
+    newStartTime: string;
+    newDoctorId?: string;
+  }): Promise<{ success: boolean; appointment?: Appointment; error?: string }> {
+    const apt = await this.getAppointmentByToken(params.token);
+    if (!apt) {
+      return { success: false, error: 'Appointment not found' };
+    }
+    return this.rescheduleAppointment({
+      bookingCode: apt.bookingCode,
+      patientPhone: apt.patientPhone,
+      newDate: params.newDate,
+      newStartTime: params.newStartTime,
+      newDoctorId: params.newDoctorId,
+    });
   }
 
   async getAppointmentByCode(code: string, phone: string): Promise<Appointment | null> {

@@ -40,6 +40,10 @@ export function buildClinicWhatsAppUrl(
     ? (isAr ? appointment.doctorName.ar : appointment.doctorName.en)
     : (isAr ? 'أي طبيب متاح' : 'Any available doctor');
 
+  const manageUrl = appointment.manageToken
+    ? `https://dentallclinic.vercel.app/booking/manage?token=${appointment.manageToken}`
+    : `https://dentallclinic.vercel.app/booking/manage?code=${appointment.bookingCode}&phone=${encodeURIComponent(appointment.patientPhone)}`;
+
   const text = isAr
     ? `السلام عليكم، أود تأكيد موعدي في عيادة حياة لطب الأسنان:\n` +
       `• كود الحجز: ${appointment.bookingCode}\n` +
@@ -48,6 +52,7 @@ export function buildClinicWhatsAppUrl(
       `• التاريخ: ${appointment.date}\n` +
       `• الوقت: ${appointment.startTime} (بتوقيت القاهرة)\n` +
       `• الطبيب: ${dName}\n` +
+      `• رابط إدارة وتعديل الحجز: ${manageUrl}\n` +
       `\nشكراً لكم.`
     : `Hello, I would like to confirm my appointment at Hayaah Dental Clinic:\n` +
       `• Booking Code: ${appointment.bookingCode}\n` +
@@ -56,6 +61,7 @@ export function buildClinicWhatsAppUrl(
       `• Date: ${appointment.date}\n` +
       `• Time: ${appointment.startTime} (Cairo Time)\n` +
       `• Doctor: ${dName}\n` +
+      `• Manage Booking Link: ${manageUrl}\n` +
       `\nThank you.`;
 
   return `https://wa.me/${clinicTarget}?text=${encodeURIComponent(text)}`;

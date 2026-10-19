@@ -76,6 +76,37 @@ export const ManageBooking: React.FC = () => {
   const [cancellationReason, setCancellationReason] = useState('');
   const [isSubmittingCancel, setIsSubmittingCancel] = useState(false);
 
+  const urlToken = searchParams.get('token') || searchParams.get('manageToken');
+
+  const fetchAppointmentByToken = async (tokenToFetch: string) => {
+    setIsLoading(true);
+    setErrorMsg(null);
+    setActionSuccessMsg(null);
+
+    try {
+      if (bookingService.getAppointmentByToken) {
+        const result = await bookingService.getAppointmentByToken(tokenToFetch);
+        if (result) {
+          setAppointment(result);
+          setRescheduleDate(result.date);
+          setIsLoading(false);
+          return;
+        }
+      }
+      setErrorMsg(
+        isAr
+          ? 'لم يتم العثور على حجز يطابق هذا الرابط السري. يرجى التأكد من الرابط أو إدخال كود الحجز ورقم الهاتف.'
+          : 'No booking found matching this manage token. Please check your link or enter your code and phone.'
+      );
+      setAppointment(null);
+    } catch (err) {
+      console.error('Failed to retrieve appointment by token:', err);
+      setErrorMsg(isAr ? 'حدث خطأ أثناء البحث عن الحجز' : 'Failed to search for booking');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const fetchAppointment = async (codeToFetch: string, phoneToFetch: string) => {
     if (!codeToFetch.trim() || !phoneToFetch.trim()) {
       setErrorMsg(
@@ -111,8 +142,14 @@ export const ManageBooking: React.FC = () => {
     }
   };
 
-  // Auto lookup if query params exist
+  // Auto lookup if query params exist (token priority, then code + phone)
   useEffect(() => {
+    const token = searchParams.get('token') || searchParams.get('manageToken');
+    if (token) {
+      fetchAppointmentByToken(token);
+      return;
+    }
+
     const code = searchParams.get('code');
     const phone = searchParams.get('phone');
     if (code && phone) {
@@ -154,11 +191,20 @@ export const ManageBooking: React.FC = () => {
     setErrorMsg(null);
 
     try {
-      const res = await bookingService.cancelAppointment(
-        appointment.bookingCode,
-        appointment.patientPhone,
-        cancellationReason.trim() || undefined
-      );
+      let res: { success: boolean; error?: string };
+
+      if (appointment.manageToken && bookingService.cancelAppointmentByToken) {
+        res = await bookingService.cancelAppointmentByToken(
+          appointment.manageToken,
+          cancellationReason.trim() || undefined
+        );
+      } else {
+        res = await bookingService.cancelAppointment(
+          appointment.bookingCode,
+          appointment.patientPhone,
+          cancellationReason.trim() || undefined
+        );
+      }
 
       if (!res.success) {
         setErrorMsg(res.error || (isAr ? 'تعذر إلغاء الموعد' : 'Could not cancel appointment'));
@@ -166,7 +212,11 @@ export const ManageBooking: React.FC = () => {
         setActionSuccessMsg(isAr ? 'تم إلغاء الموعد بنجاح.' : 'Appointment has been cancelled.');
         setIsCancelling(false);
         // Refresh appointment status
-        await fetchAppointment(appointment.bookingCode, appointment.patientPhone);
+        if (appointment.manageToken) {
+          await fetchAppointmentByToken(appointment.manageToken);
+        } else {
+          await fetchAppointment(appointment.bookingCode, appointment.patientPhone);
+        }
       }
     } catch (err) {
       console.error('Cancel error:', err);
@@ -182,19 +232,33 @@ export const ManageBooking: React.FC = () => {
     setErrorMsg(null);
 
     try {
-      const res = await bookingService.rescheduleAppointment({
-        bookingCode: appointment.bookingCode,
-        patientPhone: appointment.patientPhone,
-        newDate: rescheduleDate,
-        newStartTime: rescheduleTime,
-      });
+      let res: { success: boolean; appointment?: Appointment; error?: string };
+
+      if (appointment.manageToken && bookingService.rescheduleAppointmentByToken) {
+        res = await bookingService.rescheduleAppointmentByToken({
+          token: appointment.manageToken,
+          newDate: rescheduleDate,
+          newStartTime: rescheduleTime,
+        });
+      } else {
+        res = await bookingService.rescheduleAppointment({
+          bookingCode: appointment.bookingCode,
+          patientPhone: appointment.patientPhone,
+          newDate: rescheduleDate,
+          newStartTime: rescheduleTime,
+        });
+      }
 
       if (!res.success) {
         setErrorMsg(res.error || (isAr ? 'تعذر تعديل الموعد' : 'Could not reschedule appointment'));
       } else {
         setActionSuccessMsg(isAr ? 'تم تعديل الموعد بنجاح!' : 'Appointment successfully rescheduled!');
         setIsRescheduling(false);
-        await fetchAppointment(appointment.bookingCode, appointment.patientPhone);
+        if (appointment.manageToken) {
+          await fetchAppointmentByToken(appointment.manageToken);
+        } else {
+          await fetchAppointment(appointment.bookingCode, appointment.patientPhone);
+        }
       }
     } catch (err) {
       console.error('Reschedule error:', err);

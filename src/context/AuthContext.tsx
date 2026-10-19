@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserRole } from '../types';
 import { getStorageService } from '../services/storage';
+import { isFirebaseConfigured, getFirebaseAuth, getFirebaseFirestore } from '../services/firebase/client';
 
 export interface AdminUser {
   id: string;
@@ -13,9 +14,12 @@ interface AuthContextType {
   user: AdminUser | null;
   role: UserRole | null;
   isAuthenticated: boolean;
+  isFirebaseMode: boolean;
+  authError: string | null;
+  clearAuthError: () => void;
   loginAsDemoUser: (role: UserRole) => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isVisualEditActive: boolean;
   setVisualEditActive: (active: boolean) => void;
   canEditContent: boolean;
@@ -28,7 +32,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const AUTH_STORAGE_KEY = 'hayaah_admin_auth_user';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const isFirebaseMode = isFirebaseConfigured();
+
   const [user, setUser] = useState<AdminUser | null>(() => {
+    // In Firebase mode, do NOT rely on localStorage; use Firebase Auth persistence
+    if (isFirebaseMode) return null;
     try {
       const saved = localStorage.getItem(AUTH_STORAGE_KEY);
       return saved ? JSON.parse(saved) : null;
@@ -37,17 +45,90 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
+  const [authError, setAuthError] = useState<string | null>(null);
   const [isVisualEditActive, setVisualEditActive] = useState<boolean>(true);
 
+  // Sync to localStorage only in Demo Mode
   useEffect(() => {
+    if (isFirebaseMode) return;
     if (user) {
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
     } else {
       localStorage.removeItem(AUTH_STORAGE_KEY);
     }
-  }, [user]);
+  }, [user, isFirebaseMode]);
+
+  // Subscribe to Firebase Auth state when Firebase mode is active
+  useEffect(() => {
+    if (!isFirebaseMode) return;
+
+    let unsubscribe: (() => void) | undefined;
+
+    (async () => {
+      try {
+        const auth = await getFirebaseAuth();
+        const { onAuthStateChanged, signOut } = await import('firebase/auth');
+        const db = await getFirebaseFirestore();
+        const { doc, getDoc } = await import('firebase/firestore');
+
+        unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+          if (!firebaseUser) {
+            setUser(null);
+            return;
+          }
+
+          // Fetch admin role strictly from Firestore collection `admins/{uid}`
+          try {
+            const adminDocRef = doc(db, 'admins', firebaseUser.uid);
+            const snap = await getDoc(adminDocRef);
+
+            if (snap.exists()) {
+              const data = snap.data();
+              const validRoles: UserRole[] = ['owner', 'receptionist', 'editor', 'viewer'];
+              if (data?.role && validRoles.includes(data.role as UserRole)) {
+                setUser({
+                  id: firebaseUser.uid,
+                  name: data.name || firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Admin',
+                  role: data.role as UserRole,
+                  email: firebaseUser.email || '',
+                });
+                setAuthError(null);
+                return;
+              }
+            }
+
+            // If user has no admins doc or invalid role, DENY access immediately
+            await signOut(auth);
+            setUser(null);
+            setAuthError(
+              'عفواً، تم رفض الوصول: حسابك لا يمتلك صلاحية مسجلة في admins/{uid}. يرجى مراجعة مسؤول النظام / Access denied: No admin role found in admins/{uid}.'
+            );
+          } catch (err: any) {
+            console.error('Error verifying admin document in admins/{uid}:', err);
+            await signOut(auth);
+            setUser(null);
+            setAuthError('حدث خطأ أثناء التحقق من صلاحيات الحساب / Error verifying permissions');
+          }
+        });
+      } catch (err) {
+        console.warn('Firebase Auth initialization skipped or failed:', err);
+      }
+    })();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [isFirebaseMode]);
+
+  const clearAuthError = () => {
+    setAuthError(null);
+  };
 
   const loginAsDemoUser = async (role: UserRole) => {
+    if (isFirebaseMode) {
+      throw new Error('الدخول التجريبي غير متاح أثناء تفعيل وضع Firebase المباشر / Demo login disabled in Firebase mode');
+    }
+
     const roleLabels: Record<UserRole, string> = {
       owner: 'د. مالك العيادة (Owner)',
       editor: 'مسؤول المحتوى (Content Editor)',
@@ -68,29 +149,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const loginWithEmail = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    // 1. Supabase Auth if credentials exist in .env
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    if (supabaseUrl && supabaseAnonKey && supabaseUrl !== 'https://your-project.supabase.co') {
+    setAuthError(null);
+
+    // 1. Firebase Auth when Firebase mode is active
+    if (isFirebaseMode) {
       try {
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabase = createClient(supabaseUrl, supabaseAnonKey);
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-          return { success: false, error: error.message };
+        const auth = await getFirebaseAuth();
+        const { signInWithEmailAndPassword, signOut } = await import('firebase/auth');
+        const db = await getFirebaseFirestore();
+        const { doc, getDoc } = await import('firebase/firestore');
+
+        const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
+        const uid = cred.user.uid;
+
+        // Check role in `admins/{uid}`
+        const adminDoc = await getDoc(doc(db, 'admins', uid));
+        if (!adminDoc.exists()) {
+          await signOut(auth);
+          setUser(null);
+          const errorMsg =
+            'تم التحقق من بيانات الدخول، لكن الحساب غير مسجل في وثائق المشرفين (admins/{uid}). يرجى مراجعة المالك / User authenticated, but no admin doc found in admins/{uid}. Access denied.';
+          setAuthError(errorMsg);
+          return { success: false, error: errorMsg };
         }
-        if (data.user) {
-          const newUser: AdminUser = {
-            id: data.user.id,
-            name: data.user.email?.split('@')[0] || 'Admin',
-            role: 'owner',
-            email: data.user.email || email,
-          };
-          setUser(newUser);
-          return { success: true };
+
+        const data = adminDoc.data();
+        const validRoles: UserRole[] = ['owner', 'receptionist', 'editor', 'viewer'];
+        if (!data?.role || !validRoles.includes(data.role as UserRole)) {
+          await signOut(auth);
+          setUser(null);
+          const errorMsg =
+            'الدور المحدد للحساب غير صالح في admins/{uid} / Invalid admin role in admins/{uid}.';
+          setAuthError(errorMsg);
+          return { success: false, error: errorMsg };
         }
+
+        const loggedInUser: AdminUser = {
+          id: uid,
+          name: data.name || cred.user.displayName || cred.user.email?.split('@')[0] || 'Admin',
+          role: data.role as UserRole,
+          email: cred.user.email || email,
+        };
+
+        setUser(loggedInUser);
+        return { success: true };
       } catch (err: any) {
-        console.warn('Supabase auth failed, trying demo check:', err);
+        let message = err.message || 'بيانات الدخول غير صحيحة / Invalid credentials';
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+          message = 'البريد الإلكتروني أو كلمة المرور غير صحيحة / Invalid email or password';
+        }
+        setAuthError(message);
+        return { success: false, error: message };
       }
     }
 
@@ -112,16 +221,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: true };
     }
 
+    const demoError = 'بيانات الدخول غير صحيحة. استخدم admin@hayaah.demo / demo1234 / Invalid credentials';
+    setAuthError(demoError);
     return {
       success: false,
-      error: 'بيانات الدخول غير صحيحة. استخدم admin@hayaah.demo / demo1234 / Invalid credentials',
+      error: demoError,
     };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    if (isFirebaseMode) {
+      try {
+        const auth = await getFirebaseAuth();
+        const { signOut } = await import('firebase/auth');
+        await signOut(auth);
+      } catch (err) {
+        console.warn('Firebase logout error:', err);
+      }
+    } else {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    }
+
     if (user) {
       const storage = getStorageService();
-      storage.logActivity(user.role, user.name, 'User Logout', 'User logged out');
+      await storage.logActivity(user.role, user.name, 'User Logout', 'User logged out');
     }
     setUser(null);
   };
@@ -138,6 +261,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         role,
         isAuthenticated,
+        isFirebaseMode,
+        authError,
+        clearAuthError,
         loginAsDemoUser,
         loginWithEmail,
         logout,
