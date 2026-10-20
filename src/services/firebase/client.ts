@@ -45,21 +45,44 @@ export function isFirebaseConfigured(): boolean {
 
 let appCheckInitialized = false;
 
-async function maybeInitAppCheck(app: FirebaseApp): Promise<void> {
+export async function maybeInitAppCheck(app: FirebaseApp): Promise<void> {
   if (appCheckInitialized) return;
+  if (!isFirebaseConfigured()) return;
   const recaptchaKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
-  if (!recaptchaKey || typeof window === 'undefined') return;
+  if (!recaptchaKey || !recaptchaKey.trim() || typeof window === 'undefined') return;
 
   try {
-    const { initializeAppCheck, ReCaptchaV3Provider } = await import('firebase/app-check');
-    initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(recaptchaKey),
-      isTokenAutoRefreshEnabled: true,
-    });
+    const providerType = import.meta.env.VITE_RECAPTCHA_PROVIDER?.trim().toLowerCase();
+    const isEnterprise = providerType === 'enterprise';
+
+    if (isEnterprise) {
+      const { initializeAppCheck, ReCaptchaEnterpriseProvider } = await import('firebase/app-check');
+      initializeAppCheck(app, {
+        provider: new ReCaptchaEnterpriseProvider(recaptchaKey.trim()),
+        isTokenAutoRefreshEnabled: true,
+      });
+    } else {
+      const { initializeAppCheck, ReCaptchaV3Provider } = await import('firebase/app-check');
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(recaptchaKey.trim()),
+        isTokenAutoRefreshEnabled: true,
+      });
+    }
     appCheckInitialized = true;
   } catch (err) {
     console.warn('[Firebase AppCheck] Initialization failed or skipped:', err);
   }
+}
+
+/**
+ * Resets cached instances and App Check state for unit test isolation.
+ * @internal
+ */
+export function _resetAppCheckForTesting(): void {
+  appCheckInitialized = false;
+  appInstance = null;
+  firestoreInstance = null;
+  authInstance = null;
 }
 
 /**
