@@ -28,6 +28,10 @@
       height: 260px;
       overflow: hidden;
 
+      @media (max-width: 576px) {
+        height: 200px;
+      }
+
       .gallery-thumb-img {
         width: 100%;
         height: 100%;

@@ -394,7 +394,7 @@ export const ImageSlotModal: React.FC = () => {
         }}
       >
         {/* Modal Header */}
-        <div className="d-flex align-items-center justify-content-between p-3 px-4 border-bottom bg-light">
+        <div className="d-flex align-items-center justify-content-between p-3 px-sm-4 border-bottom bg-light">
           <div>
             <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2" style={{ fontSize: '1.15rem' }}>
               <span>تعديل واستبدال الوسائط</span>
@@ -416,10 +416,10 @@ export const ImageSlotModal: React.FC = () => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="d-flex border-bottom bg-white px-4 pt-2 gap-2">
+        <div className="d-flex border-bottom bg-white px-3 px-sm-4 pt-2 gap-2 overflow-x-auto flex-nowrap" style={{ WebkitOverflowScrolling: 'touch' }}>
           <button
             type="button"
-            className={`btn btn-sm py-2 px-3 border-0 rounded-top ${
+            className={`btn btn-sm py-2 px-3 border-0 rounded-top text-nowrap flex-shrink-0 ${
               activeTab === 'image'
                 ? 'border-bottom border-primary border-3 fw-bold text-primary bg-light'
                 : 'text-muted'
@@ -433,7 +433,7 @@ export const ImageSlotModal: React.FC = () => {
           {allowVideo && (
             <button
               type="button"
-              className={`btn btn-sm py-2 px-3 border-0 rounded-top ${
+              className={`btn btn-sm py-2 px-3 border-0 rounded-top text-nowrap flex-shrink-0 ${
                 activeTab === 'video'
                   ? 'border-bottom border-primary border-3 fw-bold text-primary bg-light'
                   : 'text-muted'
@@ -448,7 +448,7 @@ export const ImageSlotModal: React.FC = () => {
           {allowVideo && (
             <button
               type="button"
-              className={`btn btn-sm py-2 px-3 border-0 rounded-top ${
+              className={`btn btn-sm py-2 px-3 border-0 rounded-top text-nowrap flex-shrink-0 ${
                 activeTab === 'link'
                   ? 'border-bottom border-primary border-3 fw-bold text-primary bg-light'
                   : 'text-muted'
@@ -462,7 +462,7 @@ export const ImageSlotModal: React.FC = () => {
         </div>
 
         {/* Modal Body */}
-        <div className="p-4 overflow-y-auto flex-grow-1">
+        <div className="p-3 p-sm-4 overflow-y-auto flex-grow-1">
           {errorMsg && (
             <div className="alert alert-danger d-flex align-items-center gap-2 py-2 mb-3" role="alert">
               <AlertCircle size={16} className="flex-shrink-0" />
@@ -909,17 +909,17 @@ export const ImageSlotModal: React.FC = () => {
         </div>
 
         {/* Modal Footer */}
-        <div className="p-3 px-4 border-top bg-light d-flex justify-content-end gap-2">
+        <div className="p-3 px-sm-4 border-top bg-light d-flex justify-content-end gap-2 flex-wrap">
           <button
             type="button"
-            className="btn btn-secondary btn-sm px-3"
+            className="btn btn-secondary btn-sm px-3 flex-grow-1 flex-sm-grow-0"
             onClick={() => setEditingSlot(null)}
           >
             إلغاء
           </button>
           <button
             type="button"
-            className="btn btn-primary btn-sm px-4 d-flex align-items-center gap-1"
+            className="btn btn-primary btn-sm px-4 d-flex align-items-center justify-content-center gap-1 flex-grow-1 flex-sm-grow-0"
             onClick={handleSave}
             disabled={isSaving || isUploading}
           >

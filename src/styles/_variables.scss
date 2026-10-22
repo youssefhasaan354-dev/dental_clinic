@@ -83,3 +83,11 @@
     --section-padding: 60px 0 45px;
   }
 }
+
+@media (max-width: 360px) {
+  :root {
+    --radius-section: 16px;
+    --section-margin: 0 6px;
+    --section-padding: 45px 0 35px;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { IMAGES } from '../../data/images';
 import EditableMedia from '../VisualEdit/EditableMedia';
@@ -13,10 +13,29 @@ const BeforeAfter = ({
   const { language, t } = useTranslation();
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef(null);
 
   const bLabel = beforeLabel || (language === 'ar' ? 'قبل العلاج' : 'Before');
   const aLabel = afterLabel || (language === 'ar' ? 'بعد العلاج' : 'After');
+
+  // Keep before image exactly aligned with container width across all viewports
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.clientWidth);
+      }
+    };
+    updateWidth();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateWidth();
+    });
+    resizeObserver.observe(containerRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, []);
 
   const handleMove = useCallback((clientX) => {
     if (!containerRef.current) return;
@@ -41,10 +60,29 @@ const BeforeAfter = ({
     handleMove(e.touches[0].clientX);
   };
 
+  // Keyboard navigation for WCAG 2.2 AA accessibility
+  const handleKeyDown = (e) => {
+    const STEP = 5;
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      setSliderPosition((prev) => Math.max(0, prev - STEP));
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      setSliderPosition((prev) => Math.min(100, prev + STEP));
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      setSliderPosition(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      setSliderPosition(100);
+    }
+  };
+
   return (
     <div
       className="before-after-wrapper"
       ref={containerRef}
+      style={{ '--ba-width': containerWidth ? `${containerWidth}px` : '100%' }}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
@@ -75,10 +113,17 @@ const BeforeAfter = ({
         <span className="ba-badge badge-before">{bLabel}</span>
       </div>
 
-      {/* Draggable Divider Handle */}
+      {/* Draggable Divider Handle with Accessible Slider Role */}
       <div
         className="ba-divider-handle"
         style={{ left: `${sliderPosition}%` }}
+        role="slider"
+        tabIndex={0}
+        aria-valuenow={Math.round(sliderPosition)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={language === 'ar' ? 'شريط المقارنة قبل وبعد' : 'Before and after comparison slider'}
+        onKeyDown={handleKeyDown}
         onMouseDown={handleMouseDown}
         onTouchStart={() => setIsDragging(true)}
       >

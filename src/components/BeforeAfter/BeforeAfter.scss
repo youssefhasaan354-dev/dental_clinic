@@ -37,14 +37,11 @@
     .ba-image-before,
     .ba-image-before img,
     .ba-image-before video {
-      width: 820px;
+      width: var(--ba-width, 100%);
+      min-width: var(--ba-width, 100%);
       max-width: none;
       height: 100%;
       object-fit: cover;
-
-      @media (max-width: 768px) {
-        width: 100vw;
-      }
     }
   }
 
@@ -86,6 +83,15 @@
     align-items: center;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 
+    &:focus-visible {
+      outline: none;
+
+      .handle-circle {
+        box-shadow: 0 0 0 4px var(--color-accent), 0 4px 20px rgba(88, 63, 188, 0.6);
+        transform: scale(1.15);
+      }
+    }
+
     .handle-line {
       flex: 1;
       width: 2px;
@@ -93,8 +99,8 @@
     }
 
     .handle-circle {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: var(--color-primary);
       color: #FFFFFF;
@@ -103,7 +109,7 @@
       justify-content: center;
       box-shadow: 0 4px 15px rgba(88, 63, 188, 0.45);
       border: 3px solid #FFFFFF;
-      transition: transform 0.15s ease;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
 
       &:hover {
         transform: scale(1.1);

@@ -9,6 +9,8 @@ html {
   scroll-behavior: smooth;
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
@@ -19,6 +21,7 @@ body {
   font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
   line-height: 1.65;
   overflow-x: hidden;
+  max-width: 100%;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -74,10 +77,15 @@ a {
   }
 }
 
-img {
+img,
+video {
   max-width: 100%;
   height: auto;
   display: block;
+}
+
+iframe {
+  max-width: 100%;
 }
 
 // Section Base Design Language (from template, elevated)
@@ -110,6 +118,39 @@ img {
   }
   .pb-70 {
     padding-bottom: 45px;
+  }
+}
+
+// Responsive Bootstrap gutter stabilization for mobile viewports
+@media (max-width: 991px) {
+  .row.g-5 {
+    --bs-gutter-x: 1.5rem;
+    --bs-gutter-y: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .row {
+    --bs-gutter-x: 1.25rem;
+  }
+
+  .row.g-4,
+  .row.g-5 {
+    --bs-gutter-x: 1.25rem;
+    --bs-gutter-y: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .row {
+    --bs-gutter-x: 0.75rem;
+  }
+
+  .row.g-3,
+  .row.g-4,
+  .row.g-5 {
+    --bs-gutter-x: 0.75rem;
+    --bs-gutter-y: 1.25rem;
   }
 }
 

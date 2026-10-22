@@ -33,6 +33,10 @@
         height: 250px;
         object-fit: contain;
         transition: transform 0.35s ease;
+
+        @media (max-width: 480px) {
+          height: 210px;
+        }
       }
 
       .dept-tag {
@@ -47,6 +51,9 @@
         padding: 4px 12px;
         border-radius: 9999px;
         white-space: nowrap;
+        max-width: 90%;
+        text-overflow: ellipsis;
+        overflow: hidden;
         backdrop-filter: blur(4px);
       }
     }

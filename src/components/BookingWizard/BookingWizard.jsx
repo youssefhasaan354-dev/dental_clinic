@@ -336,10 +336,10 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
         {step === 1 && (
           <motion.div
             key="step1"
-            initial={{ opacity: 0, x: isAr ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: isAr ? -20 : 20 }}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.2 }}
             className="step-pane"
           >
             <div className="pane-header mb-4 text-center">
@@ -412,10 +412,10 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
         {step === 2 && (
           <motion.div
             key="step2"
-            initial={{ opacity: 0, x: isAr ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: isAr ? -20 : 20 }}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.2 }}
             className="step-pane"
           >
             <div className="pane-header mb-4 text-center">
@@ -514,10 +514,10 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
         {step === 3 && (
           <motion.div
             key="step3"
-            initial={{ opacity: 0, x: isAr ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: isAr ? -20 : 20 }}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.2 }}
             className="step-pane"
           >
             <div className="pane-header mb-4 text-center">
@@ -587,10 +587,10 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
         {step === 4 && (
           <motion.div
             key="step4"
-            initial={{ opacity: 0, x: isAr ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: isAr ? -20 : 20 }}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.2 }}
             className="step-pane"
           >
             <div className="pane-header mb-4 text-center">
@@ -809,10 +809,10 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
         {step === 5 && (
           <motion.div
             key="step5"
-            initial={{ opacity: 0, x: isAr ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: isAr ? -20 : 20 }}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.2 }}
             className="step-pane"
           >
             <div className="pane-header mb-4 text-center">

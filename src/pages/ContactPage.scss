@@ -79,6 +79,10 @@
   }
 
   .working-hours-card {
+    @media (max-width: 576px) {
+      padding: 20px 14px !important;
+    }
+
     .cairo-tz-badge {
       font-size: 0.78rem;
       font-weight: 700;
@@ -86,6 +90,11 @@
       padding: 4px 10px;
       border-radius: 9999px;
       color: var(--color-muted);
+    }
+
+    .hours-table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .hours-styled-table {
@@ -105,6 +114,11 @@
           padding: 14px 12px;
           vertical-align: middle;
           font-size: 0.95rem;
+
+          @media (max-width: 480px) {
+            padding: 10px 6px;
+            font-size: 0.84rem;
+          }
         }
 
         .today-badge {

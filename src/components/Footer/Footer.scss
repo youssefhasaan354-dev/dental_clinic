@@ -4,6 +4,10 @@
   color: var(--color-text-body);
   position: relative;
 
+  @media (max-width: 767.98px) {
+    padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px));
+  }
+
   .footer-brand-block {
     .footer-logo img {
       max-width: 220px;

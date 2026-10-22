@@ -2,6 +2,14 @@
   position: relative;
 
   .service-filters-row {
+    @media (max-width: 576px) {
+      justify-content: flex-start !important;
+      overflow-x: auto;
+      flex-wrap: nowrap !important;
+      padding-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+
     .filter-chip {
       background: #F1F5FA;
       border: 1px solid rgba(88, 63, 188, 0.08);
@@ -12,6 +20,13 @@
       border-radius: 9999px;
       cursor: pointer;
       transition: all 0.25s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+
+      @media (max-width: 576px) {
+        font-size: 0.84rem;
+        padding: 6px 14px;
+      }
 
       &:hover {
         background: var(--color-primary-light);

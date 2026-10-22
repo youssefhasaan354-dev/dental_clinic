@@ -56,6 +56,18 @@
     }
 
     .service-meta-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      @media (max-width: 576px) {
+        flex-direction: column;
+
+        .meta-badge-box {
+          width: 100%;
+        }
+      }
+
       .meta-badge-box {
         display: flex;
         align-items: center;

@@ -335,10 +335,11 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
       fetchPriority={isHero ? 'high' : undefined}
       className={`editable-media-img ${className}`}
       style={{
-        width: as === 'background' ? '100%' : width,
-        height: as === 'background' ? '100%' : height,
+        width: as === 'background' ? '100%' : undefined,
+        height: as === 'background' ? '100%' : undefined,
         objectFit: as === 'background' ? 'cover' : undefined,
         ...innerMediaStyle,
+        ...style,
       }}
     />
   );

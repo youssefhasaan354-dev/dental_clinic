@@ -53,6 +53,21 @@
       text-align: start;
       border-radius: 20px;
 
+      @media (max-width: 576px) {
+        bottom: 14px;
+        inset-inline-end: 14px;
+        padding: 10px 16px;
+        border-radius: 14px;
+
+        .big-stat {
+          font-size: 1.6rem;
+        }
+
+        .stat-label {
+          font-size: 0.75rem;
+        }
+      }
+
       .big-stat {
         display: block;
         font-size: 2.2rem;

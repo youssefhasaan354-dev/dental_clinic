@@ -18,8 +18,8 @@ const AboutBanner = () => {
           <div className="col-lg-6">
             <motion.div
               className="about-banner-text"
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
               <div className="d-inline-flex align-items-center gap-2 about-badge mb-3">

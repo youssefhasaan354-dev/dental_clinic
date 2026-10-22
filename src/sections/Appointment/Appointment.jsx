@@ -25,8 +25,8 @@ const Appointment = () => {
           <div className="col-lg-5 col-md-12">
             <motion.div
               className="clinic-location-map-card h-100 d-flex flex-column"
-              initial={{ opacity: 0, x: -25 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
             >
@@ -104,8 +104,8 @@ const Appointment = () => {
           <div className="col-lg-7 col-md-12">
             <motion.div
               className="booking-form-container h-100"
-              initial={{ opacity: 0, x: 25 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
             >

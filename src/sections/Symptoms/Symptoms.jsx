@@ -80,8 +80,8 @@ const Symptoms = ({
               <div key={idx} className="col-lg-6">
                 <motion.div
                   className="symptom-pill-card d-flex align-items-center gap-3 p-3"
-                  initial={{ opacity: 0, x: -15 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.08 }}
                 >

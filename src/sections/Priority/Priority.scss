@@ -11,6 +11,9 @@
   }
 
   .priority-text-block {
+    max-width: 100%;
+    overflow: hidden;
+
     .value-card-item {
       .value-check-icon {
         width: 38px;

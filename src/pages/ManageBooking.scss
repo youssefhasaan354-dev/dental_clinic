@@ -1,6 +1,13 @@
 @import '../styles/variables';
 
 .manage-booking-page {
+  @media (max-width: 576px) {
+    .lookup-card,
+    .appointment-result-card {
+      padding: 20px 14px !important;
+    }
+  }
+
   .lookup-card {
     background: #ffffff;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);

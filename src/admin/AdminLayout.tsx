@@ -233,7 +233,9 @@ export const AdminLayout: React.FC = () => {
             {mobileSidebarOpen && (
               <button
                 type="button"
-                className="btn btn-sm btn-link p-0 text-muted d-lg-none"
+                className="btn btn-sm btn-link p-0 text-muted d-lg-none d-flex align-items-center justify-content-center"
+                style={{ width: '44px', height: '44px', minWidth: '44px', minHeight: '44px' }}
+                aria-label={isAr ? 'إغلاق القائمة' : 'Close menu'}
                 onClick={() => setMobileSidebarOpen(false)}
               >
                 <X size={20} />
@@ -308,6 +310,16 @@ export const AdminLayout: React.FC = () => {
           </div>
         </aside>
 
+        {/* Mobile Sidebar Overlay Backdrop */}
+        {mobileSidebarOpen && (
+          <div
+            className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-lg-none"
+            style={{ zIndex: 2 }}
+            onClick={() => setMobileSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
         {/* Main Workspace */}
         <div className="flex-grow-1 d-flex flex-column overflow-hidden">
           {/* Top Navbar */}
@@ -315,7 +327,9 @@ export const AdminLayout: React.FC = () => {
             <div className="d-flex align-items-center gap-2">
               <button
                 type="button"
-                className="btn btn-outline-secondary btn-sm d-lg-none p-1"
+                className="btn btn-outline-secondary btn-sm d-lg-none d-flex align-items-center justify-content-center p-0"
+                style={{ width: '44px', height: '44px', minWidth: '44px', minHeight: '44px' }}
+                aria-label={isAr ? 'فتح القائمة الجانبية' : 'Open menu'}
                 onClick={() => setMobileSidebarOpen(true)}
               >
                 <Menu size={20} />

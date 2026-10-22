@@ -16,6 +16,9 @@
   }
 
   .emergency-text-content {
+    max-width: 100%;
+    overflow: hidden;
+
     .emergency-alert-tag {
       background: #FEE2E2;
       color: #DC2626;
@@ -46,6 +49,22 @@
     }
 
     .emergency-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      @media (max-width: 576px) {
+        flex-direction: column;
+        align-items: stretch;
+
+        .btn-emergency-call,
+        .btn-emergency-whatsapp {
+          width: 100%;
+          justify-content: center;
+          padding: 12px 18px;
+        }
+      }
+
       .btn-emergency-call {
         display: inline-flex;
         align-items: center;
