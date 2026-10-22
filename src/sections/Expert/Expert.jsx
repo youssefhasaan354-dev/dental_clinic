@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { IMAGES } from '../../data/images';
+import EditableMedia from '../../components/VisualEdit/EditableMedia';
 import SectionTitle from '../../components/SectionTitle/SectionTitle';
 import { FiCheckCircle, FiShield, FiHeart, FiClock } from 'react-icons/fi';
 import './Expert.scss';
@@ -64,12 +65,13 @@ const Expert = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <img
-                src={IMAGES.sections.expert}
-                alt="Hayaah Dental Clinic Facility & Practitioners"
+              <EditableMedia
+                slotId="slot-home-expert"
+                defaultSrc={IMAGES.sections.expert}
+                alt={{ ar: 'تجهيزات وفريق عيادة حياة لطب الأسنان', en: 'Hayaah Dental Clinic Facility & Practitioners' }}
                 className="expert-main-img"
-                width="520"
-                height="500"
+                width={520}
+                height={500}
               />
 
               <div className="expert-floating-card glass-card">

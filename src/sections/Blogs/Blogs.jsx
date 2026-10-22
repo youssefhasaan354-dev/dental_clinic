@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { BLOG_POSTS } from '../../data/blog';
+import EditableMedia from '../../components/VisualEdit/EditableMedia';
 import SectionTitle from '../../components/SectionTitle/SectionTitle';
 import { FiClock, FiCalendar, FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 import './Blogs.scss';
@@ -35,11 +36,16 @@ const Blogs = ({ limit = 3, showAllBtn = true }) => {
               >
                 <div className="blog-thumb-box">
                   <Link to={`/blog/${post.slug}`}>
-                    <img
-                      src={post.image}
-                      alt={language === 'ar' ? post.title.ar : post.title.en}
+                    <EditableMedia
+                      slotId={`slot-article-${post.id}`}
+                      defaultSrc={post.image}
+                      alt={{ ar: post.title.ar, en: post.title.en }}
                       className="blog-post-img"
                       loading="lazy"
+                      posterOnly
+                      width="100%"
+                      height={220}
+                      style={{ objectFit: 'cover' }}
                     />
                   </Link>
                   <span className="blog-category-badge">

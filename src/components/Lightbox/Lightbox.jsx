@@ -2,6 +2,7 @@ import React, { useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useTranslation } from '../../i18n/LanguageContext';
+import EditableMedia from '../VisualEdit/EditableMedia';
 import './Lightbox.scss';
 
 const Lightbox = ({ isOpen, onClose, images, currentIndex, onIndexChange }) => {
@@ -71,7 +72,14 @@ const Lightbox = ({ isOpen, onClose, images, currentIndex, onIndexChange }) => {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.25 }}
           >
-            <img src={currentItem.src} alt={caption} />
+            <EditableMedia
+              slotId={currentItem.slotId || `slot-gallery-${currentIndex + 1}`}
+              defaultSrc={currentItem.src}
+              alt={{ ar: currentItem.altAr || caption, en: currentItem.altEn || caption }}
+              disableOverlay
+              controls
+              style={{ maxWidth: '90vw', maxHeight: '80vh', objectFit: 'contain' }}
+            />
             {caption && <div className="lightbox-caption">{caption}</div>}
           </motion.div>
 

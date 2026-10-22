@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import FloatingActions from '../components/FloatingActions/FloatingActions';
 import ScrollProgress from '../components/ScrollProgress/ScrollProgress';
+import EditableMedia from '../components/VisualEdit/EditableMedia';
 import { getBlogPostBySlug, BLOG_POSTS } from '../data/blog';
 import { useTranslation } from '../i18n/LanguageContext';
 import {
@@ -90,13 +91,16 @@ const SingleBlog = () => {
               </div>
 
               {/* Featured Image */}
-              <div className="article-featured-image-box mb-5">
-                <img
-                  src={post.image}
-                  alt={shareTitle}
-                  className="article-hero-img"
-                  width="900"
-                  height="480"
+              <div className="article-featured-image-box mb-5 overflow-hidden rounded-4">
+                <EditableMedia
+                  slotId={`slot-article-${post.id}`}
+                  defaultSrc={post.image}
+                  alt={{ ar: post.title.ar, en: post.title.en }}
+                  className="article-hero-img w-100"
+                  width={900}
+                  height={480}
+                  priority
+                  style={{ borderRadius: '16px', objectFit: 'cover' }}
                 />
               </div>
 
@@ -231,10 +235,14 @@ const SingleBlog = () => {
                     <div key={rPost.id} className="col-md-4">
                       <div className="related-blog-card p-3 rounded-4 border bg-white h-100 d-flex flex-column">
                         <Link to={`/blog/${rPost.slug}`}>
-                          <img
-                            src={rPost.image}
-                            alt={language === 'ar' ? rPost.title.ar : rPost.title.en}
+                          <EditableMedia
+                            slotId={`slot-article-${rPost.id}`}
+                            defaultSrc={rPost.image}
+                            alt={{ ar: rPost.title.ar, en: rPost.title.en }}
                             className="rounded-3 w-100 mb-3"
+                            posterOnly
+                            width="100%"
+                            height={140}
                             style={{ height: '140px', objectFit: 'cover' }}
                           />
                         </Link>

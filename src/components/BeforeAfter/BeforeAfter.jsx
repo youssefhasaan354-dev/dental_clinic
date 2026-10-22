@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { IMAGES } from '../../data/images';
+import EditableMedia from '../VisualEdit/EditableMedia';
 import './BeforeAfter.scss';
 
 const BeforeAfter = ({
@@ -50,9 +51,10 @@ const BeforeAfter = ({
       onTouchMove={handleTouchMove}
     >
       {/* After Image (Background) */}
-      <img
-        src={afterImg}
-        alt="After dental treatment"
+      <EditableMedia
+        slotId="slot-beforeafter-after"
+        defaultSrc={afterImg}
+        alt={{ ar: 'بعد علاج الأسنان', en: 'After dental treatment' }}
         className="ba-image ba-image-after"
         loading="lazy"
       />
@@ -63,9 +65,10 @@ const BeforeAfter = ({
         className="ba-clipped-container"
         style={{ width: `${sliderPosition}%` }}
       >
-        <img
-          src={beforeImg}
-          alt="Before dental treatment"
+        <EditableMedia
+          slotId="slot-beforeafter-before"
+          defaultSrc={beforeImg}
+          alt={{ ar: 'قبل علاج الأسنان', en: 'Before dental treatment' }}
           className="ba-image ba-image-before"
           loading="lazy"
         />

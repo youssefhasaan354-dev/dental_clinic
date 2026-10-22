@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logoSvg from '../../assets/logo.svg';
+import EditableMedia from '../VisualEdit/EditableMedia';
 import './BrandLoader.scss';
 
 const BrandLoader = ({ onFinish }) => {
@@ -28,7 +29,15 @@ const BrandLoader = ({ onFinish }) => {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.45 }}
           >
-            <img src={logoSvg} alt="Hayaah Dental Clinic" className="loader-logo-img" />
+            <EditableMedia
+              slotId="slot-logo"
+              defaultSrc={logoSvg}
+              alt={{ ar: 'عيادة حياة لطب الأسنان', en: 'Hayaah Dental Clinic' }}
+              className="loader-logo-img"
+              width={240}
+              height={60}
+              inline
+            />
             <div className="loader-progress-track mt-4">
               <motion.div
                 className="loader-progress-bar"

@@ -6,18 +6,29 @@ import { IMAGES } from '../../data/images';
 import SectionTitle from '../../components/SectionTitle/SectionTitle';
 import BeforeAfter from '../../components/BeforeAfter/BeforeAfter';
 import Lightbox from '../../components/Lightbox/Lightbox';
+import EditableMedia from '../../components/VisualEdit/EditableMedia';
 import { FiZoomIn, FiShield } from 'react-icons/fi';
 import './Gallery.scss';
 
 const Gallery = () => {
   const { t } = useTranslation();
   const { language } = useLanguage();
-  const { settings } = useData();
+  const { settings, getImageSlot } = useData();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const isAr = language === 'ar';
-  const galleryImages = IMAGES.serviceDetails.gallery;
+  const galleryImages = IMAGES.serviceDetails.gallery.map((img, idx) => {
+    const slotId = `slot-gallery-${idx + 1}`;
+    const slot = getImageSlot(slotId);
+    return {
+      ...img,
+      slotId,
+      src: slot?.currentUrl || img.src,
+      altAr: slot?.altText?.ar || img.altAr,
+      altEn: slot?.altText?.en || img.altEn,
+    };
+  });
 
   const openLightboxAt = (idx) => {
     setLightboxIndex(idx);
@@ -74,9 +85,10 @@ const Gallery = () => {
                 aria-label={isAr ? img.altAr : img.altEn}
               >
                 <div className="gallery-thumb-wrapper">
-                  <img
-                    src={img.src}
-                    alt={isAr ? img.altAr : img.altEn}
+                  <EditableMedia
+                    slotId={img.slotId}
+                    defaultSrc={img.src}
+                    alt={{ ar: img.altAr, en: img.altEn }}
                     className="gallery-thumb-img w-100"
                     loading="lazy"
                     style={{ height: '240px', objectFit: 'cover' }}

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { IMAGES } from '../../data/images';
+import EditableMedia from '../../components/VisualEdit/EditableMedia';
 import SectionTitle from '../../components/SectionTitle/SectionTitle';
 import { FiCheckCircle, FiCalendar } from 'react-icons/fi';
 import './Priority.scss';
@@ -43,10 +44,13 @@ const Priority = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <img
-                src={IMAGES.sections.priority}
-                alt="Patient First Philosophy"
+              <EditableMedia
+                slotId="slot-about"
+                defaultSrc={IMAGES.sections.priority}
+                alt={{ ar: 'أنت أولويتنا الأولى - عيادة حياة لطب الأسنان', en: 'Patient First Philosophy - Hayaah Dental Clinic' }}
                 className="priority-main-img"
+                width={560}
+                height={420}
               />
             </motion.div>
           </div>

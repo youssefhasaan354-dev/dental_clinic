@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { IMAGES } from '../../data/images';
+import EditableMedia from '../../components/VisualEdit/EditableMedia';
 import { CLINIC_DATA } from '../../data/clinic';
 import { FiCalendar, FiShield, FiHeart } from 'react-icons/fi';
 import './AboutBanner.scss';
@@ -72,15 +73,21 @@ const AboutBanner = () => {
               transition={{ duration: 0.7 }}
             >
               <div className="d-flex gap-3 justify-content-center">
-                <img
-                  src={IMAGES.about.banner1}
-                  alt="Hayaah Clinic Suite"
+                <EditableMedia
+                  slotId="slot-about-banner-1"
+                  defaultSrc={IMAGES.about.banner1}
+                  alt={{ ar: 'عيادة حياة لطب الأسنان - العيادة والأجهزة', en: 'Hayaah Clinic Suite' }}
                   className="banner-img-1"
+                  width={280}
+                  height={380}
                 />
-                <img
-                  src={IMAGES.about.banner2}
-                  alt="Doctor at Work"
+                <EditableMedia
+                  slotId="slot-about-banner-2"
+                  defaultSrc={IMAGES.about.banner2}
+                  alt={{ ar: 'طبيب الأسنان أثناء الفحص الطبي', en: 'Doctor at Work' }}
                   className="banner-img-2"
+                  width={280}
+                  height={380}
                 />
               </div>
 

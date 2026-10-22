@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation, useLanguage } from '../../i18n/LanguageContext';
 import { useData } from '../../context/DataContext';
-import { ImageSlotOverlay } from '../../components/VisualEdit/ImageSlotOverlay';
+import EditableMedia from '../../components/VisualEdit/EditableMedia';
 import { FiCalendar, FiPhoneCall, FiStar, FiShield, FiArrowDown } from 'react-icons/fi';
 import OpenBadge from '../../components/OpenBadge/OpenBadge';
 import { CLINIC_RATING } from '../../data/clinic';
@@ -13,14 +13,10 @@ import './Banner.scss';
 const Banner = () => {
   const { t } = useTranslation();
   const { language } = useLanguage();
-  const { clinicInfo, getImageSlot } = useData();
+  const { clinicInfo } = useData();
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const isAr = language === 'ar';
-  const heroSlot = getImageSlot('slot-hero');
-  const heroImgUrl = (heroSlot?.currentUrl && heroSlot.currentUrl !== '/assets/banner/1.png')
-    ? heroSlot.currentUrl
-    : heroModelImg;
 
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -133,16 +129,15 @@ const Banner = () => {
               transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="banner-img-wrapper">
-                <ImageSlotOverlay slotId="slot-hero">
-                  <img
-                    src={heroImgUrl}
-                    alt={isAr ? heroSlot?.altText?.ar || 'عيادة حياة لطب الأسنان' : heroSlot?.altText?.en || 'Hayaah Dental Clinic'}
-                    className="main-hero-img"
-                    width="540"
-                    height="580"
-                    style={{ objectFit: 'cover', borderRadius: '24px' }}
-                  />
-                </ImageSlotOverlay>
+                <EditableMedia
+                  slotId="slot-hero"
+                  defaultSrc={heroModelImg}
+                  alt={{ ar: 'عيادة حياة لطب الأسنان - فريق الأطباء والعيادة', en: 'Hayaah Dental Clinic - Hero Visual' }}
+                  className="main-hero-img"
+                  width={540}
+                  height={580}
+                  style={{ borderRadius: '24px' }}
+                />
               </div>
 
               {/* Floating Verified Rating Badge */}
@@ -153,7 +148,14 @@ const Banner = () => {
               >
                 <div className="d-flex align-items-center gap-3">
                   <div className="badge-avatar">
-                    <img src="/assets/banner/doctor.png" alt="Doctor" />
+                    <EditableMedia
+                      slotId="slot-home-hero-badge"
+                      defaultSrc="/assets/banner/doctor.png"
+                      alt={{ ar: 'طبيب معتمد', en: 'Certified Doctor' }}
+                      width={48}
+                      height={48}
+                      inline
+                    />
                   </div>
                   <div className="badge-text">
                     <h6 className="badge-title">

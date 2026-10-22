@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { useData } from '../../context/DataContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { QrCode, Download, Printer, ExternalLink, Sparkles } from 'lucide-react';
+import EditableMedia from '../../components/VisualEdit/EditableMedia';
 
 export const QrGenerator: React.FC = () => {
   const { clinicInfo } = useData();
@@ -191,7 +192,14 @@ export const QrGenerator: React.FC = () => {
               }}
             >
               <div className="mb-3">
-                <img src="/assets/logo.svg" alt="Hayaah Clinic" style={{ height: '48px', maxWidth: '200px' }} />
+                <EditableMedia
+                  slotId="slot-logo"
+                  defaultSrc="/assets/logo.svg"
+                  alt={{ ar: 'شعار عيادة حياة', en: 'Hayaah Clinic' }}
+                  disableOverlay
+                  inline
+                  style={{ height: '48px', maxWidth: '200px' }}
+                />
               </div>
 
               <h4 className="fw-bold text-dark h5 mb-1">

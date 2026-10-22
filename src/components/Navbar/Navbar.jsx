@@ -5,6 +5,7 @@ import { useTranslation } from '../../i18n/LanguageContext';
 import { CLINIC_DATA } from '../../data/clinic';
 import OpenBadge from '../OpenBadge/OpenBadge';
 import logoSvg from '../../assets/logo.svg';
+import EditableMedia from '../VisualEdit/EditableMedia';
 import { FiPhoneCall, FiCalendar, FiGlobe, FiMenu, FiX, FiClock } from 'react-icons/fi';
 import './Navbar.scss';
 
@@ -85,7 +86,14 @@ const Navbar = () => {
           <nav className="d-flex align-items-center justify-content-between">
             {/* Logo */}
             <Link to="/" className="navbar-brand-logo" aria-label="Hayaah Dental Clinic Home">
-              <img src={logoSvg} alt="Hayaah Dental Clinic Logo" width="220" height="55" />
+              <EditableMedia
+                slotId="slot-logo"
+                defaultSrc={logoSvg}
+                alt={{ ar: 'شعار عيادة حياة للأسنان', en: 'Hayaah Dental Clinic Logo' }}
+                width={220}
+                height={55}
+                inline
+              />
             </Link>
 
             {/* Desktop Navigation Links */}

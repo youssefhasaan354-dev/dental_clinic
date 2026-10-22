@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation, useLanguage } from '../../i18n/LanguageContext';
 import { useData } from '../../context/DataContext';
 import logoSvg from '../../assets/logo.svg';
+import EditableMedia from '../VisualEdit/EditableMedia';
 import {
   FiPhoneCall,
   FiMapPin,
@@ -47,7 +48,14 @@ const Footer = () => {
           <div className="col-lg-4 col-md-6">
             <div className="footer-brand-block pe-lg-4">
               <Link to="/" className="footer-logo mb-3 d-inline-block">
-                <img src={logoSvg} alt="Hayaah Dental Clinic" width="230" height="58" />
+                <EditableMedia
+                  slotId="slot-footer-logo"
+                  defaultSrc={logoSvg}
+                  alt={{ ar: 'شعار عيادة حياة للأسنان', en: 'Hayaah Dental Clinic Logo' }}
+                  width={230}
+                  height={58}
+                  inline
+                />
               </Link>
 
               <p className="footer-about-text">

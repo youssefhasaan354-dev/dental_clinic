@@ -4,6 +4,7 @@ import { useTranslation, useLanguage } from '../../i18n/LanguageContext';
 import { useData } from '../../context/DataContext';
 import { useNavigate } from 'react-router-dom';
 import SectionTitle from '../../components/SectionTitle/SectionTitle';
+import EditableMedia from '../../components/VisualEdit/EditableMedia';
 import { FiCalendar, FiAward, FiGlobe, FiUserCheck } from 'react-icons/fi';
 import './Team.scss';
 
@@ -50,18 +51,29 @@ const Team = () => {
                   whileHover={{ y: -6 }}
                 >
                   <div className="d-flex align-items-center gap-3 mb-3">
-                    <div
-                      className="doctor-avatar-circle flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center"
-                      style={{
-                        width: '74px',
-                        height: '74px',
-                        backgroundColor: '#e0f4f4',
-                        color: '#0c6674',
-                        fontSize: '1.8rem',
-                      }}
-                    >
-                      <FiUserCheck size={36} />
-                    </div>
+                    <EditableMedia
+                      slotId={`slot-doctor-${doctor.id.replace('doc-', '')}`}
+                      defaultSrc={doctor.photoUrl || ''}
+                      alt={{ ar: doctor.name.ar, en: doctor.name.en }}
+                      width={74}
+                      height={74}
+                      inline
+                      style={{ width: '74px', height: '74px', borderRadius: '50%', objectFit: 'cover' }}
+                      fallback={(
+                        <div
+                          className="doctor-avatar-circle flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center"
+                          style={{
+                            width: '74px',
+                            height: '74px',
+                            backgroundColor: '#e0f4f4',
+                            color: '#0c6674',
+                            fontSize: '1.8rem',
+                          }}
+                        >
+                          <FiUserCheck size={36} />
+                        </div>
+                      )}
+                    />
                     <div>
                       <h4 className="h5 fw-bold mb-1 text-dark">
                         {isAr ? doctor.name.ar : doctor.name.en}

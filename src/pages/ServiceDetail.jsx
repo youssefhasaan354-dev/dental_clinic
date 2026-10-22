@@ -8,7 +8,9 @@ import ScrollProgress from '../components/ScrollProgress/ScrollProgress';
 import SectionTitle from '../components/SectionTitle/SectionTitle';
 import ContactForm from '../components/ContactForm/ContactForm';
 import Gallery from '../sections/Gallery/Gallery';
+import EditableMedia from '../components/VisualEdit/EditableMedia';
 import { getServiceBySlug, SERVICES } from '../data/services';
+import { IMAGES } from '../data/images';
 import { useTranslation } from '../i18n/LanguageContext';
 import {
   FiClock,
@@ -119,6 +121,16 @@ const ServiceDetail = () => {
             </div>
 
             <div className="col-lg-5 text-center">
+              <div className="service-hero-media mb-4 overflow-hidden rounded-4 shadow-sm">
+                <EditableMedia
+                  slotId={service.imageSlotId || 'slot-service-detail-hero'}
+                  defaultSrc={IMAGES.serviceDetails.hero}
+                  alt={{ ar: service.title.ar, en: service.title.en }}
+                  width="100%"
+                  height={240}
+                  style={{ objectFit: 'cover', borderRadius: '16px' }}
+                />
+              </div>
               <motion.div
                 className="service-hero-card glass-card p-4 text-start"
                 initial={{ opacity: 0, scale: 0.95 }}

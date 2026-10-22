@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation, useLanguage } from '../../i18n/LanguageContext';
 import { useData } from '../../context/DataContext';
-import { ImageSlotOverlay } from '../../components/VisualEdit/ImageSlotOverlay';
+import EditableMedia from '../../components/VisualEdit/EditableMedia';
 import { FiPhoneCall, FiAlertCircle, FiShield } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import emergencyImg from '../../assets/emergency.png';
@@ -11,13 +11,9 @@ import './Emergency.scss';
 const Emergency = () => {
   const { t } = useTranslation();
   const { language } = useLanguage();
-  const { clinicInfo, getImageSlot } = useData();
+  const { clinicInfo } = useData();
 
   const isAr = language === 'ar';
-  const emergencySlot = getImageSlot('slot-emergency');
-  const imageUrl = (emergencySlot?.currentUrl && emergencySlot.currentUrl !== '/assets/emergency.png')
-    ? emergencySlot.currentUrl
-    : emergencyImg;
 
   const emergencyWhatsAppMsg = isAr
     ? 'مرحباً، لدي حالة طوارئ أسنان عاجلة وأحتاج مساعدة سريعة في العيادة.'
@@ -38,16 +34,15 @@ const Emergency = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <ImageSlotOverlay slotId="slot-emergency">
-                <img
-                  src={imageUrl}
-                  alt={isAr ? emergencySlot?.altText?.ar || 'طوارئ الأسنان' : emergencySlot?.altText?.en || 'Dental Emergency'}
-                  className="emergency-image"
-                  width="500"
-                  height="450"
-                  style={{ objectFit: 'cover', borderRadius: '16px', width: '100%' }}
-                />
-              </ImageSlotOverlay>
+              <EditableMedia
+                slotId="slot-emergency"
+                defaultSrc={emergencyImg}
+                alt={{ ar: 'طوارئ الأسنان - عيادة حياة', en: 'Dental Emergency - Hayaah Clinic' }}
+                className="emergency-image"
+                width={500}
+                height={450}
+                style={{ borderRadius: '16px' }}
+              />
             </motion.div>
           </div>
 

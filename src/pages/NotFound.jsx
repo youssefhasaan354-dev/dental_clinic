@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import FloatingActions from '../components/FloatingActions/FloatingActions';
+import EditableMedia from '../components/VisualEdit/EditableMedia';
 import { useTranslation } from '../i18n/LanguageContext';
 import { FiHome, FiCompass } from 'react-icons/fi';
 import './NotFound.scss';
@@ -17,6 +18,17 @@ const NotFound = () => {
       <section className="not-found-content-section py-5 my-5 text-center">
         <div className="container">
           <div className="not-found-card p-5 max-w-600 mx-auto rounded-5 shadow-sm border bg-white">
+            <div className="not-found-media mb-3">
+              <EditableMedia
+                slotId="slot-notfound"
+                defaultSrc=""
+                alt={{ ar: 'الصفحة غير موجودة', en: 'Page Not Found' }}
+                width={200}
+                height={200}
+                style={{ objectFit: 'contain' }}
+                inline
+              />
+            </div>
             <span className="not-found-error-code">404</span>
 
             <h1 className="not-found-title mb-3">

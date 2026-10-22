@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { IMAGES } from '../../data/images';
+import EditableMedia from '../../components/VisualEdit/EditableMedia';
 import SectionTitle from '../../components/SectionTitle/SectionTitle';
 import { FiAlertCircle, FiCheck } from 'react-icons/fi';
 import './Symptoms.scss';
@@ -106,7 +107,14 @@ const Symptoms = ({
                   whileHover={{ y: -6 }}
                 >
                   <div className="symptom-icon-box mb-3">
-                    <img src={sym.icon} alt={language === 'ar' ? sym.titleAr : sym.titleEn} />
+                    <EditableMedia
+                      slotId={`slot-symptom-${idx + 1}`}
+                      defaultSrc={sym.icon}
+                      alt={{ ar: sym.titleAr, en: sym.titleEn }}
+                      width={64}
+                      height={64}
+                      inline
+                    />
                   </div>
                   <h4 className="symptom-card-title mb-2">
                     {language === 'ar' ? sym.titleAr : sym.titleEn}
