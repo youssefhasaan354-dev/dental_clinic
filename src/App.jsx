@@ -21,7 +21,6 @@ import NotFound from './pages/NotFound';
 
 // Global Public Components
 import BrandLoader from './components/BrandLoader/BrandLoader';
-import { DemoBanner } from './components/DemoBanner/DemoBanner';
 import { ImageSlotModal } from './components/VisualEdit/ImageSlotModal';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 
@@ -127,8 +126,6 @@ function App() {
         <ScrollToTop />
         <SeoMetaController pathname={location.pathname} />
 
-        {/* Golden Rule 3: Dismissible demo preview banner on public pages */}
-        {!isAdminRoute && <DemoBanner />}
 
         <ErrorBoundary>
           <AnimatePresence mode="wait">
