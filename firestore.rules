@@ -237,6 +237,11 @@ service cloud.firestore {
       allow write: if isEditor();
     }
 
+    match /site_images/{id} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
     match /media_files/{id} {
       allow read: if true;
       allow write: if isEditor();

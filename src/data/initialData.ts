@@ -11,6 +11,7 @@ import {
 } from '../types';
 import { CLINIC_RATING } from './clinic';
 import { IMAGES } from './images';
+import { ALL_IMAGE_SLOTS } from './imageSlots';
 
 export const initialClinicInfo: ClinicInfo = {
   name: {
@@ -508,51 +509,4 @@ export const initialSections: SectionConfig[] = [
   { id: 'contact', nameAr: 'العنوان ومواعيد العمل والخريطة', nameEn: 'Contact & Location', isVisible: true, order: 13, navLabelAr: 'تواصل معنا', navLabelEn: 'Contact' },
 ];
 
-export const initialImageSlots: ImageSlot[] = [
-  {
-    id: 'slot-logo',
-    name: 'شعار العيادة الرئيسي',
-    section: 'header',
-    currentUrl: '/assets/logo.svg',
-    defaultUrl: '/assets/logo.svg',
-    altText: { ar: 'شعار عيادة حياة لطب الأسنان', en: 'Hayaah Dental Clinic Logo' },
-    isAI: false,
-    isSample: false,
-    aspectRatio: '3:1',
-  },
-  {
-    id: 'slot-hero',
-    name: 'صورة الواجهة الرئيسية',
-    section: 'hero',
-    currentUrl: IMAGES.hero.model,
-    defaultUrl: IMAGES.hero.model,
-    altText: { ar: 'عيادة حياة لطب الأسنان في مصر الجديدة', en: 'Hayaah Dental Clinic Reception in Heliopolis' },
-    caption: { ar: 'صورة توضيحية لبيئة العيادة الهادئة', en: 'Illustrative visual of clinic environment' },
-    isAI: false,
-    isSample: true,
-    aspectRatio: '16:9',
-  },
-  {
-    id: 'slot-about',
-    name: 'صورة قسم عن العيادة ومعايير التعقيم',
-    section: 'about',
-    currentUrl: IMAGES.sections.priority,
-    defaultUrl: IMAGES.sections.priority,
-    altText: { ar: 'معايير النظافة والتعقيم في عيادة الأسنان', en: 'Sterilization & Hygiene Standards' },
-    caption: { ar: 'أجهزة تعقيم طبية وفق المعايير الصحية', en: 'Medical grade sterilization devices' },
-    isAI: false,
-    isSample: true,
-    aspectRatio: '4:3',
-  },
-  {
-    id: 'slot-emergency',
-    name: 'صورة قسم الطوارئ والألم الحاد',
-    section: 'emergency',
-    currentUrl: IMAGES.sections.emergency,
-    defaultUrl: IMAGES.sections.emergency,
-    altText: { ar: 'طوارئ وألم الأسنان', en: 'Dental Emergency Care' },
-    isAI: false,
-    isSample: true,
-    aspectRatio: '4:3',
-  },
-];
+export const initialImageSlots: ImageSlot[] = ALL_IMAGE_SLOTS;

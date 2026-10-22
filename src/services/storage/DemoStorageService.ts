@@ -276,15 +276,34 @@ export class DemoStorageService implements IDataStorageService {
   async updateImageSlot(slotId: string, updates: Partial<ImageSlot>): Promise<ImageSlot> {
     const slots = await this.getImageSlots();
     const index = slots.findIndex((s) => s.id === slotId);
+    let updated: ImageSlot;
     if (index >= 0) {
-      slots[index] = { ...slots[index], ...updates };
-      this.setItem('imageSlots', slots);
-      return slots[index];
+      updated = { ...slots[index], ...updates };
+      slots[index] = updated;
+    } else {
+      updated = {
+        id: slotId,
+        name: updates.name || slotId,
+        section: updates.section || 'general',
+        defaultUrl: updates.defaultUrl || updates.currentUrl || '',
+        currentUrl: updates.currentUrl || updates.defaultUrl || '',
+        altText: updates.altText || { ar: '', en: '' },
+        aspectRatio: updates.aspectRatio || '16:9',
+        isAI: Boolean(updates.isAI),
+        isSample: Boolean(updates.isSample),
+        ...updates,
+      };
+      slots.push(updated);
     }
-    throw new Error(`Image slot ${slotId} not found`);
+    this.setItem('imageSlots', slots);
+    return updated;
   }
 
   async uploadMedia(file: File, metadata?: { isAI?: boolean; isSample?: boolean }): Promise<string> {
+    const isVideo = file.type.startsWith('video/') || /\.(mp4|webm)$/i.test(file.name);
+    if (isVideo && file.size > 25 * 1024 * 1024) {
+      throw new Error('الحد الأقصى لحجم الفيديو في الوضع التجريبي المحلي هو 25 ميجابايت.');
+    }
     const { url } = await saveMediaBlob(file, file.name, metadata);
     return url;
   }

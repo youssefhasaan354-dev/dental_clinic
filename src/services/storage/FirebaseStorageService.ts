@@ -80,9 +80,6 @@ export class FirebaseStorageService implements IDataStorageService {
         for (const f of initialFaqs) {
           await setDoc(doc(db, 'faqs', f.id), stripUndefined(f));
         }
-        for (const slot of initialImageSlots) {
-          await setDoc(doc(db, 'image_slots', slot.id), stripUndefined(slot));
-        }
 
         invalidateCachedData();
       }
@@ -332,54 +329,109 @@ export class FirebaseStorageService implements IDataStorageService {
     return updated;
   }
 
-  // --- Image Slots & Media (WebP <= 200KB) ---
+  // --- Image Slots & Media (One doc site_images/global, Cloudinary upload) ---
 
   async getImageSlots(): Promise<ImageSlot[]> {
-    const cached = getCachedData<ImageSlot[]>('image_slots');
+    const cached = getCachedData<ImageSlot[]>('site_images');
     if (cached) return cached;
 
     const db = await this.getDB();
-    const { collection, getDocs } = await import('firebase/firestore');
-    const snap = await getDocs(collection(db, 'image_slots'));
-    if (snap.empty) return initialImageSlots;
-    const list = snap.docs.map((d) => ({ ...d.data(), id: d.id } as ImageSlot));
-    setCachedData('image_slots', list);
-    return list;
+    const { doc, getDoc } = await import('firebase/firestore');
+    const snap = await getDoc(doc(db, 'site_images', 'global'));
+    const overrides = (snap.exists() ? snap.data() : {}) as Record<string, any>;
+
+    const slotsMap = new Map<string, ImageSlot>();
+    for (const baseSlot of initialImageSlots) {
+      slotsMap.set(baseSlot.id, { ...baseSlot });
+    }
+
+    for (const [id, ovr] of Object.entries(overrides)) {
+      if (!ovr || typeof ovr !== 'object') continue;
+      const existing = slotsMap.get(id) || {
+        id,
+        name: id,
+        nameAr: id,
+        nameEn: id,
+        section: 'custom',
+        defaultUrl: ovr.url || '',
+        currentUrl: ovr.url || '',
+        altText: ovr.alt || { ar: '', en: '' },
+        aspectRatio: '16:9',
+        isAI: false,
+        isSample: false,
+      };
+
+      slotsMap.set(id, {
+        ...existing,
+        mediaType: ovr.mediaType || existing.mediaType || 'image',
+        currentUrl: ovr.url || existing.currentUrl || existing.defaultUrl,
+        posterUrl: ovr.posterUrl !== undefined ? ovr.posterUrl : existing.posterUrl,
+        altText: ovr.alt
+          ? { ar: ovr.alt.ar ?? existing.altText.ar, en: ovr.alt.en ?? existing.altText.en }
+          : existing.altText,
+        caption: ovr.caption
+          ? { ar: ovr.caption.ar ?? existing.caption?.ar ?? '', en: ovr.caption.en ?? existing.caption?.en ?? '' }
+          : existing.caption,
+        focalPoint: ovr.focal !== undefined ? ovr.focal : existing.focalPoint,
+        zoom: ovr.zoom !== undefined ? ovr.zoom : existing.zoom,
+        autoplay: ovr.autoplay !== undefined ? ovr.autoplay : existing.autoplay,
+        loop: ovr.loop !== undefined ? ovr.loop : existing.loop,
+        muted: ovr.muted !== undefined ? ovr.muted : existing.muted,
+        controls: ovr.controls !== undefined ? ovr.controls : existing.controls,
+        isSample: ovr.isSample !== undefined ? ovr.isSample : existing.isSample,
+        isAI: ovr.isAI !== undefined ? ovr.isAI : existing.isAI,
+        updatedAt: ovr.updatedAt !== undefined ? ovr.updatedAt : existing.updatedAt,
+      });
+    }
+
+    const result = Array.from(slotsMap.values());
+    setCachedData('site_images', result);
+    return result;
   }
 
   async updateImageSlot(slotId: string, updates: Partial<ImageSlot>): Promise<ImageSlot> {
     const db = await this.getDB();
-    const { doc, getDoc, updateDoc } = await import('firebase/firestore');
-    const slotRef = doc(db, 'image_slots', slotId);
-    const snap = await getDoc(slotRef);
-    if (!snap.exists()) throw new Error(`Image slot ${slotId} not found`);
+    const { doc, setDoc } = await import('firebase/firestore');
 
-    const updated = { ...(snap.data() as ImageSlot), ...updates, id: slotId };
-    await updateDoc(slotRef, stripUndefined(updates));
-    invalidateCachedData('image_slots');
+    const overrideEntry = stripUndefined({
+      mediaType: updates.mediaType || 'image',
+      url: updates.currentUrl,
+      posterUrl: updates.posterUrl,
+      alt: updates.altText,
+      caption: updates.caption,
+      focal: updates.focalPoint,
+      zoom: updates.zoom,
+      autoplay: updates.autoplay,
+      loop: updates.loop,
+      muted: updates.muted,
+      controls: updates.controls,
+      isSample: updates.isSample,
+      isAI: updates.isAI,
+      updatedAt: new Date().toISOString(),
+    });
+
+    await setDoc(
+      doc(db, 'site_images', 'global'),
+      { [slotId]: overrideEntry },
+      { merge: true }
+    );
+
+    invalidateCachedData('site_images');
+
+    const all = await this.getImageSlots();
+    const updated = all.find((s) => s.id === slotId);
+    if (!updated) {
+      throw new Error(`Image slot ${slotId} could not be resolved after update`);
+    }
     return updated;
   }
 
-  async uploadMedia(file: File, metadata?: { isAI?: boolean; isSample?: boolean }): Promise<string> {
-    // Resize & compress client-side to WebP <= 200KB
-    const webpDataUrl = await compressImageToWebP(file, {
-      maxSizeBytes: MAX_CMS_IMAGE_SIZE_BYTES,
-    });
-
-    const db = await this.getDB();
-    const { doc, setDoc } = await import('firebase/firestore');
-    const mediaId = `media_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-
-    await setDoc(doc(db, 'media_files', mediaId), stripUndefined({
-      id: mediaId,
-      url: webpDataUrl,
-      name: file.name,
-      size: Math.round(webpDataUrl.length * 0.75),
-      date: new Date().toISOString(),
-      metadata: metadata || null,
-    }));
-
-    return webpDataUrl;
+  async uploadMedia(file: File, _metadata?: { isAI?: boolean; isSample?: boolean }): Promise<string> {
+    const { uploadToCloudinary, isCloudinaryConfigured, CLOUDINARY_MISSING_MSG } = await import('./cloudinaryService');
+    if (!isCloudinaryConfigured()) {
+      throw new Error(CLOUDINARY_MISSING_MSG);
+    }
+    return uploadToCloudinary(file);
   }
 
   async getAllMediaFiles(): Promise<{ id: string; url: string; name: string; size: number; date: string }[]> {
@@ -462,6 +514,7 @@ export class FirebaseStorageService implements IDataStorageService {
         ratings: await this.getRatings(),
         settings: await this.getSettings(),
         sections: await this.getSections(),
+        imageSlots: await this.getImageSlots(),
       },
     };
 
@@ -509,6 +562,29 @@ export class FirebaseStorageService implements IDataStorageService {
       for (const f of faqs) {
         await this.saveFaq(f);
       }
+    }
+    if (snapshot.data.imageSlots) {
+      const overrides: Record<string, any> = {};
+      for (const slot of snapshot.data.imageSlots) {
+        overrides[slot.id] = {
+          mediaType: slot.mediaType || 'image',
+          url: slot.currentUrl,
+          posterUrl: slot.posterUrl,
+          alt: slot.altText,
+          caption: slot.caption,
+          focal: slot.focalPoint,
+          zoom: slot.zoom,
+          autoplay: slot.autoplay,
+          loop: slot.loop,
+          muted: slot.muted,
+          controls: slot.controls,
+          isSample: slot.isSample,
+          isAI: slot.isAI,
+          updatedAt: slot.updatedAt || new Date().toISOString(),
+        };
+      }
+      const { setDoc } = await import('firebase/firestore');
+      await setDoc(doc(db, 'site_images', 'global'), stripUndefined(overrides));
     }
 
     invalidateCachedData();

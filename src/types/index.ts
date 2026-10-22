@@ -143,9 +143,13 @@ export interface AppointmentRequest {
   isDemoSubmission: boolean;
 }
 
+export type MediaType = 'image' | 'video' | 'embed';
+
 export interface ImageSlot {
   id: string;
   name: string;
+  nameAr?: string;
+  nameEn?: string;
   section: string;
   currentUrl: string;
   defaultUrl: string;
@@ -154,7 +158,17 @@ export interface ImageSlot {
   isAI: boolean;
   isSample: boolean;
   aspectRatio: string;
+  recommendedSize?: string;
+  allowVideo?: boolean;
+  mediaType?: MediaType;
+  posterUrl?: string;
   focalPoint?: string;
+  zoom?: number;
+  autoplay?: boolean;
+  loop?: boolean;
+  muted?: boolean;
+  controls?: boolean;
+  updatedAt?: string;
 }
 
 export interface SectionConfig {

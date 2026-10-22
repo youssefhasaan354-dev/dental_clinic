@@ -466,6 +466,15 @@ async function run() {
     await assertSucceeds(deleteDoc(doc(ownerDb, 'bookingLookup', testLookupToken)));
     console.log('✓ PASS: Viewer cannot update/delete bookingLookup (receptionist/owner allowed)');
 
+    // site_images security tests: public read, write isEditor()
+    console.log('Testing: site_images security rules (public read, write isEditor)...');
+    await assertSucceeds(getDoc(doc(unauthedDb, 'site_images', 'global')));
+    await assertFails(setDoc(doc(unauthedDb, 'site_images', 'global'), { 'slot-hero': { mediaType: 'video' } }));
+    await assertFails(setDoc(doc(viewerDb, 'site_images', 'global'), { 'slot-hero': { mediaType: 'video' } }));
+    await assertSucceeds(setDoc(doc(editorDb, 'site_images', 'global'), { 'slot-hero': { mediaType: 'video' } }));
+    await assertSucceeds(setDoc(doc(ownerDb, 'site_images', 'global'), { 'slot-hero': { mediaType: 'image' } }));
+    console.log('✓ PASS: site_images public read allowed, anonymous & viewer write denied, editor & owner write allowed');
+
     console.log('✓ PASS: Staff role permissions strictly enforced');
 
     console.log('--- ALL EXACT TRANSACTION RULES TESTS PASSED! ---');
