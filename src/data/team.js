@@ -29,8 +29,8 @@ export const TEAM_MEMBERS = [
     roleEn: "Dental Implants & Oral Surgery Specialist",
     departmentAr: "قسم الجراحة والتعويضات الثابتة",
     departmentEn: "Department of Implantology",
-    bioAr: "خبرة متقدمة في الغرسات السويسرية والاندماج العظمي المجهري برعاية لطيفة.",
-    bioEn: "Advanced proficiency in minimally invasive implants and socket preservation.",
+    bioAr: "خبرة سريرية متقدمة في زراعة الأسنان والتعويضات السنية وفق المعايير الطبية المعتمدة.",
+    bioEn: "Advanced proficiency in restorative implantology and gentle socket preservation.",
     image: doctor2, // TODO: replace with real doctor photo
     placeholderNameAr: "أخصائي زراعة الأسنان", // TODO: replace with real doctor name
     placeholderNameEn: "Implantology Specialist",

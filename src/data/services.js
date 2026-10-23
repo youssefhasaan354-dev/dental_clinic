@@ -440,10 +440,10 @@ export const SERVICES = [
     ],
     faqs: [
       {
-        qAr: "هل نسبة نجاح زراعة الأسنان مرتفعة؟",
-        qEn: "What is the success rate of dental implants?",
-        aAr: "تتجاوز نسبة نجاح زراعة الأسنان عالمياً 96% عند الالتزام بتعليمات الطبيب والحفاظ على صحة الفم.",
-        aEn: "Clinical studies demonstrate over 96-98% long-term success rates with proper maintenance.",
+        qAr: "هل زراعة الأسنان إجراء علاجي آمن وموثوق؟",
+        qEn: "Are dental implants safe and reliable?",
+        aAr: "تعد زراعة الأسنان من أكثر الإجراءات العلاجية استقراراً وموثوقية عند الالتزام بتعليمات الطبيب والحفاظ على صحة الفم.",
+        aEn: "Dental implants are widely recognized as highly predictable and stable restorations when supported by disciplined oral hygiene.",
       },
     ],
   },

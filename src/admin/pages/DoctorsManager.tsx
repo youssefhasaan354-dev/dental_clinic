@@ -171,19 +171,39 @@ export const DoctorsManager: React.FC = () => {
 
       {/* TAB 1: DOCTORS & WEEKLY HOURS */}
       {activeTab === 'doctors' && (
-        <div className="row g-4">
-          {doctors.map((doc) => {
-            const name = isAr ? doc.doctorName.ar : doc.doctorName.en;
-            const title = isAr ? doc.title.ar : doc.title.en;
+        <div className="doctors-tab-container">
+          <div className="alert alert-warning rounded-4 border-warning d-flex align-items-center gap-3 mb-4">
+            <AlertCircle className="text-warning flex-shrink-0" size={24} />
+            <div>
+              <strong className="d-block">
+                {isAr ? 'ملاحظة خاصة ببيانات الفريق الطبي:' : 'Notice Regarding Medical Team Data:'}
+              </strong>
+              <span className="small">
+                {isAr
+                  ? 'بيانات ومسميات الأطباء الحالية هي نماذج استرشادية مؤقتة للحجز والتجربة، وتتطلب استبدالها بأسماء وصور ومؤهلات أطباء العيادة الحقيقيين المعتمدين قبل الإطلاق الرسمي.'
+                  : 'Current doctor names and titles are temporary placeholders for demonstration, and should be updated with verified clinic physicians, credentials, and photos before official launch.'}
+              </span>
+            </div>
+          </div>
 
-            return (
-              <div key={doc.doctorId} className="col-lg-6">
-                <div className="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
-                  <div className="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                      <h5 className="fw-bold text-dark m-0">{name}</h5>
-                      <span className="small text-muted">{title}</span>
-                    </div>
+          <div className="row g-4">
+            {doctors.map((doc) => {
+              const name = isAr ? doc.doctorName.ar : doc.doctorName.en;
+              const title = isAr ? doc.title.ar : doc.title.en;
+
+              return (
+                <div key={doc.doctorId} className="col-lg-6">
+                  <div className="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                    <div className="d-flex justify-content-between align-items-start mb-3">
+                      <div>
+                        <div className="d-flex align-items-center flex-wrap gap-2 mb-1">
+                          <h5 className="fw-bold text-dark m-0">{name}</h5>
+                          <span className="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle small">
+                            {isAr ? 'بيانات مؤقتة تحتاج استبدال' : 'Placeholder'}
+                          </span>
+                        </div>
+                        <span className="small text-muted">{title}</span>
+                      </div>
 
                     <div className="d-flex align-items-center gap-2">
                       <button
@@ -244,7 +264,8 @@ export const DoctorsManager: React.FC = () => {
             );
           })}
         </div>
-      )}
+      </div>
+    )}
 
       {/* TAB 2: BLOCKED SLOTS & HOLIDAYS */}
       {activeTab === 'blocked' && (

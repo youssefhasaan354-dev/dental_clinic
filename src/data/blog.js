@@ -248,7 +248,7 @@ Sports accidents and unexpected falls can fracture or fully avulse a tooth. Foll
     content: {
       ar: `
 ### زراعة الأسنان: استثمار دائم لابتسامتك
-تتميز زراعة الأسنان بنسبة نجاح تفوق 96% عالمياً، لكن استدامة هذا النجاح تعتمد بشكل جوهري على نظافة الفم الدورية والالتزام بالتعليمات الطبية.
+تتميز زراعة الأسنان بمعدلات استقرار عالية وموثوقية سريرية عالمياً، لكن استدامة هذا النجاح تعتمد بشكل جوهري على نظافة الفم الدورية والالتزام بالتعليمات الطبية.
 
 ### إرشادات الأيام الأولى بعد الجراحة:
 1. **الراحة وتجنب المجهود البدني:** تجنب التمارين الشاقة أو الانحناء في أول 48 ساعة.
@@ -261,7 +261,7 @@ Sports accidents and unexpected falls can fracture or fully avulse a tooth. Foll
       `,
       en: `
 ### Safeguarding Your Lifelong Dental Investment
-Dental implants boast an exceptional long-term success rate exceeding 96%. Protecting your investment requires disciplined oral hygiene to avoid peri-implant bacterial infections.
+Dental implants offer high clinical predictability and long-term stability. Protecting your investment requires disciplined oral hygiene to avoid peri-implant bacterial infections.
 
 ### Immediate Post-Surgical Phase:
 1. **Rest:** Avoid vigorous exercise or strenuous activities for the initial 48 hours.
