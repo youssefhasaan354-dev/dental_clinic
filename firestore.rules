@@ -88,17 +88,33 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    function isValidAppointmentCreate(data) {
+      return data.status in ['pending', 'confirmed']
+        && data.keys().hasAll(['patientName', 'patientPhone', 'serviceId', 'date', 'startTime', 'bookingCode', 'manageToken', 'doctorId'])
+        && data.keys().hasOnly([
+          'id', 'bookingCode', 'manageToken', 'patientName', 'patientPhone', 'patientEmail',
+          'patientType', 'serviceId', 'serviceName', 'serviceDuration', 'doctorId', 'doctorName',
+          'date', 'startTime', 'endTime', 'status', 'notes', 'consentGiven', 'isWalkIn',
+          'createdAt', 'updatedAt'
+        ])
+        && data.patientName is string && data.patientName.size() >= 2 && data.patientName.size() <= 80
+        && data.patientPhone is string && data.patientPhone.matches('^(\\+?20)?[0-9]{9,11}$')
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000))
+        && (!('patientEmail' in data) || (data.patientEmail is string && data.patientEmail.size() <= 120 && data.patientEmail.matches('^[^@]+@[^@]+\\.[^@]+$')))
+        && !('internalNotes' in data);
+    }
+
     // --- Appointments Collection (Contains patient data) ---
     // Public clients must NOT be able to list or read appointments.
     // Public create allowed only with valid fields and without internalNotes.
     // Patient update allowed ONLY when synchronized with bookingLookup via manageToken.
     // Staff update/delete allowed for owner/receptionist.
     match /appointments/{appointmentId} {
-      allow create: if request.resource.data.status in ['pending', 'confirmed']
-                    && request.resource.data.keys().hasAll(['patientName', 'patientPhone', 'serviceId', 'date', 'startTime', 'bookingCode', 'manageToken', 'doctorId'])
-                    && !('internalNotes' in request.resource.data)
-                    && existsAfter(/databases/$(database)/documents/slots/$(request.resource.data.doctorId + '_' + request.resource.data.date + '_' + (request.resource.data.startTime.split(':')[0] + request.resource.data.startTime.split(':')[1])))
-                    && getAfter(/databases/$(database)/documents/slots/$(request.resource.data.doctorId + '_' + request.resource.data.date + '_' + (request.resource.data.startTime.split(':')[0] + request.resource.data.startTime.split(':')[1]))).data.appointmentId == appointmentId;
+      allow create: if isOwnerOrReceptionist() || (
+        isValidAppointmentCreate(request.resource.data)
+        && existsAfter(/databases/$(database)/documents/slots/$(request.resource.data.doctorId + '_' + request.resource.data.date + '_' + (request.resource.data.startTime.split(':')[0] + request.resource.data.startTime.split(':')[1])))
+        && getAfter(/databases/$(database)/documents/slots/$(request.resource.data.doctorId + '_' + request.resource.data.date + '_' + (request.resource.data.startTime.split(':')[0] + request.resource.data.startTime.split(':')[1]))).data.appointmentId == appointmentId
+      );
 
       allow read: if isStaff();
 

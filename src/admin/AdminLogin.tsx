@@ -21,6 +21,7 @@ export const AdminLogin: React.FC = () => {
   const [localError, setLocalError] = useState<string | null>(null);
 
   const isAr = language === 'ar';
+  const isDemoLoginAllowed = !isFirebaseMode && (import.meta.env.VITE_ADMIN_DEMO_LOGIN !== 'false');
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -148,8 +149,8 @@ export const AdminLogin: React.FC = () => {
             {isAr ? 'تسجيل دخول لوحة الإدارة' : 'Clinic Staff Login'}
           </h2>
           <p className="text-muted small mb-3">
-            {isFirebaseMode
-              ? (isAr ? 'وضع الإنتاج المباشر (Firebase) - يرجى تسجيل الدخول بحساب المشرف المصرح له' : 'Firebase Production Mode Active - Enter your authorized clinic staff credentials')
+            {!isDemoLoginAllowed
+              ? (isAr ? 'يرجى تسجيل الدخول بحساب المشرف المصرح له' : 'Enter your authorized clinic staff credentials')
               : (isAr ? 'لوحة إدارة ومتابعة حجوزات عيادة حياة لطب الأسنان (الوضع التجريبي الافتراضي)' : 'Hayaah Dental Management Portal (Default Demo Mode)')}
           </p>
 
@@ -161,8 +162,8 @@ export const AdminLogin: React.FC = () => {
             </div>
           )}
 
-          {isFirebaseMode ? (
-            /* ================= FIREBASE PRODUCTION MODE LOGIN FORM ================= */
+          {!isDemoLoginAllowed ? (
+            /* ================= PRODUCTION / SECURE LOGIN FORM ================= */
             <form onSubmit={handleEmailPasswordSubmit} className="d-flex flex-column gap-3 mb-4">
               <div>
                 <label className="form-label small fw-bold text-dark">

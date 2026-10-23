@@ -190,8 +190,44 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
     return Object.keys(errs).length === 0;
   };
 
+  // Client-side rate limiting (max 5 bookings / 15 minutes per browser)
+  const checkRateLimit = () => {
+    try {
+      const now = Date.now();
+      const windowMs = 15 * 60 * 1000;
+      const historyKey = 'hayaah_booking_attempts';
+      const history = JSON.parse(localStorage.getItem(historyKey) || '[]').filter(
+        (ts) => typeof ts === 'number' && now - ts < windowMs
+      );
+      if (history.length >= 5) {
+        return false;
+      }
+      history.push(now);
+      localStorage.setItem(historyKey, JSON.stringify(history));
+      return true;
+    } catch {
+      return true;
+    }
+  };
+
   // Submit appointment
   const handleConfirmBooking = async () => {
+    // 0. Anti-spam honeypot silent reject
+    if (patientData.honeypot) {
+      setStep(6);
+      return;
+    }
+
+    // 0b. Throttle check
+    if (!checkRateLimit()) {
+      setSubmissionError(
+        isAr
+          ? 'تم تجاوز الحد الأقصى لمحاولات الحجز مؤقتاً (٥ محاولات خلال ١٥ دقيقة). يرجى الانتظار أو الاتصال بالعيادة مباشرة.'
+          : 'Too many booking attempts (max 5 per 15 minutes). Please wait or call the clinic directly.'
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmissionError(null);
 
@@ -273,20 +309,51 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
 
   return (
     <div className={`booking-wizard-card ${className}`} dir={isAr ? 'rtl' : 'ltr'}>
-      {/* Demo storage status pill */}
-      {bookingService.isDemo && (
-        <div className="demo-mode-pill d-flex align-items-center justify-content-between p-2 px-3 mb-3 rounded-pill bg-light border">
-          <div className="d-flex align-items-center gap-2">
-            <FiShield className="text-primary" />
-            <span className="small text-muted">
-              {isAr
-                ? 'وضع تجريبي تفاعلي — يعمل مباشرة وبدون تضارب في المواعيد'
-                : 'Interactive demo mode — live availability & zero conflict checks'}
-            </span>
+      {/* Demo Warning Banner */}
+      {bookingService.isDemo && import.meta.env.VITE_HIDE_DEMO_BANNER !== 'true' && (
+        <div
+          className="demo-warning-banner p-3 mb-4 rounded-4 border d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3"
+          style={{ backgroundColor: '#fffbeb', borderColor: '#fde68a', color: '#92400e' }}
+          role="status"
+          aria-live="polite"
+        >
+          <div className="d-flex align-items-start gap-2">
+            <FiAlertCircle className="flex-shrink-0 mt-1" style={{ fontSize: '1.25rem', color: '#d97706' }} />
+            <div>
+              <strong className="d-block mb-1" style={{ color: '#78350f' }}>
+                {isAr ? 'تنبيه هام: نظام الحجز في وضع المعاينة والتجربة (Demo)' : 'Notice: Booking System is in Demonstration Mode'}
+              </strong>
+              <span className="small d-block mb-1">
+                {isAr
+                  ? 'المواعيد المسجلة هنا للتجربة الفنية فقط ولن تصل لفريق العيادة. للحجز الفعلي المؤكد يرجى الاتصال بنا أو عبر واتساب مباشرة.'
+                  : 'Appointments booked here are for technical preview only and will not reach clinic staff. For actual bookings, please call or WhatsApp directly.'}
+              </span>
+              <Link to="/booking/manage" className="small text-decoration-underline fw-bold" style={{ color: '#92400e' }}>
+                {isAr ? 'إدارة أو فحص حجز تجريبي سابق' : 'Manage or review past demo booking'}
+              </Link>
+            </div>
           </div>
-          <Link to="/booking/manage" className="manage-booking-quick-link small text-primary text-decoration-none fw-bold">
-            {isAr ? 'إدارة حجز سابق' : 'Manage Booking'}
-          </Link>
+          <div className="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+            <a
+              href={`tel:${CLINIC_DATA.phone.raw}`}
+              className="btn btn-sm rounded-pill px-3 py-1 text-decoration-none"
+              style={{ backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}
+            >
+              <FiPhone className="me-1" /> {isAr ? 'اتصال مباشر' : 'Call'}
+            </a>
+            <a
+              href={buildClinicWhatsAppUrl(
+                isAr
+                  ? 'مرحباً، أود حجز موعد فعلي في عيادة حياة لطب الأسنان'
+                  : 'Hello, I would like to book an appointment at Hayaah Dental Clinic'
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-sm btn-success rounded-pill px-3 py-1 text-decoration-none d-flex align-items-center gap-1"
+            >
+              <FaWhatsapp /> WhatsApp
+            </a>
+          </div>
         </div>
       )}
 

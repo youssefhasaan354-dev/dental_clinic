@@ -473,9 +473,112 @@ async function run() {
     await assertFails(setDoc(doc(viewerDb, 'site_images', 'global'), { 'slot-hero': { mediaType: 'video' } }));
     await assertSucceeds(setDoc(doc(editorDb, 'site_images', 'global'), { 'slot-hero': { mediaType: 'video' } }));
     await assertSucceeds(setDoc(doc(ownerDb, 'site_images', 'global'), { 'slot-hero': { mediaType: 'image' } }));
-    console.log('✓ PASS: site_images public read allowed, anonymous & viewer write denied, editor & owner write allowed');
+    // New Phase D: Appointment Payload Validation Rules
+    console.log('Testing: Appointment payload validation rules (name length, phone format, allowed keys, notes length)...');
+    const validSlotId = 'doc-1_2026-11-01_1130';
+    const validApptId = 'apt-val-check';
 
-    console.log('✓ PASS: Staff role permissions strictly enforced');
+    // 1. Name too short (< 2 chars) fails
+    await assertFails(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'slots', validSlotId), {
+          doctorId: 'doc-1',
+          date: '2026-11-01',
+          startTime: '11:30',
+          appointmentId: validApptId,
+        });
+        tx.set(doc(unauthedDb, 'appointments', validApptId), {
+          id: validApptId,
+          bookingCode: 'HAY-VAL1',
+          manageToken: 'tok-val1',
+          patientName: 'A', // invalid: too short
+          patientPhone: '+201012345678',
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '11:30',
+          doctorId: 'doc-1',
+          status: 'pending',
+        });
+      })
+    );
+    console.log('✓ PASS: Short patientName (<2 chars) correctly rejected');
+
+    // 2. Invalid phone format fails
+    await assertFails(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'slots', validSlotId), {
+          doctorId: 'doc-1',
+          date: '2026-11-01',
+          startTime: '11:30',
+          appointmentId: validApptId,
+        });
+        tx.set(doc(unauthedDb, 'appointments', validApptId), {
+          id: validApptId,
+          bookingCode: 'HAY-VAL2',
+          manageToken: 'tok-val2',
+          patientName: 'Ahmed Omar',
+          patientPhone: 'invalid-phone-123', // invalid
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '11:30',
+          doctorId: 'doc-1',
+          status: 'pending',
+        });
+      })
+    );
+    console.log('✓ PASS: Invalid patientPhone correctly rejected');
+
+    // 3. Injected unexpected keys fail (keys().hasOnly check)
+    await assertFails(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'slots', validSlotId), {
+          doctorId: 'doc-1',
+          date: '2026-11-01',
+          startTime: '11:30',
+          appointmentId: validApptId,
+        });
+        tx.set(doc(unauthedDb, 'appointments', validApptId), {
+          id: validApptId,
+          bookingCode: 'HAY-VAL3',
+          manageToken: 'tok-val3',
+          patientName: 'Ahmed Omar',
+          patientPhone: '+201012345678',
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '11:30',
+          doctorId: 'doc-1',
+          status: 'pending',
+          injectedAdminRole: 'owner', // unexpected key!
+        });
+      })
+    );
+    console.log('✓ PASS: Injected unexpected keys correctly rejected by keys().hasOnly');
+
+    // 4. Excessively long notes (> 1000 chars) fail
+    await assertFails(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'slots', validSlotId), {
+          doctorId: 'doc-1',
+          date: '2026-11-01',
+          startTime: '11:30',
+          appointmentId: validApptId,
+        });
+        tx.set(doc(unauthedDb, 'appointments', validApptId), {
+          id: validApptId,
+          bookingCode: 'HAY-VAL4',
+          manageToken: 'tok-val4',
+          patientName: 'Ahmed Omar',
+          patientPhone: '+201012345678',
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '11:30',
+          doctorId: 'doc-1',
+          status: 'pending',
+          notes: 'x'.repeat(1005), // too long
+        });
+      })
+    );
+    console.log('✓ PASS: Excessively long notes (>1000 chars) correctly rejected');
 
     console.log('--- ALL EXACT TRANSACTION RULES TESTS PASSED! ---');
   } finally {

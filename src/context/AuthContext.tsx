@@ -151,8 +151,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const loginAsDemoUser = async (role: UserRole) => {
-    if (isFirebaseMode) {
-      throw new Error('الدخول التجريبي غير متاح أثناء تفعيل وضع Firebase المباشر / Demo login disabled in Firebase mode');
+    const isDemoAllowed = !isFirebaseMode && (import.meta.env.VITE_ADMIN_DEMO_LOGIN !== 'false');
+    if (!isDemoAllowed) {
+      throw new Error(
+        'الدخول التجريبي معطل في هذا الوضع. يرجى تسجيل الدخول بحساب رسمي. / Demo login is disabled in this environment.'
+      );
     }
 
     const roleLabels: Record<UserRole, string> = {
