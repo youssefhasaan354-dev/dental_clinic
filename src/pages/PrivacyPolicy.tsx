@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { ShieldCheck, Lock, AlertTriangle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import PageMeta from '../components/PageMeta/PageMeta';
 
 export const PrivacyPolicy: React.FC = () => {
   const { language } = useLanguage();
@@ -9,6 +10,17 @@ export const PrivacyPolicy: React.FC = () => {
 
   return (
     <div className="privacy-page py-5" style={{ backgroundColor: '#f8fafc', minHeight: '80vh' }}>
+      <PageMeta
+        title={{
+          ar: 'سياسة الخصوصية وحماية بيانات المرضى',
+          en: 'Privacy & Patient Data Protection Policy',
+        }}
+        description={{
+          ar: 'سياسة الخصوصية وسرية البيانات الصحية لمرضى عيادة حياة لطب الأسنان وضوابط الاحتفاظ بسجلات المواعيد.',
+          en: 'Privacy policy and patient health data protection at Hayaah Dental Clinic.',
+        }}
+        canonicalPath="/privacy"
+      />
       <div className="container" style={{ maxWidth: '860px' }}>
         <div className="mb-4">
           <Link to="/" className="text-decoration-none d-inline-flex align-items-center gap-1 fw-semibold text-primary">

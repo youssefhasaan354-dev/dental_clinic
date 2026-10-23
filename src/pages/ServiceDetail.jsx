@@ -24,26 +24,84 @@ import {
   FiArrowLeft,
   FiArrowRight,
 } from 'react-icons/fi';
+import PageMeta from '../components/PageMeta/PageMeta';
+import { getSiteUrl } from '../utils/siteUrl';
 import './ServiceDetail.scss';
 
 const ServiceDetail = () => {
   const { slug } = useParams();
   const { language, t } = useTranslation();
   const service = getServiceBySlug(slug);
+  const siteUrl = getSiteUrl();
+  const isAr = language === 'ar';
 
   const ArrowIcon = language === 'ar' ? FiArrowLeft : FiArrowRight;
   const ChevronIcon = language === 'ar' ? FiChevronLeft : FiChevronRight;
 
   // Filter 3 related services from same or other categories
-  const relatedServices = SERVICES.filter((s) => s.id !== service.id).slice(0, 3);
+  const relatedServices = service
+    ? SERVICES.filter((s) => s.id !== service.id).slice(0, 3)
+    : SERVICES.slice(0, 3);
 
   // Scroll to top when slug changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [slug]);
 
+  const serviceTitle = service ? (service.title[language] || service.title.ar) : '';
+  const serviceDesc = service ? (service.shortDesc[language] || service.shortDesc.ar) : '';
+
+  const serviceSchema = service
+    ? {
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'MedicalProcedure',
+            name: serviceTitle,
+            description: service.fullDesc ? (service.fullDesc[language] || service.fullDesc.ar) : serviceDesc,
+            procedureType: 'SurgicalOrDental',
+            provider: {
+              '@type': 'Dentist',
+              name: isAr ? 'عيادة حياة لطب الأسنان' : 'Hayaah Dental Clinic',
+              url: `${siteUrl}/`,
+            },
+          },
+          {
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: isAr ? 'الرئيسية' : 'Home',
+                item: `${siteUrl}/`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: isAr ? 'الخدمات' : 'Services',
+                item: `${siteUrl}/services`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: serviceTitle,
+                item: `${siteUrl}/services/${service.slug || service.id}`,
+              },
+            ],
+          },
+        ],
+      }
+    : null;
+
   return (
     <main id="main-content" className="service-detail-page-layout">
+      <PageMeta
+        title={service ? service.title : { ar: 'تفاصيل الخدمة', en: 'Service Details' }}
+        description={service ? service.shortDesc : ''}
+        canonicalPath={`/services/${slug}`}
+        schema={serviceSchema}
+        noindex={!service}
+      />
       <ScrollProgress />
       <Navbar />
 

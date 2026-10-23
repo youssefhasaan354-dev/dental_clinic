@@ -6,16 +6,51 @@ import ScrollProgress from '../components/ScrollProgress/ScrollProgress';
 import Services from '../sections/Services/Services';
 import Appointment from '../sections/Appointment/Appointment';
 import Faq from '../sections/Faq/Faq';
+import PageMeta from '../components/PageMeta/PageMeta';
 import { useTranslation } from '../i18n/LanguageContext';
+import { getSiteUrl } from '../utils/siteUrl';
 import { motion } from 'framer-motion';
 import { FiShield, FiCheckCircle } from 'react-icons/fi';
 import './ServicesPage.scss';
 
 const ServicesPage = () => {
   const { t, language } = useTranslation();
+  const siteUrl = getSiteUrl();
+  const isAr = language === 'ar';
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: isAr ? 'الرئيسية' : 'Home',
+        item: `${siteUrl}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: isAr ? 'الخدمات' : 'Services',
+        item: `${siteUrl}/services`,
+      },
+    ],
+  };
 
   return (
     <main id="main-content" className="services-page-layout">
+      <PageMeta
+        title={{
+          ar: 'خدمات طب وجراحة الأسنان التخصصية',
+          en: 'Specialty Dental Care Services',
+        }}
+        description={{
+          ar: 'دليل خدمات عيادة حياة لطب الأسنان بمصر الجديدة: تنظيف وتلميع، زراعة الأسنان، تقويم شفاف، حشو تجميلي، علاج الجذور، وطب أسنان الأطفال.',
+          en: 'Hayaah Dental Clinic services: teeth cleaning, implants, clear aligners, cosmetic fillings, root canals, and pediatric dentistry.',
+        }}
+        canonicalPath="/services"
+        schema={breadcrumbSchema}
+      />
       <ScrollProgress />
       <Navbar />
 

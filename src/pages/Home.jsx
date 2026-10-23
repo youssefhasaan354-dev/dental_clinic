@@ -16,10 +16,40 @@ import Appointment from '../sections/Appointment/Appointment';
 import Footer from '../components/Footer/Footer';
 import FloatingActions from '../components/FloatingActions/FloatingActions';
 import ScrollProgress from '../components/ScrollProgress/ScrollProgress';
+import PageMeta from '../components/PageMeta/PageMeta';
+import { FAQS } from '../data/faq';
+import { useTranslation } from '../i18n/LanguageContext';
 
 const Home = () => {
+  const { language } = useTranslation();
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQS.slice(0, 6).map((item) => ({
+      '@type': 'Question',
+      name: item.q[language] || item.q.ar,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a[language] || item.a.ar,
+      },
+    })),
+  };
+
   return (
     <main id="main-content" className="home-page-layout">
+      <PageMeta
+        title={{
+          ar: 'عيادة حياة لطب الأسنان | القاهرة، مصر الجديدة',
+          en: 'Hayaah Dental Clinic | Heliopolis, Cairo',
+        }}
+        description={{
+          ar: 'عيادة حياة لطب الأسنان بمصر الجديدة، شارع فريد سميكة. رعاية دقيقة وهادئة، تعقيم معتمد وأشعة رقمية. احجز موعدك الآن.',
+          en: 'Hayaah Dental Clinic in Heliopolis, Cairo. Gentle and precise dental care, certified sterilization and digital imaging. Book your visit today.',
+        }}
+        canonicalPath="/"
+        schema={faqSchema}
+      />
       <ScrollProgress />
       <Navbar />
       <Banner />

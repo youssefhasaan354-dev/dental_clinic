@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import FloatingActions from '../components/FloatingActions/FloatingActions';
 import EditableMedia from '../components/VisualEdit/EditableMedia';
+import PageMeta from '../components/PageMeta/PageMeta';
 import { useTranslation } from '../i18n/LanguageContext';
 import { FiHome, FiCompass } from 'react-icons/fi';
 import './NotFound.scss';
@@ -13,6 +14,15 @@ const NotFound = () => {
 
   return (
     <main id="main-content" className="not-found-page-layout">
+      <PageMeta
+        title={{ ar: 'الصفحة غير موجودة (404)', en: '404 - Page Not Found' }}
+        description={{
+          ar: 'عذراً، الصفحة التي تبحث عنها غير موجودة في موقع عيادة حياة لطب الأسنان.',
+          en: 'Sorry, the requested page was not found at Hayaah Dental Clinic.',
+        }}
+        canonicalPath="/404"
+        noindex={true}
+      />
       <Navbar />
 
       <section className="not-found-content-section py-5 my-5 text-center">

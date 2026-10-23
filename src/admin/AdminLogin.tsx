@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import { Shield, Edit3, Eye, PhoneCall, ArrowRight, ArrowLeft, Lock, Mail, AlertCircle } from 'lucide-react';
 import { UserRole } from '../types';
+import PageMeta from '../components/PageMeta/PageMeta';
 
 export const AdminLogin: React.FC = () => {
   const { loginAsDemoUser, loginWithEmail, isAuthenticated, role, isFirebaseMode, authError, clearAuthError } = useAuth();
@@ -123,6 +124,11 @@ export const AdminLogin: React.FC = () => {
       style={{ backgroundColor: '#f0fdfa' }}
       dir={isAr ? 'rtl' : 'ltr'}
     >
+      <PageMeta
+        title={{ ar: 'تسجيل دخول لوحة الإدارة', en: 'Clinic Staff Login' }}
+        canonicalPath="/admin/login"
+        noindex={true}
+      />
       <div className="card border-0 shadow-lg rounded-4 overflow-hidden" style={{ maxWidth: '640px', width: '100%' }}>
         <div className="p-4 p-md-5 bg-white">
           <div className="d-flex justify-content-between align-items-center mb-4">

@@ -20,18 +20,24 @@ import {
   FiArrowRight,
 } from 'react-icons/fi';
 import { FaFacebookF, FaWhatsapp, FaTwitter } from 'react-icons/fa';
+import PageMeta from '../components/PageMeta/PageMeta';
+import { getSiteUrl } from '../utils/siteUrl';
 import './SingleBlog.scss';
 
 const SingleBlog = () => {
   const { url } = useParams();
   const { language, t } = useTranslation();
   const post = getBlogPostBySlug(url);
+  const siteUrl = getSiteUrl();
+  const isAr = language === 'ar';
   const [copied, setCopied] = useState(false);
 
   const ArrowIcon = language === 'ar' ? FiArrowLeft : FiArrowRight;
   const ChevronIcon = language === 'ar' ? FiChevronLeft : FiChevronRight;
 
-  const relatedPosts = BLOG_POSTS.filter((p) => p.slug !== post.slug).slice(0, 3);
+  const relatedPosts = post
+    ? BLOG_POSTS.filter((p) => p.slug !== post.slug).slice(0, 3)
+    : BLOG_POSTS.slice(0, 3);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -43,11 +49,72 @@ const SingleBlog = () => {
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const shareTitle = language === 'ar' ? post.title.ar : post.title.en;
+  const shareTitle = post ? (language === 'ar' ? post.title.ar : post.title.en) : '';
   const currentUrl = encodeURIComponent(window.location.href);
+
+  const postTitle = post ? (post.title[language] || post.title.ar) : '';
+  const postDesc = post ? (post.excerpt[language] || post.excerpt.ar) : '';
+
+  const blogSchema = post
+    ? {
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'BlogPosting',
+            headline: postTitle,
+            description: postDesc,
+            author: {
+              '@type': 'Organization',
+              name: isAr ? 'عيادة حياة لطب الأسنان' : 'Hayaah Dental Clinic',
+              url: `${siteUrl}/`,
+            },
+            publisher: {
+              '@type': 'Organization',
+              name: isAr ? 'عيادة حياة لطب الأسنان' : 'Hayaah Dental Clinic',
+              logo: {
+                '@type': 'ImageObject',
+                url: `${siteUrl}/assets/logo.svg`,
+              },
+            },
+            mainEntityOfPage: `${siteUrl}/blog/${post.slug || post.id}`,
+          },
+          {
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: isAr ? 'الرئيسية' : 'Home',
+                item: `${siteUrl}/`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: isAr ? 'المقالات الطبية' : 'Blog Articles',
+                item: `${siteUrl}/blogs`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: postTitle,
+                item: `${siteUrl}/blog/${post.slug || post.id}`,
+              },
+            ],
+          },
+        ],
+      }
+    : null;
 
   return (
     <main id="main-content" className="single-blog-page-layout">
+      <PageMeta
+        title={post ? post.title : { ar: 'المقال الطبي', en: 'Blog Post' }}
+        description={post ? post.excerpt : ''}
+        canonicalPath={`/blog/${url}`}
+        type="article"
+        schema={blogSchema}
+        noindex={!post}
+      />
       <ScrollProgress />
       <Navbar />
 

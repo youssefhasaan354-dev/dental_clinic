@@ -30,6 +30,7 @@ import {
   UserCheck,
   Settings as SettingsIcon,
 } from 'lucide-react';
+import PageMeta from '../components/PageMeta/PageMeta';
 
 export const AdminLayout: React.FC = () => {
   const { user, role, logout, isVisualEditActive, setVisualEditActive } = useAuth();
@@ -184,6 +185,11 @@ export const AdminLayout: React.FC = () => {
 
   return (
     <div className="admin-app-container d-flex flex-column min-vh-100" style={{ backgroundColor: '#f8fafc', color: '#1e293b' }}>
+      <PageMeta
+        title={{ ar: 'لوحة إدارة العيادة', en: 'Clinic Admin Portal' }}
+        canonicalPath="/admin"
+        noindex={true}
+      />
       {/* Persistent Demo Warning Banner */}
       <div
         className="px-3 py-1 bg-dark text-white d-flex align-items-center justify-content-between small"

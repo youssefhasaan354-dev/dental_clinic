@@ -4,6 +4,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { getStorageService } from '../../services/storage';
 import { Search, Globe, Code, ShieldAlert, Check, Copy } from 'lucide-react';
+import { getSiteUrl } from '../../utils/siteUrl';
 
 export const SeoManager: React.FC = () => {
   const { clinicInfo, doctors, settings, refreshData } = useData();
@@ -13,7 +14,7 @@ export const SeoManager: React.FC = () => {
   const isViewer = role === 'viewer';
 
   const [noindex, setNoindex] = useState(Boolean(settings.noindex));
-  const [siteUrl, setSiteUrl] = useState(import.meta.env.VITE_SITE_URL || 'https://dentallclinic.vercel.app');
+  const [siteUrl, setSiteUrl] = useState(getSiteUrl());
   const [copiedJson, setCopiedJson] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 

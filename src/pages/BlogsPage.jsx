@@ -5,7 +5,9 @@ import FloatingActions from '../components/FloatingActions/FloatingActions';
 import ScrollProgress from '../components/ScrollProgress/ScrollProgress';
 import SectionTitle from '../components/SectionTitle/SectionTitle';
 import Blogs from '../sections/Blogs/Blogs';
+import PageMeta from '../components/PageMeta/PageMeta';
 import { useTranslation } from '../i18n/LanguageContext';
+import { getSiteUrl } from '../utils/siteUrl';
 import { BLOG_POSTS } from '../data/blog';
 import { motion } from 'framer-motion';
 import { FiBookOpen } from 'react-icons/fi';
@@ -13,9 +15,42 @@ import './BlogsPage.scss';
 
 const BlogsPage = () => {
   const { t, language } = useTranslation();
+  const siteUrl = getSiteUrl();
+  const isAr = language === 'ar';
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: isAr ? 'الرئيسية' : 'Home',
+        item: `${siteUrl}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: isAr ? 'المقالات الطبية' : 'Blog Articles',
+        item: `${siteUrl}/blogs`,
+      },
+    ],
+  };
 
   return (
     <main id="main-content" className="blogs-page-layout">
+      <PageMeta
+        title={{
+          ar: 'المقالات والتوعية الطبية لصحة الفم والأسنان',
+          en: 'Oral Health & Dental Care Articles',
+        }}
+        description={{
+          ar: 'مقالات طبية تعليمية وإرشادات موثوقة من أطباء عيادة حياة لطب الأسنان للعناية بالأسنان وحماية اللثة وتجميل الابتسامة.',
+          en: 'Educational dental health guides and care recommendations written by Hayaah Dental Clinic practitioners.',
+        }}
+        canonicalPath="/blogs"
+        schema={breadcrumbSchema}
+      />
       <ScrollProgress />
       <Navbar />
 

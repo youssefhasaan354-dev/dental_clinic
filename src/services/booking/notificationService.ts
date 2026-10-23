@@ -12,6 +12,8 @@
 
 import { Appointment, BookingSettings } from './types';
 import { DEFAULT_BOOKING_SETTINGS } from './slotEngine';
+import { getSiteUrl } from '../../utils/siteUrl';
+import { CLINIC_DATA } from '../../data/clinic';
 
 export interface NotificationPayload {
   type: 'booking_created' | 'booking_confirmed' | 'booking_cancelled' | 'booking_rescheduled';
@@ -33,16 +35,18 @@ export function buildClinicWhatsAppUrl(
   language: 'ar' | 'en' = 'ar'
 ): string {
   const isAr = language === 'ar';
-  const clinicTarget = settings.clinicWhatsapp.replace(/[^0-9]/g, '') || '201000000000';
+  const defaultClinicWhatsapp = (CLINIC_DATA.whatsapp?.number || '20226355669').replace(/[^0-9]/g, '');
+  const clinicTarget = settings.clinicWhatsapp.replace(/[^0-9]/g, '') || defaultClinicWhatsapp;
 
   const sName = isAr ? appointment.serviceName.ar : appointment.serviceName.en;
   const dName = appointment.doctorName
     ? (isAr ? appointment.doctorName.ar : appointment.doctorName.en)
     : (isAr ? 'أي طبيب متاح' : 'Any available doctor');
 
+  const siteUrl = getSiteUrl();
   const manageUrl = appointment.manageToken
-    ? `https://dentallclinic.vercel.app/booking/manage?token=${appointment.manageToken}`
-    : `https://dentallclinic.vercel.app/booking/manage?code=${appointment.bookingCode}&phone=${encodeURIComponent(appointment.patientPhone)}`;
+    ? `${siteUrl}/booking/manage?token=${appointment.manageToken}`
+    : `${siteUrl}/booking/manage?code=${appointment.bookingCode}&phone=${encodeURIComponent(appointment.patientPhone)}`;
 
   const text = isAr
     ? `السلام عليكم، أود تأكيد موعدي في عيادة حياة لطب الأسنان:\n` +

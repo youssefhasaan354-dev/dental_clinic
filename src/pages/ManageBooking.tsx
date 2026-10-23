@@ -15,6 +15,7 @@ import { CustomCalendar } from '../components/BookingWizard/CustomCalendar';
 import { TimeSlotPicker } from '../components/BookingWizard/TimeSlotPicker';
 import { CLINIC_DATA } from '../data/clinic';
 import { isFirebaseConfigured } from '../services/firebase/client';
+import PageMeta from '../components/PageMeta/PageMeta';
 import {
   FiSearch,
   FiCalendar,
@@ -38,22 +39,6 @@ export const ManageBooking: React.FC = () => {
   const { language } = useTranslation();
   const isAr = language === 'ar';
   const [searchParams] = useSearchParams();
-
-  // Dynamic SEO noindex tag
-  useEffect(() => {
-    let metaTag = document.querySelector('meta[name="robots"]');
-    if (!metaTag) {
-      metaTag = document.createElement('meta');
-      metaTag.setAttribute('name', 'robots');
-      document.head.appendChild(metaTag);
-    }
-    metaTag.setAttribute('content', 'noindex, nofollow');
-
-    return () => {
-      const allowIndexing = import.meta.env.VITE_ALLOW_INDEXING === 'true';
-      metaTag?.setAttribute('content', allowIndexing ? 'index, follow' : 'noindex, nofollow');
-    };
-  }, []);
 
   const isFirebaseMode = isFirebaseConfigured();
   const bookingService = useMemo(() => getBookingService(), []);
@@ -295,6 +280,18 @@ export const ManageBooking: React.FC = () => {
 
   return (
     <div className="manage-booking-page py-5 bg-light min-vh-100" dir={isAr ? 'rtl' : 'ltr'}>
+      <PageMeta
+        title={{
+          ar: 'إدارة وتعديل موعد الحجز',
+          en: 'Manage & Reschedule Appointment',
+        }}
+        description={{
+          ar: 'بوابة المريض المباشرة لإدارة وتعديل وإلغاء موعد الحجز في عيادة حياة لطب الأسنان.',
+          en: 'Direct patient self-service portal to view, reschedule, or cancel dental appointments.',
+        }}
+        canonicalPath="/booking/manage"
+        noindex={true}
+      />
       <div className="container">
         {/* Page Header */}
         <div className="page-header-box text-center mb-5">

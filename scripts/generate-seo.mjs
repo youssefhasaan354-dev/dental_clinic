@@ -76,13 +76,42 @@ fs.writeFileSync(path.join(publicDir, 'robots.txt'), robotsContent, 'utf-8');
 console.log(`[SEO-GEN] Generated public/robots.txt (allowIndexing = ${allowIndexing})`);
 
 // 2. Generate sitemap.xml
-// Real routes that actually exist and render pages (verified against App.jsx)
+// Extract services slugs
+const servicesFilePath = path.join(rootDir, 'src', 'data', 'services.js');
+let serviceSlugs = [];
+if (fs.existsSync(servicesFilePath)) {
+  const content = fs.readFileSync(servicesFilePath, 'utf-8');
+  const matches = [...content.matchAll(/slug:\s*["']([^"']+)["']/g)];
+  serviceSlugs = matches.map((m) => m[1]);
+}
+
+// Extract blog slugs
+const blogFilePath = path.join(rootDir, 'src', 'data', 'blog.js');
+let blogSlugs = [];
+if (fs.existsSync(blogFilePath)) {
+  const content = fs.readFileSync(blogFilePath, 'utf-8');
+  const matches = [...content.matchAll(/slug:\s*["']([^"']+)["']/g)];
+  blogSlugs = matches.map((m) => m[1]);
+}
+
+const todayIso = new Date().toISOString().split('T')[0];
+
 const sitemapRoutes = [
   { path: '', changefreq: 'weekly', priority: '1.0' },
   { path: '/about', changefreq: 'monthly', priority: '0.8' },
   { path: '/services', changefreq: 'weekly', priority: '0.9' },
+  ...serviceSlugs.map((slug) => ({
+    path: `/services/${slug}`,
+    changefreq: 'weekly',
+    priority: '0.8',
+  })),
   { path: '/contact', changefreq: 'monthly', priority: '0.8' },
   { path: '/blogs', changefreq: 'weekly', priority: '0.7' },
+  ...blogSlugs.map((slug) => ({
+    path: `/blog/${slug}`,
+    changefreq: 'monthly',
+    priority: '0.7',
+  })),
   { path: '/privacy', changefreq: 'yearly', priority: '0.3' },
   { path: '/terms', changefreq: 'yearly', priority: '0.3' },
 ];
@@ -91,14 +120,18 @@ const sitemapEntries = sitemapRoutes
   .map(
     (route) => `  <url>
     <loc>${siteUrl}${route.path || '/'}</loc>
+    <lastmod>${todayIso}</lastmod>
     <changefreq>${route.changefreq}</changefreq>
     <priority>${route.priority}</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="${siteUrl}${route.path || '/'}" />
+    <xhtml:link rel="alternate" hreflang="en" href="${siteUrl}${route.path || '/'}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}${route.path || '/'}" />
   </url>`
   )
   .join('\n');
 
 const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <!-- Public Marketing Pages Only (Admin & /booking/manage strictly excluded) -->
 ${sitemapEntries}
 </urlset>

@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { FileText, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import PageMeta from '../components/PageMeta/PageMeta';
 
 export const TermsPage: React.FC = () => {
   const { language } = useLanguage();
@@ -9,6 +10,17 @@ export const TermsPage: React.FC = () => {
 
   return (
     <div className="terms-page py-5" style={{ backgroundColor: '#f8fafc', minHeight: '80vh' }}>
+      <PageMeta
+        title={{
+          ar: 'الشروط والأحكام الطبية والقانونية',
+          en: 'Terms & Conditions | Clinical Disclaimer',
+        }}
+        description={{
+          ar: 'الشروط والأحكام وسياسات حجز المواعيد وإلغائها وإخلاء المسؤولية الطبية لعيادة حياة لطب الأسنان.',
+          en: 'Terms and conditions, booking policies and clinical disclaimer for Hayaah Dental Clinic.',
+        }}
+        canonicalPath="/terms"
+      />
       <div className="container" style={{ maxWidth: '860px' }}>
         <div className="mb-4">
           <Link to="/" className="text-decoration-none d-inline-flex align-items-center gap-1 fw-semibold text-primary">

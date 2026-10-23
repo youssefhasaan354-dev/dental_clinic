@@ -19,10 +19,33 @@ import {
   FiCheck,
 } from 'react-icons/fi';
 import { FaWhatsapp, FaFacebookF } from 'react-icons/fa';
+import PageMeta from '../components/PageMeta/PageMeta';
+import { getSiteUrl } from '../utils/siteUrl';
 import './ContactPage.scss';
 
 const ContactPage = () => {
   const { language, t } = useTranslation();
+  const siteUrl = getSiteUrl();
+  const isAr = language === 'ar';
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: isAr ? 'الرئيسية' : 'Home',
+        item: `${siteUrl}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: isAr ? 'الاتصال بنا' : 'Contact Us',
+        item: `${siteUrl}/contact`,
+      },
+    ],
+  };
 
   // Determine current day in Cairo to highlight in working hours table
   const cairoDayIndex = (() => {
@@ -48,6 +71,18 @@ const ContactPage = () => {
 
   return (
     <main id="main-content" className="contact-page-layout">
+      <PageMeta
+        title={{
+          ar: 'اتصل بنا ومقر العيادة بمصر الجديدة',
+          en: 'Contact Us & Clinic Location in Heliopolis',
+        }}
+        description={{
+          ar: 'تواصل مع عيادة حياة لطب الأسنان بمصر الجديدة، شارع فريد سميكة. أرقام الهاتف، موقع الخريطة التفاعلي، ومواعيد العمل السبت للخميس.',
+          en: 'Contact Hayaah Dental Clinic in Heliopolis, Cairo. Phone numbers, interactive map navigation, and working hours.',
+        }}
+        canonicalPath="/contact"
+        schema={breadcrumbSchema}
+      />
       <ScrollProgress />
       <Navbar />
 
