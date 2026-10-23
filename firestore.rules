@@ -191,7 +191,7 @@ service cloud.firestore {
     // --- Doctor Schedules (Booking availability & doctor hours) ---
     match /doctor_schedules/{id} {
       allow read: if true;
-      allow write: if isEditor();
+      allow write: if isOwner();
     }
 
     // --- Blocked Slots (Doctor breaks and clinic closures) ---
@@ -230,7 +230,7 @@ service cloud.firestore {
 
     match /doctors/{id} {
       allow read: if true;
-      allow write: if isEditor();
+      allow write: if isOwner();
     }
 
     match /articles/{id} {

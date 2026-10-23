@@ -568,14 +568,51 @@ export class DemoBookingService implements IBookingService {
     return this.getItem<DoctorSchedule[]>(STORAGE_KEYS.DOCTORS, INITIAL_DOCTORS);
   }
 
-  async updateDoctor(id: string, updates: Partial<DoctorSchedule>): Promise<DoctorSchedule> {
+  async addDoctor(doctor: Omit<DoctorSchedule, 'doctorId'> & { doctorId?: string }): Promise<DoctorSchedule> {
+    const doctors = this.getItem<DoctorSchedule[]>(STORAGE_KEYS.DOCTORS, INITIAL_DOCTORS);
+    const doctorId = doctor.doctorId || `doc_${Date.now()}`;
+    const newDoc: DoctorSchedule = {
+      doctorId,
+      doctorName: doctor.doctorName,
+      title: doctor.title,
+      avatar: doctor.avatar || '',
+      isActive: doctor.isActive !== undefined ? doctor.isActive : true,
+      services: doctor.services && doctor.services.length > 0 ? doctor.services : ['*'],
+      weeklyHours: doctor.weeklyHours || {
+        0: { isWorking: true, start: '10:00', end: '22:00' },
+        1: { isWorking: true, start: '10:00', end: '22:00' },
+        2: { isWorking: true, start: '10:00', end: '22:00' },
+        3: { isWorking: true, start: '10:00', end: '22:00' },
+        4: { isWorking: true, start: '10:00', end: '22:00' },
+        5: { isWorking: false, start: '00:00', end: '00:00' },
+        6: { isWorking: true, start: '10:00', end: '22:00' },
+      },
+    };
+
+    const updatedList = [...doctors, newDoc];
+    this.setItem(STORAGE_KEYS.DOCTORS, updatedList);
+    return newDoc;
+  }
+
+  async editDoctor(id: string, updates: Partial<DoctorSchedule>): Promise<DoctorSchedule> {
     const doctors = this.getItem<DoctorSchedule[]>(STORAGE_KEYS.DOCTORS, INITIAL_DOCTORS);
     const index = doctors.findIndex((d) => d.doctorId === id);
-    if (index === -1) throw new Error(`Doctor ${id} not found`);
+    if (index === -1) throw new Error(`Doctor with id ${id} not found`);
 
     doctors[index] = { ...doctors[index], ...updates };
-    this.setItem(STORAGE_KEYS.DOCTORS, doctors);
+    this.setItem(STORAGE_KEYS.DOCTORS, [...doctors]);
     return doctors[index];
+  }
+
+  async deleteDoctor(id: string): Promise<boolean> {
+    const doctors = this.getItem<DoctorSchedule[]>(STORAGE_KEYS.DOCTORS, INITIAL_DOCTORS);
+    const filtered = doctors.filter((d) => d.doctorId !== id);
+    this.setItem(STORAGE_KEYS.DOCTORS, filtered);
+    return true;
+  }
+
+  async updateDoctor(id: string, updates: Partial<DoctorSchedule>): Promise<DoctorSchedule> {
+    return this.editDoctor(id, updates);
   }
 
   async resetDemoData(): Promise<void> {

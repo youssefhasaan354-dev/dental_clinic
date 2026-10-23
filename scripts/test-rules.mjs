@@ -580,6 +580,26 @@ async function run() {
     );
     console.log('✓ PASS: Excessively long notes (>1000 chars) correctly rejected');
 
+    // 5. Doctor management security: only owner can write/delete, public can read
+    console.log('Testing doctor management security rules...');
+    await assertSucceeds(getDoc(doc(unauthedDb, 'doctor_schedules', 'doc-1')));
+    await assertSucceeds(getDoc(doc(unauthedDb, 'doctors', 'doc-1')));
+
+    // Unauthenticated write fails
+    await assertFails(setDoc(doc(unauthedDb, 'doctor_schedules', 'doc-test-unauth'), { doctorId: 'doc-test-unauth' }));
+    await assertFails(setDoc(doc(unauthedDb, 'doctors', 'doc-test-unauth'), { id: 'doc-test-unauth' }));
+
+    // Editor write fails (only owner allowed)
+    await assertFails(setDoc(doc(editorDb, 'doctor_schedules', 'doc-test-editor'), { doctorId: 'doc-test-editor' }));
+    await assertFails(setDoc(doc(editorDb, 'doctors', 'doc-test-editor'), { id: 'doc-test-editor' }));
+
+    // Owner write succeeds
+    await assertSucceeds(setDoc(doc(ownerDb, 'doctor_schedules', 'doc-test-owner'), { doctorId: 'doc-test-owner', isActive: true }));
+    await assertSucceeds(setDoc(doc(ownerDb, 'doctors', 'doc-test-owner'), { id: 'doc-test-owner', name_ar: 'طبيب معتمد' }));
+    await assertSucceeds(deleteDoc(doc(ownerDb, 'doctor_schedules', 'doc-test-owner')));
+    await assertSucceeds(deleteDoc(doc(ownerDb, 'doctors', 'doc-test-owner')));
+    console.log('✓ PASS: Doctor management write/delete strictly restricted to owner only (editor & public denied)');
+
     console.log('--- ALL EXACT TRANSACTION RULES TESTS PASSED! ---');
   } finally {
     await testEnv.cleanup();

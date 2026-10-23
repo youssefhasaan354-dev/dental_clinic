@@ -152,7 +152,22 @@ export interface IBookingService {
   getDoctors(): Promise<DoctorSchedule[]>;
 
   /**
-   * Update doctor schedule or details
+   * Add a new doctor
+   */
+  addDoctor(doctor: Omit<DoctorSchedule, 'doctorId'> & { doctorId?: string }): Promise<DoctorSchedule>;
+
+  /**
+   * Edit doctor profile, services or working hours
+   */
+  editDoctor(id: string, updates: Partial<DoctorSchedule>): Promise<DoctorSchedule>;
+
+  /**
+   * Delete a doctor
+   */
+  deleteDoctor(id: string): Promise<boolean>;
+
+  /**
+   * Update doctor schedule or details (alias for editDoctor)
    */
   updateDoctor(id: string, updates: Partial<DoctorSchedule>): Promise<DoctorSchedule>;
 

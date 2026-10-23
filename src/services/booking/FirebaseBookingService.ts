@@ -947,17 +947,111 @@ export class FirebaseBookingService implements IBookingService {
     return merged;
   }
 
-  async updateDoctor(id: string, updates: Partial<DoctorSchedule>): Promise<DoctorSchedule> {
+  async addDoctor(doctor: Omit<DoctorSchedule, 'doctorId'> & { doctorId?: string }): Promise<DoctorSchedule> {
+    const db = await this.getDB();
+    const { doc, setDoc } = await import('firebase/firestore');
+
+    const doctorId = doctor.doctorId || `doc_${Date.now()}`;
+    const newDoc: DoctorSchedule = {
+      doctorId,
+      doctorName: doctor.doctorName,
+      title: doctor.title,
+      avatar: doctor.avatar || '',
+      isActive: doctor.isActive !== undefined ? doctor.isActive : true,
+      services: doctor.services && doctor.services.length > 0 ? doctor.services : ['*'],
+      weeklyHours: doctor.weeklyHours || {
+        0: { isWorking: true, start: '10:00', end: '22:00' },
+        1: { isWorking: true, start: '10:00', end: '22:00' },
+        2: { isWorking: true, start: '10:00', end: '22:00' },
+        3: { isWorking: true, start: '10:00', end: '22:00' },
+        4: { isWorking: true, start: '10:00', end: '22:00' },
+        5: { isWorking: false, start: '00:00', end: '00:00' },
+        6: { isWorking: true, start: '10:00', end: '22:00' },
+      },
+    };
+
+    const cleanData = stripUndefined(newDoc);
+    await setDoc(doc(db, 'doctor_schedules', doctorId), cleanData);
+
+    // Sync with doctors collection for CMS compatibility
+    try {
+      await setDoc(
+        doc(db, 'doctors', doctorId),
+        stripUndefined({
+          id: doctorId,
+          name_ar: doctor.doctorName.ar,
+          name_en: doctor.doctorName.en,
+          title_ar: doctor.title.ar,
+          title_en: doctor.title.en,
+          avatar: doctor.avatar || '',
+          photo_url: doctor.avatar || '',
+        }),
+        { merge: true }
+      );
+    } catch (e) {
+      console.warn('[FirebaseBookingService] CMS doctor sync warning:', e);
+    }
+
+    invalidateCachedData('booking_doctors');
+    return newDoc;
+  }
+
+  async editDoctor(id: string, updates: Partial<DoctorSchedule>): Promise<DoctorSchedule> {
     const db = await this.getDB();
     const { doc, setDoc } = await import('firebase/firestore');
 
     const doctors = await this.getDoctors();
     const existing = doctors.find((d) => d.doctorId === id) || INITIAL_DOCTORS[0];
-    const updated = stripUndefined({ ...existing, ...updates, doctorId: id });
+    const updated: DoctorSchedule = stripUndefined({
+      ...existing,
+      ...updates,
+      doctorId: id,
+    });
 
     await setDoc(doc(db, 'doctor_schedules', id), updated);
+
+    // Sync updates to CMS doctors collection if metadata changed
+    if (updates.doctorName || updates.title || updates.avatar) {
+      try {
+        await setDoc(
+          doc(db, 'doctors', id),
+          stripUndefined({
+            id,
+            name_ar: updated.doctorName?.ar,
+            name_en: updated.doctorName?.en,
+            title_ar: updated.title?.ar,
+            title_en: updated.title?.en,
+            avatar: updated.avatar || '',
+            photo_url: updated.avatar || '',
+          }),
+          { merge: true }
+        );
+      } catch (e) {
+        console.warn('[FirebaseBookingService] CMS doctor sync warning:', e);
+      }
+    }
+
     invalidateCachedData('booking_doctors');
     return updated;
+  }
+
+  async deleteDoctor(id: string): Promise<boolean> {
+    const db = await this.getDB();
+    const { doc, deleteDoc } = await import('firebase/firestore');
+
+    await deleteDoc(doc(db, 'doctor_schedules', id));
+    try {
+      await deleteDoc(doc(db, 'doctors', id));
+    } catch (e) {
+      console.warn('[FirebaseBookingService] CMS doctor delete warning:', e);
+    }
+
+    invalidateCachedData('booking_doctors');
+    return true;
+  }
+
+  async updateDoctor(id: string, updates: Partial<DoctorSchedule>): Promise<DoctorSchedule> {
+    return this.editDoctor(id, updates);
   }
 
   async resetDemoData(): Promise<void> {

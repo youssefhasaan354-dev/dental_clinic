@@ -35,3 +35,4 @@ export * from './IBookingService';
 export * from './slotEngine';
 export * from './slotUtils';
 export * from './notificationService';
+export * from './bookingValidation';

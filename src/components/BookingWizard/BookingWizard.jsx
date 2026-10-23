@@ -8,6 +8,7 @@ import { CLINIC_DATA } from '../../data/clinic';
 import {
   getBookingService,
   validateAndNormalizeEgyptianPhone,
+  validateBookingForm,
   buildClinicWhatsAppUrl,
   generateIcsContent,
   buildGoogleCalendarUrl,
@@ -89,6 +90,9 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
   const [submissionError, setSubmissionError] = useState(null);
   const [confirmedAppointment, setConfirmedAppointment] = useState(null);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [nextDoctorDate, setNextDoctorDate] = useState(null);
+  const [isSearchingNextDate, setIsSearchingNextDate] = useState(false);
 
   // Load doctors
   useEffect(() => {
@@ -104,6 +108,11 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
     }
     loadDocs();
   }, [bookingService]);
+
+  // Active doctors list (exclude inactive)
+  const activeDoctorsList = useMemo(() => {
+    return doctors.filter((d) => d.isActive !== false);
+  }, [doctors]);
 
   // Load availability when date, service, or doctor changes
   useEffect(() => {
@@ -166,29 +175,75 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
     return doctors.find((d) => d.doctorId === selectedDoctorId);
   }, [doctors, selectedDoctorId]);
 
-  // Validation for Step 4
-  const validatePatientDetails = () => {
-    const errs = {};
-    if (!patientData.name.trim()) {
-      errs.name = isAr ? 'يرجى إدخال اسم المريض بالكامل' : 'Patient full name is required';
-    }
-    const phoneCheck = validateAndNormalizeEgyptianPhone(patientData.phone);
-    if (!patientData.phone.trim() || !phoneCheck.isValid) {
-      errs.phone = isAr
-        ? 'يرجى إدخال رقم هاتف مصري صحيح (مثال: 01012345678)'
-        : 'Please enter a valid Egyptian phone number (e.g. 01012345678)';
-    }
-    if (patientData.email.trim() && !/^\S+@\S+\.\S+$/.test(patientData.email)) {
-      errs.email = isAr ? 'صيغة البريد الإلكتروني غير صحيحة' : 'Invalid email format';
-    }
-    if (!patientData.consent) {
-      errs.consent = isAr
-        ? 'يجب الموافقة على سياسة الخصوصية للمتابعة'
-        : 'You must agree to the privacy policy to proceed';
+  // Check if selected doctor has available slots on this date
+  const hasAvailableSlots = useMemo(() => {
+    return availableSlots.some((s) => s.isAvailable);
+  }, [availableSlots]);
+
+  // Smart Search: When doctor has no slots, find their next available date (within 14 days)
+  useEffect(() => {
+    if (selectedDoctorId === 'any' || hasAvailableSlots || isLoadingSlots || !selectedDate) {
+      setNextDoctorDate(null);
+      return;
     }
 
-    setValidationErrors(errs);
-    return Object.keys(errs).length === 0;
+    let isMounted = true;
+    setIsSearchingNextDate(true);
+
+    async function findNextDate() {
+      try {
+        const [year, month, day] = selectedDate.split('-').map(Number);
+        const base = new Date(year, month - 1, day);
+
+        for (let i = 1; i <= 14; i++) {
+          const testDate = new Date(base);
+          testDate.setDate(base.getDate() + i);
+          if (testDate.getDay() === 5) continue; // skip Fridays
+
+          const dateStr = formatCairoDate(testDate);
+          const avail = await bookingService.getAvailability(dateStr, selectedServiceId, selectedDoctorId);
+          if (avail.availableSlotCount > 0) {
+            if (isMounted) {
+              setNextDoctorDate(dateStr);
+            }
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not find next available doctor slot:', err);
+      } finally {
+        if (isMounted) setIsSearchingNextDate(false);
+      }
+    }
+
+    findNextDate();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedDoctorId, selectedDate, selectedServiceId, hasAvailableSlots, isLoadingSlots, bookingService]);
+
+  // Validation using Zod
+  const validatePatientDetails = () => {
+    const res = validateBookingForm(
+      {
+        patientName: patientData.name,
+        patientPhone: patientData.phone,
+        patientEmail: patientData.email,
+        patientType: patientData.patientType,
+        serviceId: selectedServiceId,
+        doctorId: selectedDoctorId,
+        date: selectedDate,
+        startTime: selectedTime || '10:00',
+        consentGiven: patientData.consent,
+        notes: patientData.notes,
+        honeypot: patientData.honeypot,
+      },
+      isAr
+    );
+
+    setValidationErrors(res.errors);
+    return res.isValid;
   };
 
   // Client-side rate limiting (max 5 bookings / 15 minutes per browser)
@@ -552,10 +607,10 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
               </div>
 
               {/* Dynamic Clinic Doctors */}
-              {doctors.map((doc) => {
+              {activeDoctorsList.map((doc) => {
                 const isSelected = selectedDoctorId === doc.doctorId;
-                const docName = isAr ? doc.doctorName.ar : doc.doctorName.en;
-                const docTitle = isAr ? doc.title.ar : doc.title.en;
+                const docName = isAr ? doc.doctorName?.ar : doc.doctorName?.en;
+                const docTitle = isAr ? doc.title?.ar : doc.title?.en;
 
                 return (
                   <div
@@ -565,9 +620,18 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
                     role="button"
                     tabIndex={0}
                   >
-                    <div className="doctor-avatar-circle">
-                      <FiUser />
-                    </div>
+                    {doc.avatar ? (
+                      <img
+                        src={doc.avatar}
+                        alt={docName || ''}
+                        className="doctor-avatar-circle object-fit-cover border"
+                        style={{ width: '48px', height: '48px', borderRadius: '50%' }}
+                      />
+                    ) : (
+                      <div className="doctor-avatar-circle">
+                        <FiUser />
+                      </div>
+                    )}
                     <div className="doctor-info">
                       <h6 className="doc-name fw-bold mb-1">{docName}</h6>
                       <p className="doc-role small text-muted mb-0">{docTitle}</p>
@@ -650,6 +714,57 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
                     isFriday={selectedDate ? new Date(selectedDate).getDay() === 5 : false}
                     language={language}
                   />
+
+                  {/* Smart suggestion when selected doctor has no slots */}
+                  {selectedDoctorId !== 'any' && !isLoadingSlots && !hasAvailableSlots && (
+                    <div className="alert alert-warning border-warning rounded-4 p-3 mt-3 shadow-sm">
+                      <div className="d-flex align-items-center gap-2 mb-2">
+                        <FiAlertCircle className="text-warning flex-shrink-0 fs-5" />
+                        <strong className="text-dark small">
+                          {isAr
+                            ? `لا توجد مواعيد متاحة للطبيب (${activeDoctorObj ? activeDoctorObj.doctorName?.ar : ''}) في هذا اليوم.`
+                            : `No available slots for Dr. (${activeDoctorObj ? activeDoctorObj.doctorName?.en : ''}) on this date.`}
+                        </strong>
+                      </div>
+                      <p className="small text-muted mb-2">
+                        {isAr
+                          ? 'قد يكون الطبيب في عطلته الأسبوعية أو أن كامل مواعيده محجوزة. يمكنك التبديل لرؤية مواعيد أي طبيب متاح في نفس اليوم، أو الانتقال لأقرب موعد قادم لهذا الطبيب.'
+                          : 'The doctor may be off or fully booked. You can switch to any available doctor today, or jump to their next available date.'}
+                      </p>
+                      <div className="d-flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary rounded-pill px-3 py-1"
+                          onClick={() => setSelectedDoctorId('any')}
+                        >
+                          <FiUser className="me-1" />
+                          <span>{isAr ? 'عرض مواعيد أي طبيب متاح اليوم' : 'Any Available Doctor Today'}</span>
+                        </button>
+
+                        {nextDoctorDate && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-primary rounded-pill px-3 py-1"
+                            onClick={() => setSelectedDate(nextDoctorDate)}
+                          >
+                            <FiCalendar className="me-1" />
+                            <span>
+                              {isAr
+                                ? `الانتقال لأقرب موعد متاح (${nextDoctorDate})`
+                                : `Next Available Date (${nextDoctorDate})`}
+                            </span>
+                          </button>
+                        )}
+
+                        {isSearchingNextDate && (
+                          <span className="small text-muted d-flex align-items-center gap-1">
+                            <span className="spinner-border spinner-border-sm" role="status" />
+                            <span>{isAr ? 'جاري فحص أقرب موعد...' : 'Finding next slot...'}</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1027,7 +1142,13 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
                 type="button"
                 className="btn btn-primary px-5 py-2 d-flex align-items-center gap-2 rounded-pill"
                 disabled={isSubmitting}
-                onClick={handleConfirmBooking}
+                onClick={() => {
+                  if (validatePatientDetails()) {
+                    setShowConfirmModal(true);
+                  } else {
+                    setStep(4);
+                  }
+                }}
               >
                 {isSubmitting ? (
                   <>
@@ -1036,7 +1157,7 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
                   </>
                 ) : (
                   <>
-                    <span>{isAr ? 'تأكيد الحجز الآن' : 'Confirm Appointment'}</span>
+                    <span>{isAr ? 'مراجعة وتأكيد الحجز النهائي' : 'Confirm Appointment'}</span>
                     <FiCheck />
                   </>
                 )}
@@ -1187,6 +1308,127 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* FINAL CONFIRMATION MODAL */}
+      {showConfirmModal && (
+        <div
+          className="modal show d-block"
+          tabIndex={-1}
+          style={{ backgroundColor: 'rgba(0,0,0,0.55)', zIndex: 1060 }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content rounded-4 border-0 shadow-lg p-2">
+              <div className="modal-header border-0 pb-0 pt-3 px-4">
+                <div className="d-flex align-items-center gap-2">
+                  <div className="rounded-circle bg-primary-subtle text-primary p-2 d-flex align-items-center justify-content-center">
+                    <FiCheckCircle size={22} />
+                  </div>
+                  <h5 className="modal-title fw-bold m-0 text-dark">
+                    {isAr ? 'تأكيد نهائي لحجز الموعد' : 'Final Booking Confirmation'}
+                  </h5>
+                </div>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowConfirmModal(false)}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div className="modal-body px-4 py-3">
+                <p className="text-muted small mb-3">
+                  {isAr
+                    ? 'يرجى مراجعة تفاصيل حجزك والتأكيد لتثبيت الموعد فوراً وإصدار كود الحجز:'
+                    : 'Please confirm your appointment details to complete booking & receive your reservation code:'}
+                </p>
+
+                <div className="p-3 rounded-3 bg-light border mb-3">
+                  <div className="d-flex flex-column gap-2 small">
+                    <div className="d-flex justify-content-between">
+                      <span className="text-muted">{isAr ? 'الخدمة:' : 'Service:'}</span>
+                      <strong className="text-dark">
+                        {isAr ? activeServiceObj.title?.ar : activeServiceObj.title?.en}
+                      </strong>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <span className="text-muted">{isAr ? 'الطبيب:' : 'Doctor:'}</span>
+                      <strong className="text-dark">
+                        {activeDoctorObj
+                          ? isAr
+                            ? activeDoctorObj.doctorName?.ar
+                            : activeDoctorObj.doctorName?.en
+                          : isAr
+                          ? 'أي طبيب متاح بالعيادة'
+                          : 'Any Available Doctor'}
+                      </strong>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <span className="text-muted">{isAr ? 'الموعد:' : 'Date & Time:'}</span>
+                      <strong className="text-primary font-monospace">
+                        {selectedDate} | {selectedTime}
+                      </strong>
+                    </div>
+                    <div className="d-flex justify-content-between border-top pt-2">
+                      <span className="text-muted">{isAr ? 'اسم المريض:' : 'Patient:'}</span>
+                      <strong className="text-dark">{patientData.name}</strong>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <span className="text-muted">{isAr ? 'رقم الهاتف:' : 'Phone:'}</span>
+                      <strong className="text-dark" dir="ltr">
+                        {patientData.phone}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="small text-muted d-flex align-items-center gap-2">
+                  <FiShield className="text-success flex-shrink-0" />
+                  <span>
+                    {isAr
+                      ? 'موعدك مشمول بالحماية من التعارض الزمني وسيتم إرسال كود المتابعة فوراً.'
+                      : 'Guaranteed slot reservation with instant tracking code.'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="modal-footer border-0 pt-0 pb-3 px-4 d-flex justify-content-between">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary rounded-pill px-4"
+                  onClick={() => setShowConfirmModal(false)}
+                  disabled={isSubmitting}
+                >
+                  {isAr ? 'مراجعة وتعديل' : 'Edit Details'}
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-primary rounded-pill px-4 d-flex align-items-center gap-2"
+                  disabled={isSubmitting}
+                  onClick={() => {
+                    setShowConfirmModal(false);
+                    handleConfirmBooking();
+                  }}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+                      <span>{isAr ? 'جاري التأكيد...' : 'Confirming...'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{isAr ? 'نعم، تأكيد الحجز الآن' : 'Yes, Confirm Booking'}</span>
+                      <FiCheck />
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
