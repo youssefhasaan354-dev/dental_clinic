@@ -5,15 +5,43 @@ import EditableMedia from '../VisualEdit/EditableMedia';
 import './BrandLoader.scss';
 
 const BrandLoader = ({ onFinish }) => {
-  const [loading, setLoading] = useState(true);
+  const shouldSkip = (() => {
+    try {
+      if (typeof window === 'undefined') return true;
+      const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+      if (prefersReduced) return true;
+      const alreadyShown = sessionStorage.getItem('hayaah_brand_loader_shown');
+      if (alreadyShown === 'true') return true;
+      return false;
+    } catch (e) {
+      return false;
+    }
+  })();
+
+  const [loading, setLoading] = useState(!shouldSkip);
 
   useEffect(() => {
+    if (shouldSkip) {
+      if (onFinish) onFinish();
+      return;
+    }
+
+    try {
+      sessionStorage.setItem('hayaah_brand_loader_shown', 'true');
+    } catch (e) {
+      // ignore sessionStorage exceptions
+    }
+
+    // Snappier 500ms duration for high-end feel without harming LCP
     const timer = setTimeout(() => {
       setLoading(false);
       if (onFinish) onFinish();
-    }, 900);
+    }, 500);
+
     return () => clearTimeout(timer);
-  }, [onFinish]);
+  }, [onFinish, shouldSkip]);
+
+  if (shouldSkip) return null;
 
   return (
     <AnimatePresence>
@@ -21,7 +49,7 @@ const BrandLoader = ({ onFinish }) => {
         <motion.div
           className="brand-loader-screen"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.5, ease: 'easeInOut' } }}
+          exit={{ opacity: 0, transition: { duration: 0.35, ease: 'easeInOut' } }}
         >
           <motion.div
             className="loader-logo-box text-center"

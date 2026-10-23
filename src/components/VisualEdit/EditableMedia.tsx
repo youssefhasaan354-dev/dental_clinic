@@ -258,6 +258,7 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
             className="w-100 h-100"
             style={{ objectFit: 'cover', ...innerMediaStyle }}
             loading={loading}
+            decoding="async"
           />
         ) : (
           <div className="w-100 h-100 bg-dark" />
@@ -333,6 +334,7 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
       height={height}
       loading={isHero ? 'eager' : loading}
       fetchPriority={isHero ? 'high' : undefined}
+      decoding="async"
       className={`editable-media-img ${className}`}
       style={{
         width: as === 'background' ? '100%' : undefined,
