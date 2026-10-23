@@ -24,14 +24,14 @@ export const CLINIC_DATA = {
   },
 
   // WhatsApp configuration - defaulted to Egyptian international format
-  // Can be adjusted to any direct mobile or clinic line
+  // Can be overridden via VITE_CLINIC_WHATSAPP environment variable
   whatsapp: {
-    number: "20226355669", // TODO: change to direct mobile WhatsApp if available, defaults to clinic phone
-    display: "02 2635 5669",
-    getChatUrl: (message = "") => {
-      const cleanNumber = "20226355669";
+    number: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CLINIC_WHATSAPP) || '20226355669',
+    display: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CLINIC_WHATSAPP) ? import.meta.env.VITE_CLINIC_WHATSAPP : '02 2635 5669',
+    getChatUrl: (message = '') => {
+      const cleanNumber = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CLINIC_WHATSAPP) || '20226355669';
       const encodedMsg = encodeURIComponent(message);
-      return `https://wa.me/${cleanNumber}${encodedMsg ? `?text=${encodedMsg}` : ""}`;
+      return `https://wa.me/${cleanNumber}${encodedMsg ? `?text=${encodedMsg}` : ''}`;
     },
   },
 
@@ -124,8 +124,6 @@ export function getCairoClinicStatus() {
     let nextOpeningTextEn = "";
 
     if (isOpen) {
-      const remainingHours = Math.floor(22 - currentDecimalHour);
-      const remainingMinutes = Math.floor((22 - currentDecimalHour - remainingHours) * 60);
       nextOpeningTextAr = `يغلق اليوم الساعة 10:00 مساءً`;
       nextOpeningTextEn = `Closes today at 10:00 PM`;
     } else if (isFriday) {

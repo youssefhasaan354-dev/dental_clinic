@@ -27,7 +27,7 @@ export const DEFAULT_BOOKING_SETTINGS: BookingSettings = {
   cancellationWindowHours: 3,
   autoConfirm: false,
   clinicPhone: '02 2635 5669',
-  clinicWhatsapp: '201000000000',
+  clinicWhatsapp: '20226355669',
   notificationTemplates: {
     whatsappAr: 'مرحباً {name}، نؤكد حجز موعدك في عيادة حياة لطب الأسنان يوم {date} الساعة {time}. كود الحجز: {code}',
     whatsappEn: 'Hello {name}, your appointment at Hayaah Dental Clinic is confirmed for {date} at {time}. Booking code: {code}',

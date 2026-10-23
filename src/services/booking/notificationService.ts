@@ -36,7 +36,8 @@ export function buildClinicWhatsAppUrl(
 ): string {
   const isAr = language === 'ar';
   const defaultClinicWhatsapp = (CLINIC_DATA.whatsapp?.number || '20226355669').replace(/[^0-9]/g, '');
-  const clinicTarget = settings.clinicWhatsapp.replace(/[^0-9]/g, '') || defaultClinicWhatsapp;
+  const cleanSettingsTarget = settings.clinicWhatsapp ? settings.clinicWhatsapp.replace(/[^0-9]/g, '') : '';
+  const clinicTarget = (cleanSettingsTarget && cleanSettingsTarget !== '201000000000') ? cleanSettingsTarget : defaultClinicWhatsapp;
 
   const sName = isAr ? appointment.serviceName.ar : appointment.serviceName.en;
   const dName = appointment.doctorName
