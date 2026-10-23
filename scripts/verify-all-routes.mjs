@@ -26,8 +26,39 @@ const routes = [
   '/admin'
 ];
 
+let previewProc;
+
 async function run() {
-  await sleep(1500);
+  console.log('🚀 Spawning Vite preview server...');
+  previewProc = spawn('cmd.exe', ['/c', 'npx', 'vite', 'preview', '--port', '4173', '--host', '127.0.0.1'], {
+    cwd: 'd:\\web\\Dentalist',
+    stdio: 'ignore'
+  });
+
+  // Wait for server to be responsive
+  let serverReady = false;
+  for (let i = 0; i < 30; i++) {
+    try {
+      const ping = await fetch('http://127.0.0.1:4173/');
+      if (ping.ok || ping.status === 200 || ping.status === 304) {
+        serverReady = true;
+        break;
+      }
+    } catch (e) {
+      // wait
+    }
+    await sleep(500);
+  }
+
+  if (!serverReady) {
+    console.error('Failed to start Vite preview server');
+    if (previewProc) previewProc.kill();
+    chromeProc.kill();
+    process.exit(1);
+  }
+  console.log('✅ Vite preview server running on http://127.0.0.1:4173');
+
+  await sleep(1000);
 
   try {
     const res = await fetch('http://127.0.0.1:9222/json/list');
@@ -35,6 +66,7 @@ async function run() {
     const target = tabs.find(t => t.type === 'page');
     if (!target) {
       console.error('No page target found');
+      if (previewProc) previewProc.kill();
       chromeProc.kill();
       process.exit(1);
     }
@@ -156,6 +188,7 @@ async function run() {
     console.error('Fatal error in route verification:', err);
     process.exit(1);
   } finally {
+    if (previewProc) previewProc.kill();
     chromeProc.kill();
   }
 }

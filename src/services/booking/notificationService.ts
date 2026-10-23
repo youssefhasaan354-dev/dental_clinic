@@ -36,12 +36,21 @@ export function buildClinicWhatsAppUrl(
 ): string {
   const isAr = language === 'ar';
   const defaultClinicWhatsapp = (CLINIC_DATA.whatsapp?.number || '20226355669').replace(/[^0-9]/g, '');
-  const cleanSettingsTarget = settings.clinicWhatsapp ? settings.clinicWhatsapp.replace(/[^0-9]/g, '') : '';
+  const cleanSettingsTarget = settings?.clinicWhatsapp ? settings.clinicWhatsapp.replace(/[^0-9]/g, '') : '';
   const clinicTarget = (cleanSettingsTarget && cleanSettingsTarget !== '201000000000') ? cleanSettingsTarget : defaultClinicWhatsapp;
 
-  const sName = isAr ? appointment.serviceName.ar : appointment.serviceName.en;
+  if (!appointment || typeof appointment !== 'object' || !appointment.serviceName) {
+    const fallbackMsg = isAr
+      ? 'مرحباً عيادة حياة لطب الأسنان، أود الاستفسار عن حجز موعد كشف واستشارة'
+      : 'Hello Hayaah Dental Clinic, I would like to inquire about booking an appointment';
+    return `https://wa.me/${clinicTarget}?text=${encodeURIComponent(fallbackMsg)}`;
+  }
+
+  const sName = isAr
+    ? (appointment.serviceName?.ar || appointment.serviceName || '')
+    : (appointment.serviceName?.en || appointment.serviceName || '');
   const dName = appointment.doctorName
-    ? (isAr ? appointment.doctorName.ar : appointment.doctorName.en)
+    ? (isAr ? (appointment.doctorName?.ar || appointment.doctorName) : (appointment.doctorName?.en || appointment.doctorName))
     : (isAr ? 'أي طبيب متاح' : 'Any available doctor');
 
   const siteUrl = getSiteUrl();

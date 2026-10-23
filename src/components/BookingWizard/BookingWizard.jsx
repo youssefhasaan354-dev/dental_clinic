@@ -369,7 +369,7 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
               <FiPhone className="me-1" /> {isAr ? 'اتصال مباشر' : 'Call'}
             </a>
             <a
-              href={buildClinicWhatsAppUrl(
+              href={CLINIC_DATA.whatsapp.getChatUrl(
                 isAr
                   ? 'مرحباً، أود حجز موعد فعلي في عيادة حياة لطب الأسنان'
                   : 'Hello, I would like to book an appointment at Hayaah Dental Clinic'
