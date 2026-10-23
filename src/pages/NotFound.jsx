@@ -6,7 +6,7 @@ import FloatingActions from '../components/FloatingActions/FloatingActions';
 import EditableMedia from '../components/VisualEdit/EditableMedia';
 import PageMeta from '../components/PageMeta/PageMeta';
 import { useTranslation } from '../i18n/LanguageContext';
-import { FiHome, FiCompass } from 'react-icons/fi';
+import { FiHome, FiCompass, FiCalendar } from 'react-icons/fi';
 import './NotFound.scss';
 
 const NotFound = () => {
@@ -63,6 +63,13 @@ const NotFound = () => {
                 <Link to="/services">
                   <FiCompass />
                   <span>{language === 'ar' ? 'استعراض الخدمات' : 'View Services'}</span>
+                </Link>
+              </div>
+
+              <div className="theme-btn">
+                <Link to="/contact">
+                  <FiCalendar />
+                  <span>{language === 'ar' ? 'حجز موعد كشف' : 'Book Appointment'}</span>
                 </Link>
               </div>
             </div>

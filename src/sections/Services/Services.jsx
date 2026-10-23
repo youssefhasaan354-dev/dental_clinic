@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useTranslation, useLanguage } from '../../i18n/LanguageContext';
 import { useData } from '../../context/DataContext';
 import SectionTitle from '../../components/SectionTitle/SectionTitle';
+import SmartServiceSelector from '../../components/SmartServiceSelector/SmartServiceSelector';
 import {
   FiArrowLeft,
   FiArrowRight,
@@ -12,6 +13,7 @@ import {
   FiClock,
   FiDollarSign,
   FiCheckCircle,
+  FiHelpCircle,
 } from 'react-icons/fi';
 import './Services.scss';
 
@@ -24,6 +26,7 @@ const Services = ({ limit = 8, showAllBtn = true }) => {
   const isAr = language === 'ar';
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isTriageOpen, setIsTriageOpen] = useState(false);
 
   const filteredServices = services
     .filter((s) => s.isVisible !== false)
@@ -69,6 +72,19 @@ const Services = ({ limit = 8, showAllBtn = true }) => {
           }
           align="center"
         />
+
+        {/* Smart Service Selector (Triage Guide) Trigger */}
+        <div className="text-center mb-4">
+          <button
+            type="button"
+            className="btn rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 shadow-sm border"
+            onClick={() => setIsTriageOpen(true)}
+            style={{ backgroundColor: '#f0fdfa', borderColor: '#99f6e4', color: '#0c6674', fontWeight: 600 }}
+          >
+            <FiHelpCircle className="fs-5" style={{ color: '#0c6674' }} />
+            <span>{isAr ? 'محتار في اختيار الخدمة الأنسب لحالتك؟ (إيه مشكلتك؟)' : 'Need help deciding? Smart Service Guide'}</span>
+          </button>
+        </div>
 
         {/* Live Search Bar */}
         <div className="row justify-content-center mb-4">
@@ -227,6 +243,12 @@ const Services = ({ limit = 8, showAllBtn = true }) => {
             </div>
           </div>
         )}
+
+        {/* Smart Service Selector Modal */}
+        <SmartServiceSelector
+          isOpen={isTriageOpen}
+          onClose={() => setIsTriageOpen(false)}
+        />
       </div>
     </section>
   );

@@ -109,7 +109,7 @@ export function getCairoClinicStatus() {
 
     for (const p of parts) {
       if (p.type === "weekday") weekday = p.value;
-      if (p.type === "hour") hour = parseInt(p.value, 10);
+      if (p.type === "hour") hour = parseInt(p.value, 10) % 24;
       if (p.type === "minute") minute = parseInt(p.value, 10);
     }
 

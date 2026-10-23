@@ -292,3 +292,11 @@ iframe {
     scroll-behavior: auto !important;
   }
 }
+
+// Mobile sticky bottom action bar clearance
+@media (max-width: 767px) {
+  body {
+    padding-bottom: 64px;
+  }
+}
+

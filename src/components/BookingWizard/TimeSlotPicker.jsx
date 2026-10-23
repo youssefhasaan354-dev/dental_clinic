@@ -29,13 +29,21 @@ export const TimeSlotPicker = ({
 
   if (isLoading) {
     return (
-      <div className="time-slots-loading text-center py-5">
-        <div className="spinner-border text-primary spinner-border-sm mb-2" role="status">
-          <span className="visually-hidden">Loading availability...</span>
-        </div>
-        <p className="small text-muted mb-0">
-          {isAr ? 'جاري فحص المواعيد المتاحة لدى الأطباء...' : 'Checking dentist availability...'}
+      <div className="time-slots-loading py-3" aria-live="polite">
+        <p className="small text-muted mb-3 text-center">
+          <span className="spinner-border text-primary spinner-border-sm me-2 align-middle" role="status" aria-hidden="true" />
+          <span>{isAr ? 'جاري فحص المواعيد المتاحة لدى الأطباء...' : 'Checking dentist availability...'}</span>
         </p>
+        <div className="row g-2 placeholder-glow">
+          {[1, 2, 3, 4, 5, 6].map((idx) => (
+            <div key={idx} className="col-4">
+              <div
+                className="placeholder rounded-3 w-100"
+                style={{ height: '42px', opacity: 0.5 }}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

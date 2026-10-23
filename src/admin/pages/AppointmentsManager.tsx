@@ -458,12 +458,24 @@ export const AppointmentsManager: React.FC = () => {
               </thead>
               <tbody>
                 {isLoading ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-5 text-muted">
-                      <div className="spinner-border spinner-border-sm text-primary me-2" />
-                      <span>{isAr ? 'جاري تحميل المواعيد...' : 'Loading appointments...'}</span>
-                    </td>
-                  </tr>
+                  [1, 2, 3, 4, 5].map((rowIdx) => (
+                    <tr key={`skel-row-${rowIdx}`} className="placeholder-glow">
+                      <td><span className="placeholder col-12 rounded" /></td>
+                      <td><span className="placeholder col-8 rounded" /></td>
+                      <td>
+                        <span className="placeholder col-10 rounded d-block mb-1" />
+                        <span className="placeholder col-6 rounded" />
+                      </td>
+                      <td><span className="placeholder col-7 rounded" /></td>
+                      <td><span className="placeholder col-6 rounded" /></td>
+                      <td>
+                        <span className="placeholder col-9 rounded d-block mb-1" />
+                        <span className="placeholder col-5 rounded" />
+                      </td>
+                      <td><span className="placeholder col-8 rounded-pill py-2" /></td>
+                      <td className="text-end"><span className="placeholder col-8 rounded" /></td>
+                    </tr>
+                  ))
                 ) : appointments.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="text-center py-5 text-muted">

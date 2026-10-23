@@ -71,8 +71,8 @@ export const PrivacyPolicy: React.FC = () => {
             </h5>
             <p className="text-secondary">
               {isAr
-                ? 'عند استخدامك لنموذج طلب الموعد عبر الموقع، نطلب فقط: الاسم الكامل، رقم الهاتف المحمول، اليوم والوقت المفضل للزيارة، والخدمة المطلوبة. يُطلب من الزوار بوضوح عدم إرسال أي تفاصيل طبية دقيقة عبر الحقل الاختياري.'
-                : 'When utilizing our appointment request form, we collect only: full name, mobile telephone number, preferred day/time of visit, and selected service category. Patients are explicitly advised not to submit sensitive clinical details in the optional note.'}
+                ? 'عند استخدامك لمحرك الحجز الإلكتروني أو نموذج التواصل، نقوم بجمع البيانات الأساسية اللازمة فقط لتنسيق الموعد الطبي: اسم المريض، رقم الهاتف المحمول، البريد الإلكتروني (اختياري لإرسال إشعار الموعد)، الخدمة المطلوبة، وملاحظات الزيارة العامة. يُطلب من المرضى عدم إرسال أي أسرار طبية سريرية عبر النموذج.'
+                : 'When utilizing our booking system or contact form, we collect only the necessary contact information: patient name, mobile phone number, optional email address (for calendar invitations), chosen service, and general visit notes. Patients are advised not to submit sensitive diagnostic files online.'}
             </p>
 
             <h5 className="fw-bold mt-4 mb-2 text-dark">
@@ -80,8 +80,8 @@ export const PrivacyPolicy: React.FC = () => {
             </h5>
             <p className="text-secondary">
               {isAr
-                ? 'تُستخدم هذه البيانات حصرياً بواسطة موظف الاستقبال في عيادة حياة لطب الأسنان للاتصال بكم هاتفياً أو عبر تطبيق واتساب لتأكيد توفر الطبيب وتثبيت موعد الزيارة.'
-                : 'This information is used strictly by Hayaah Dental Clinic receptionists to contact you via telephone or WhatsApp to verify dentist availability and confirm your actual appointment.'}
+                ? 'تُستخدم هذه البيانات حصرياً بواسطة كادر الاستقبال وإدارة عيادة حياة لطب الأسنان للتحقق من الموعد، ومنع التضارب في جداول الأطباء، وإرسال تفاصيل التذكير بالموعد عبر الهاتف أو تطبيق واتساب.'
+                : 'This data is used exclusively by Hayaah Dental Clinic receptionists and management to schedule clinic appointments, prevent scheduling conflicts, and send visit confirmation notices via phone or WhatsApp.'}
             </p>
 
             <h5 className="fw-bold mt-4 mb-2 text-dark">
@@ -89,27 +89,27 @@ export const PrivacyPolicy: React.FC = () => {
             </h5>
             <p className="text-secondary">
               {isAr
-                ? 'لا يتم بيع أو مشاركة بياناتك مع أي طرف ثالث أو منصات إعلانية أو تتبعية. يطلع على طلبات الحجز حصرياً موظفو الاستقبال وإدارة العيادة المصرح لهم بنظام أمني مقيد.'
-                : 'Your contact details are never sold, rented, or shared with third-party advertisers or tracking platforms. Only authorized clinic receptionists have secure access to incoming appointment requests.'}
+                ? 'لا يتم بيع أو تأجير أو مشاركة بيانات المرضى مع أي أطراف ثالثة أو شركات إعلانية. الوصول إلى بيانات المواعيد محصور لكادر العيادة المصرح له بموجب صلاحيات أمنية مشددة.'
+                : 'Patient contact records are never sold, rented, or distributed to third-party marketing companies. Access is restricted to authorized clinic personnel via role-based security controls.'}
             </p>
 
             <h5 className="fw-bold mt-4 mb-2 text-dark">
-              {isAr ? '4. مدة الاحتفاظ بالبيانات وحق الحذف' : '4. Data Retention & Deletion Rights'}
+              {isAr ? '4. مدة الاحتفاظ بالبيانات وسرية السجلات' : '4. Data Retention & Confidentiality'}
             </h5>
             <p className="text-secondary">
               {isAr
-                ? 'يتم الاحتفاظ بطلبات الحجز المبدئية لفترة مؤقتة حتى إتمام الزيارة أو إلغائها، وتُحذف دورياً من سجلات الاستقبال بعد 60 يوماً. يحق لأي مريض طلب حذف بيانات اتصاله فوراً بالاتصال بإدارة العيادة.'
-                : 'Scheduling requests are temporarily retained until the visit concludes and are purged after 60 days. Any patient may request immediate deletion of their record by calling our clinic desk directly.'}
+                ? 'يتم الاحتفاظ ببيانات الحجز الإلكتروني (الاسم، الهاتف، البريد) طوال فترة تنسيق ومتابعة الموعد، وتُحفظ السجلات بصورة مشفرة وآمنة لمدة مناسبة تتيح للمريض مراجعة أو تعديل أو إلغاء موعده برمز الأمان المخصص، وتُحذف دورياً أو بناءً على رغبة المريض عند تواصله مع إدارة العيادة.'
+                : 'Booking records (name, phone, email) are securely retained during visit scheduling and follow-up. Records are encrypted and can be accessed or cancelled using the unique secure token, and are purged periodically or upon direct patient deletion request.'}
             </p>
 
             <h5 className="fw-bold mt-4 mb-2 text-dark">
-              {isAr ? '5. تنبيه بشأن طبيعة الطلب' : '5. Notice on Appointment Status'}
+              {isAr ? '5. المراجعة القانونية المعتمدة للعيادة' : '5. Legal Governance & Clinic Review'}
             </h5>
-            <div className="p-3 bg-light rounded-3 border">
-              <p className="mb-0 text-dark fw-semibold">
+            <div className="p-3 bg-light rounded-3 border mb-3">
+              <p className="mb-0 text-muted small">
                 {isAr
-                  ? 'إرسال النموذج عبر هذا الموقع يُعد طلباً أولياً للموعد وليس حجزاً مؤكداً. لا يُعتبر الحجز نهائياً إلا بعد تواصل موظف الاستقبال معكم وتأكيد الموعد رسمياً.'
-                  : 'Submitting a form via this website constitutes an initial inquiry, not a confirmed booking. Your appointment is finalized only after our receptionist contacts you directly to confirm.'}
+                  ? 'هذه الصياغة الاسترشادية تخضع للمراجعة والتحديث الدوري من الإدارة والمستشار القانوني لعيادة حياة لطب الأسنان وفقاً للوائح وزارة الصحة وقوانين نقابة أطباء الأسنان المصرية وحماية البيانات الشخصية.'
+                  : 'This policy represents standard healthcare operational guidelines and is subject to continuous review and tailoring by Hayaah Dental Clinic legal counsel in compliance with Egyptian health regulations.'}
               </p>
             </div>
           </div>

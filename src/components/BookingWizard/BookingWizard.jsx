@@ -36,6 +36,7 @@ import {
   FiCheckCircle,
 } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
+import { trackEvent } from '../../utils/analytics';
 import './BookingWizard.scss';
 
 export const BookingWizard = ({ defaultService = '', className = '' }) => {
@@ -255,6 +256,12 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
       setConfirmedAppointment(res.appointment);
       setStep(6); // Success step
 
+      // Track booking completed event
+      trackEvent('booking_completed', {
+        serviceId: selectedServiceId,
+        doctorId: selectedDoctorId,
+      });
+
       // Trigger Confetti
       try {
         confetti({
@@ -293,6 +300,26 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
     navigator.clipboard.writeText(confirmedAppointment.bookingCode);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2500);
+  };
+
+  // Share appointment details via Web Share API or clipboard
+  const handleShareAppointment = () => {
+    if (!confirmedAppointment) return;
+    const shareText = isAr
+      ? `موعدي في عيادة حياة لطب الأسنان:\n• كود الحجز: ${confirmedAppointment.bookingCode}\n• الخدمة: ${confirmedAppointment.serviceName.ar}\n• التاريخ: ${confirmedAppointment.date} الساعة ${confirmedAppointment.startTime}\n• العنوان: ${CLINIC_DATA.address.ar}`
+      : `My appointment at Hayaah Dental Clinic:\n• Booking Code: ${confirmedAppointment.bookingCode}\n• Service: ${confirmedAppointment.serviceName.en}\n• Date: ${confirmedAppointment.date} at ${confirmedAppointment.startTime}\n• Address: ${CLINIC_DATA.address.en}`;
+
+    if (navigator.share) {
+      navigator.share({
+        title: isAr ? 'موعد عيادة حياة لطب الأسنان' : 'Hayaah Dental Clinic Appointment',
+        text: shareText,
+        url: window.location.href,
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(shareText);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2500);
+    }
   };
 
   // Step Navigation Helpers
@@ -1119,6 +1146,16 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
                 <FiCalendar />
                 <span>Google Calendar</span>
               </a>
+
+              {/* Share Appointment Details */}
+              <button
+                type="button"
+                onClick={handleShareAppointment}
+                className="btn btn-outline-primary d-flex align-items-center gap-2 rounded-pill px-3"
+              >
+                <FiShare2 />
+                <span>{isAr ? 'مشاركة تفاصيل الموعد' : 'Share Details'}</span>
+              </button>
 
               {/* Print Confirmation */}
               <button

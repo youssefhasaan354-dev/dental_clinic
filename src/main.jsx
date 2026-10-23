@@ -6,6 +6,10 @@ import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/global.scss';
 import App from './App';
+import { initAnalytics } from './utils/analytics';
+
+// Initialize privacy-friendly analytics if configured
+initAnalytics();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

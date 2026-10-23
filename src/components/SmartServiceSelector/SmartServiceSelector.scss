@@ -1,0 +1,110 @@
+.smart-triage-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 28, 48, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.25s ease;
+}
+
+.smart-triage-card {
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid rgba(88, 63, 188, 0.15);
+
+  .btn-close-modal {
+    position: absolute;
+    top: 20px;
+    inset-inline-end: 20px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+  }
+
+  .triage-icon-badge {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: #e0f4f4;
+    color: #0c6674;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+
+  .progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    transition: all 0.3s ease;
+
+    &.active {
+      width: 24px;
+      border-radius: 6px;
+      background: #0c6674;
+    }
+
+    &.completed {
+      background: #10b981;
+    }
+  }
+
+  .triage-option-btn {
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #e2e8f0;
+
+    &:hover {
+      background: #f0fdfa !important;
+      border-color: #0c6674;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(12, 102, 116, 0.08);
+    }
+
+    .select-arrow {
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+
+    &:hover .select-arrow {
+      transform: translateX(-4px);
+    }
+  }
+
+  .recommendation-result-box {
+    background: #f0fdfa;
+    border-color: #ccfbf1 !important;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
