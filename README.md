@@ -101,6 +101,26 @@ npm run test:rules
 
 ---
 
+## 🛡️ الحماية الفعلية قبل الإطلاق: تفعيل Firebase App Check مع reCAPTCHA و Enforcement
+
+> [!IMPORTANT]
+> **تنبيه أمني هام بشأن حماية الحجوزات:**
+> آلية الحد من التردد المحلية (Client-Side Throttle عبر `localStorage`) هي مجرد طبقة مساعدة لتجربة المستخدم (UX Helper) لتفادي تكرار الضغط بالخطأ، **وليست حماية أمنية حقيقية** لأن أي شخص يمكنه تجاوزها بسهولة عبر أدوات برمجية أو نافذة التصفح الخفي.
+> **الحماية الحقيقية والملزمة قبل الإطلاق العام للعيادة هي تفعيل Firebase App Check مع reCAPTCHA وفرض الرقابة الإلزامية (Enforcement) على Cloud Firestore.**
+
+### خطوات تفعيل حماية App Check بالترتيب:
+1. **إنشاء مفتاح reCAPTCHA:** من كونسول [Google reCAPTCHA](https://www.google.com/recaptcha/admin) أنشئ مفتاحاً بنوع **v3** (أو **Enterprise**) لنطاق العيادة المعتمد (مثل `dentallclinic.vercel.app`).
+2. **تسجيل التطبيق في Firebase Console:** انتقل إلى **Build -> App Check -> Apps** وسجل تطبيق الويب الخاص بك مع إدخال المفتاح السري (**Secret Key**) المطابق لنوع المزود.
+3. **ضبط المتغيرات البيئية في استضافة Vercel:**
+   ```bash
+   VITE_RECAPTCHA_SITE_KEY=6Ld...site_key_here
+   VITE_RECAPTCHA_PROVIDER=v3   # أو enterprise إذا تم اختيار Enterprise في الكونسول
+   ```
+4. **مراقبة الطلبات الموثقة (Monitor Mode):** بعد النشر، اترك App Check في وضع المراقبة (بدون تفعيل الفرض) لمدة أسبوع تقريباً عبر تبويب **App Check -> APIs** للتأكد من أن جميع طلبات المرضى الشرعيين تظهر كطلبات موثقة (`Verified Requests`) بنسبة قريبة من 100%.
+5. **تفعيل الفرض الإلزامي (Enable Enforcement):** من كونسول **App Check -> APIs -> Cloud Firestore** اضغط على **Enforce**. بعد هذه الخطوة، سيرفض Firestore أي اتصال قادم من خارج تطبيق الويب المعتمد أو عبر برمجيات السبام، مما يحمي قاعدة البيانات والحجوزات بنسبة 100%.
+
+---
+
 ## 📦 النشر على Vercel أو Netlify | Production Deployment
 
 المشروع مهيأ بملفي `vercel.json` و `public/_redirects` لدعم التوجيه السلس لـ React Router:
