@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
     "prebuild": "node scripts/generate-seo.mjs && node scripts/check-case-sensitivity.mjs && node scripts/check-image-slots.mjs",
     "build": "npm run lint && vite build",
     "preview": "vite preview",

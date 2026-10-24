@@ -947,7 +947,12 @@ export class FirebaseBookingService implements IBookingService {
     return merged;
   }
 
-  async addDoctor(doctor: Omit<DoctorSchedule, 'doctorId'> & { doctorId?: string }): Promise<DoctorSchedule> {
+  async addDoctor(
+    doctor: Omit<DoctorSchedule, 'doctorId' | 'weeklyHours'> & {
+      doctorId?: string;
+      weeklyHours?: DoctorSchedule['weeklyHours'];
+    }
+  ): Promise<DoctorSchedule> {
     const db = await this.getDB();
     const { doc, setDoc } = await import('firebase/firestore');
 

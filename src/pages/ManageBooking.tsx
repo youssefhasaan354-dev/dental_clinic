@@ -520,6 +520,7 @@ export const ManageBooking: React.FC = () => {
                           setRescheduleTime('');
                         }}
                         language={language}
+                        minDate={new Date().toISOString().slice(0, 10)}
                       />
                     </div>
                   </div>

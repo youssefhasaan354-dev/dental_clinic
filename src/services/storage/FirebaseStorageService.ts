@@ -347,7 +347,7 @@ export class FirebaseStorageService implements IDataStorageService {
 
     for (const [id, ovr] of Object.entries(overrides)) {
       if (!ovr || typeof ovr !== 'object') continue;
-      const existing = slotsMap.get(id) || {
+      const existing: ImageSlot = slotsMap.get(id) || {
         id,
         name: id,
         nameAr: id,

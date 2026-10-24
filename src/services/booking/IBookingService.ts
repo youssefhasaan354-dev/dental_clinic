@@ -154,7 +154,12 @@ export interface IBookingService {
   /**
    * Add a new doctor
    */
-  addDoctor(doctor: Omit<DoctorSchedule, 'doctorId'> & { doctorId?: string }): Promise<DoctorSchedule>;
+  addDoctor(
+    doctor: Omit<DoctorSchedule, 'doctorId' | 'weeklyHours'> & {
+      doctorId?: string;
+      weeklyHours?: DoctorSchedule['weeklyHours'];
+    }
+  ): Promise<DoctorSchedule>;
 
   /**
    * Edit doctor profile, services or working hours

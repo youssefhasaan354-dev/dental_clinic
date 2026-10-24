@@ -568,7 +568,12 @@ export class DemoBookingService implements IBookingService {
     return this.getItem<DoctorSchedule[]>(STORAGE_KEYS.DOCTORS, INITIAL_DOCTORS);
   }
 
-  async addDoctor(doctor: Omit<DoctorSchedule, 'doctorId'> & { doctorId?: string }): Promise<DoctorSchedule> {
+  async addDoctor(
+    doctor: Omit<DoctorSchedule, 'doctorId' | 'weeklyHours'> & {
+      doctorId?: string;
+      weeklyHours?: DoctorSchedule['weeklyHours'];
+    }
+  ): Promise<DoctorSchedule> {
     const doctors = this.getItem<DoctorSchedule[]>(STORAGE_KEYS.DOCTORS, INITIAL_DOCTORS);
     const doctorId = doctor.doctorId || `doc_${Date.now()}`;
     const newDoc: DoctorSchedule = {
