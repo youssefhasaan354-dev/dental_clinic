@@ -50,13 +50,21 @@
 > **ملاحظة تشغيلية أساسية (تهيئة إعدادات الحجز):** بعد تسجيل دخول المالك لأول مرة، يرجى فتح صفحة إعدادات الحجز (**Booking Settings**) لمرة واحدة والضغط على حفظ (**Save**) لتأكيد حفظ إعدادات العيادة (`booking_settings/global`). / *After first owner login, open Booking Settings once and press Save.*
 
 ### الخطوة 5: نشر قواعد الأمان والفهارس (Security Rules & Indexes)
+
+> [!IMPORTANT]
+> **تنبيه أساسي لمنع خطأ "Missing or insufficient permissions":**
+> بعد أي تعديل على ملف `firestore.rules` (أو عند إطلاق المشروع لأول مرة)، **لازم تعمل `npm run deploy:rules` أو تضغط Publish من Firebase Console**، وإلا ستظل قاعدة البيانات على الإنتاج تعمل بقواعد قديمة وترفض حفظ الوسائط والإعدادات.
+
 يمكنك نشر القواعد بإحدى طريقتين:
 
-**الطريقة أ (عبر Firebase CLI):**
+**الطريقة أ (عبر npm script المجهز أو Firebase CLI):**
+1. تأكد من ضبط معرف مشروعك في ملف `.firebaserc` (استبدل `<FIREBASE_PROJECT_ID>` بمعرف مشروعك الحقيقي، أو شغّل `firebase use --add`).
+2. نفّذ الأمر التالي:
 ```bash
-npm install -g firebase-tools
-firebase login
-firebase use --add  # اختر معرف مشروعك
+npm run deploy:rules
+```
+أو مباشرة:
+```bash
 firebase deploy --only firestore:rules,firestore:indexes
 ```
 
@@ -113,7 +121,28 @@ VITE_FIREBASE_APP_ID=1:1234567890:web:abcdef123456
      - في حال عدم تعيين `VITE_RECAPTCHA_SITE_KEY` أو إيقاف وضع Firebase، لا يتم تحميل أي حزم App Check نهائياً لضمان خفة التطبيق.
 4. **المراقبة ثم الفرض الإلزامي (Monitor, then Enforce):**
    - في كونسول **App Check -> APIs**، راقب حركة استعلامات Firestore لبضعة أيام وتأكد من أن نسبة الطلبات الموثقة (**Verified requests**) تغطي الزوار الطبيعيين.
-   - بعد الاطمئنان، اضغط على **Cloud Firestore** ثم اختر **Enforce** لغلق الباب نهائياً أمام أي طلب خارجي غير موثق.
+   - > [!WARNING]
+   - > **تنبيه حاسم بخصوص App Check Enforce:**
+   - > **لا تفعّل خيار Enforce نهائياً قبل التأكد أن نسبة الطلبات الموثقة (Verified requests) تقترب من 100%.** إذا تم تفعيل Enforce بينما مفتاح `VITE_RECAPTCHA_SITE_KEY` غير مضبوط على Vercel أو غير مطابق لمزود reCAPTCHA، فسيتم رفض جميع عمليات القراءة والكتابة على Firestore تلقائياً برسالة `Missing or insufficient permissions`. إذا واجهت هذه المشكلة، عطّل خيار Enforce (اجعله Unenforce) فوراً.
+   - بعد الاطمئنان التام، اضغط على **Cloud Firestore** ثم اختر **Enforce** لغلق الباب نهائياً أمام أي طلب خارجي غير موثق.
+
+### الخطوة 8: إعداد وسائط Cloudinary للرفع المباشر (Media Uploads Setup)
+رفع الوسائط (صور الخدمات والعيادة وفيديوهات الـ Hero) **لا يمر عبر Firebase Storage إطلاقاً** لتوفير التكاليف؛ بل يتم الرفع مباشرة وبشكل آمن من المتصفح إلى **Cloudinary** عبر (Unsigned Upload Preset).
+
+1. سجّل حساباً في [Cloudinary Console](https://cloudinary.com) واحصل على اسم السحابة (**Cloud Name**).
+2. من أيقونة الإعدادات (Settings ⚙️) أعلى لوحة Cloudinary، انتقل إلى: **Upload -> Upload presets**.
+3. اضغط **Add upload preset** واضبط الإعدادات التالية بدقة:
+   - **Upload preset name:** اختر اسماً (مثلاً: `hayaah_preset`).
+   - **Signing Mode:** اختر **Unsigned** حصراً.
+   - **Folder:** اضبط مجلداً ثابتاً: `hayaah/`
+   - **Allowed formats:** قيّد الصيغ المسموح برفعها لمنع الملفات الضارة: `jpg, png, webp, mp4, webm`
+   - **Max file size:** عيّن الحد الأقصى للملفات (مثلاً: `50000000` بايت أي 50 ميجابايت).
+4. أضف المتغيرين التاليين في إعدادات **Vercel -> Environment Variables** (وفي ملف `.env` المحلي):
+   ```bash
+   VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
+   VITE_CLOUDINARY_UPLOAD_PRESET=hayaah_preset
+   ```
+5. اضغط **Save** في Cloudinary وأعد نشر مشروعك على Vercel (**Redeploy**).
 
 ---
 
