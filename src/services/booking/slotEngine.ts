@@ -179,6 +179,7 @@ export function isTimeRangeOverlapping(
  */
 export function computeDayAvailability(options: {
   date: string; // "YYYY-MM-DD"
+  serviceId?: string;
   serviceDurationMinutes?: number;
   doctorId?: string; // "any" or specific ID
   existingAppointments: Appointment[];
@@ -238,10 +239,18 @@ export function computeDayAvailability(options: {
     };
   }
 
-  // 4. Filter doctors: active and working on this day of week
+  // 4. Filter doctors: active, eligible for service, and working on this day of week
   const activeDoctors = options.doctors.filter((doc) => {
     if (!doc.isActive) return false;
     if (targetDoctorId && doc.doctorId !== targetDoctorId) return false;
+    if (
+      options.serviceId &&
+      doc.services &&
+      !doc.services.includes('*') &&
+      !doc.services.includes(options.serviceId)
+    ) {
+      return false;
+    }
     const schedule = doc.weeklyHours[dayOfWeek];
     return schedule && schedule.isWorking;
   });

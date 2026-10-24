@@ -155,6 +155,7 @@ export class DemoBookingService implements IBookingService {
     const duration = SERVICE_DURATIONS[data.serviceId] || settings.slotDurationMinutes;
     const availability = computeDayAvailability({
       date: data.date,
+      serviceId: data.serviceId,
       serviceDurationMinutes: duration,
       doctorId: data.doctorId,
       existingAppointments: appointments,
@@ -172,7 +173,15 @@ export class DemoBookingService implements IBookingService {
     }
 
     // 5. Build appointment entity
-    const assignedDoctorId = data.doctorId && data.doctorId !== 'any' ? data.doctorId : (targetSlot.doctorId || 'doc-1');
+    const eligibleDocs = doctors.filter(
+      (d) =>
+        d.isActive &&
+        (!d.services || d.services.includes('*') || d.services.includes(data.serviceId))
+    );
+    const assignedDoctorId =
+      data.doctorId && data.doctorId !== 'any'
+        ? data.doctorId
+        : targetSlot.doctorId || eligibleDocs[0]?.doctorId || doctors[0]?.doctorId || 'doc-1';
     const doctorObj = doctors.find((d) => d.doctorId === assignedDoctorId);
     const endTime = addMinutesToTime(data.startTime, duration);
     const bookingCode = generateBookingCode();

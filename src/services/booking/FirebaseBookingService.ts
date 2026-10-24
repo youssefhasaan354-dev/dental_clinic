@@ -135,7 +135,11 @@ export class FirebaseBookingService implements IBookingService {
     // Determine candidate doctors
     const isAnyDoctor = !data.doctorId || data.doctorId === 'any';
     const candidateDoctors = isAnyDoctor
-      ? doctors.filter((d) => d.isActive)
+      ? doctors.filter(
+          (d) =>
+            d.isActive &&
+            (!d.services || d.services.includes('*') || d.services.includes(data.serviceId))
+        )
       : doctors.filter((d) => d.doctorId === data.doctorId && d.isActive);
 
     if (candidateDoctors.length === 0) {
