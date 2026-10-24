@@ -121,6 +121,28 @@ npm run test:rules
 
 ---
 
+## 🔒 سياسة أمان المحتوى (CSP) وكيف نحولها إلى إلزامية (How to Enforce CSP)
+
+تطبيق العيادة مهيأ بسياسة أمان محتوى حديثة ومضبوطة بدقة في ملف [vercel.json](vercel.json). حالياً تم ضبطها كوضع تقرير استطلاعي (**`Content-Security-Policy-Report-Only`**) لتفادي حجب أي خطوط أو مصادر وسائط أثناء مرحلة المراجعة والمعاينة:
+- تدعم نطاقات خطوط جوجل (`fonts.googleapis.com` و `fonts.gstatic.com`).
+- تدعم وسائط ومقاطع الفيديو من YouTube و Vimeo و Cloudinary.
+- تدعم خدمات توثيق وحماية Firebase Auth و reCAPTCHA (`*.google.com`, `*.gstatic.com`, `recaptcha.google.com`, `identitytoolkit.googleapis.com`, `securetoken.googleapis.com`).
+- تدعم دومينات التحليلات الخفيفة (`https://plausible.io`, `https://www.googletagmanager.com`, `*.google-analytics.com`, `*.analytics.google.com`).
+
+### خطوات تحويل CSP إلى سياسة إلزامية (Enforced Mode):
+1. **مراقبة تقارير التصفح لمدة أسبوع:** بعد إطلاق الموقع على Vercel Preview/Production، افتح كونسول المتصفح (DevTools Console) على أجهزة مختلفة (Desktop و Mobile) وتصفح مسار الحجز والإدارة للتأكد من عدم تسجيل أي تنبيهات `[Report Only]` لانتهاك سياسة CSP.
+2. **استبدال اسم الترويسة:** افتح ملف `vercel.json` واستبدل سطر الترويسة:
+   ```json
+   "key": "Content-Security-Policy-Report-Only"
+   ```
+   ليصبح ترويسة أمان إلزامية:
+   ```json
+   "key": "Content-Security-Policy"
+   ```
+3. **النشر والتحقق:** أعد نشر المشروع إلى Vercel. ستقوم الترويسة الآن بمنع وحظر أي حقن كودي (XSS) أو سكربتات غير مصرح بها على مستوى المتصفح مباشرة.
+
+---
+
 ## 📦 النشر على Vercel أو Netlify | Production Deployment
 
 المشروع مهيأ بملفي `vercel.json` و `public/_redirects` لدعم التوجيه السلس لـ React Router:
