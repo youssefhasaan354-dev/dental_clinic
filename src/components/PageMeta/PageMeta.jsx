@@ -14,7 +14,7 @@ export function resolvePageMetaValues({
   type = 'website',
   noindex = false,
   language = 'ar',
-  siteUrl = 'https://dentallclinic.vercel.app',
+  siteUrl = getSiteUrl(),
   allowIndexing = false,
 } = {}) {
   const isAr = language === 'ar';
