@@ -83,7 +83,7 @@ const Footer = () => {
                   aria-label="Facebook Page"
                 >
                   <FaFacebookF />
-                  <span>صفحة العيادة على فيسبوك</span>
+                  <span>{isAr ? 'صفحة العيادة على فيسبوك' : 'Clinic Facebook Page'}</span>
                 </a>
               </div>
             </div>
