@@ -4,26 +4,42 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 // Context Providers
 import { AuthProvider } from './context/AuthContext';
-import { DataProvider } from './context/DataContext';
+import { DataProvider, useData } from './context/DataContext';
 
-// Public Pages (Core bundle)
+// Critical Landing Page (kept direct for instant FCP/LCP)
 import Home from './pages/Home';
-import About from './pages/About';
-import ServicesPage from './pages/ServicesPage';
-import ServiceDetail from './pages/ServiceDetail';
-import BlogsPage from './pages/BlogsPage';
-import SingleBlog from './pages/SingleBlog';
-import ContactPage from './pages/ContactPage';
-import { PrivacyPolicy } from './pages/PrivacyPolicy';
-import { TermsPage } from './pages/TermsPage';
-import { ManageBooking } from './pages/ManageBooking';
-import NotFound from './pages/NotFound';
+
+// Secondary Public Pages (Lazy-Loaded to reduce initial JS payload)
+const About = lazy(() => import('./pages/About'));
+const ServicesPage = lazy(() => import('./pages/ServicesPage'));
+const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
+const BlogsPage = lazy(() => import('./pages/BlogsPage'));
+const SingleBlog = lazy(() => import('./pages/SingleBlog'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
+const ManageBooking = lazy(() => import('./pages/ManageBooking'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy').then(m => ({ default: m.PrivacyPolicy })));
+const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Global Public Components
 import BrandLoader from './components/BrandLoader/BrandLoader';
-import { ImageSlotModal } from './components/VisualEdit/ImageSlotModal';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { SmoothScroll, ScrollProgress } from './components/Motion';
+
+// Visual Edit Modal is lazy-loaded strictly on demand when an editor initiates an edit session
+const ImageSlotModalComponent = lazy(() =>
+  import('./components/VisualEdit/ImageSlotModal').then(m => ({ default: m.ImageSlotModal }))
+);
+
+const LazyImageSlotModal = () => {
+  const { editingSlot } = useData();
+  if (!editingSlot) return null;
+  return (
+    <Suspense fallback={null}>
+      <ImageSlotModalComponent />
+    </Suspense>
+  );
+};
 
 // Admin System (Lazy-Loaded for performance and bundle isolation)
 const AdminLayout = lazy(() => import('./admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
@@ -86,6 +102,15 @@ const AdminFallback = () => (
   </div>
 );
 
+// Lightweight fallback while lazy route chunk loads
+const PageFallback = () => (
+  <div className="d-flex align-items-center justify-content-center py-5" style={{ minHeight: '60vh' }}>
+    <div className="spinner-border text-primary" role="status" style={{ width: '2.5rem', height: '2.5rem', color: '#0c6674' }}>
+      <span className="visually-hidden">Loading...</span>
+    </div>
+  </div>
+);
+
 // Dynamic Robots & Indexation Controller
 const SeoMetaController = ({ pathname }) => {
   useEffect(() => {
@@ -130,8 +155,9 @@ function App() {
           <SeoMetaController pathname={location.pathname} />
 
           <ErrorBoundary>
-          <AnimatePresence mode="wait">
-            <Routes location={location} key={location.pathname}>
+            <Suspense fallback={<PageFallback />}>
+              <AnimatePresence mode="wait">
+                <Routes location={location} key={location.pathname}>
             {/* Public Site Routes */}
             <Route path="/" element={<PageTransition><Home /></PageTransition>} />
             <Route path="/about" element={<PageTransition><About /></PageTransition>} />
@@ -317,11 +343,12 @@ function App() {
             <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
           </Routes>
         </AnimatePresence>
+      </Suspense>
       </ErrorBoundary>
 
-      {/* In-Place Image Edit Modal */}
-        <ImageSlotModal />
-        </SmoothScroll>
+      {/* In-Place Image Edit Modal - Loaded strictly on-demand */}
+      <LazyImageSlotModal />
+      </SmoothScroll>
       </DataProvider>
     </AuthProvider>
   );
