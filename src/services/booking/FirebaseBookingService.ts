@@ -120,6 +120,14 @@ export class FirebaseBookingService implements IBookingService {
       };
     }
 
+    // 3. Privacy consent check (required by firestore rules)
+    if (!data.consentGiven) {
+      return {
+        success: false,
+        error: 'يجب الموافقة على سياسة الخصوصية للمتابعة / Consent must be given to book an appointment',
+      };
+    }
+
     const db = await this.getDB();
     const { collection, doc, runTransaction } = await import('firebase/firestore');
 
@@ -202,7 +210,7 @@ export class FirebaseBookingService implements IBookingService {
           endTime,
           status: (settings.autoConfirm ? 'confirmed' : 'pending') as AppointmentStatus,
           notes: data.notes?.trim() || undefined,
-          consentGiven: data.consentGiven,
+          consentGiven: true,
           isWalkIn: Boolean(data.isWalkIn),
           createdAt: nowIso,
           updatedAt: nowIso,

@@ -188,7 +188,7 @@ export const ImageSlotModal: React.FC = () => {
 
       setCurrentUrl(uploadedUrl);
       setMediaType('image');
-      setSuccessMsg('تم رفع الصورة بنجاح وتحديث المعاينة!');
+      setSuccessMsg('تم رفع الصورة — اضغط حفظ التعديلات لتطبيقها');
     } catch (err: any) {
       setErrorMsg('حدث خطأ أثناء رفع الصورة: ' + (err.message || 'فشل الرفع'));
     } finally {
@@ -253,7 +253,7 @@ export const ImageSlotModal: React.FC = () => {
 
       setCurrentUrl(uploadedUrl);
       setMediaType('video');
-      setSuccessMsg('تم رفع الفيديو بنجاح!');
+      setSuccessMsg('تم رفع الفيديو — اضغط حفظ التعديلات لتطبيقه');
     } catch (err: any) {
       setErrorMsg('حدث خطأ أثناء رفع الفيديو: ' + (err.message || 'فشل الرفع'));
     } finally {
@@ -356,20 +356,43 @@ export const ImageSlotModal: React.FC = () => {
         isAI,
       });
 
-      // Audit Log
-      await storage.logActivity(
-        role || 'editor',
-        user?.name || 'Admin',
-        'Update Media Slot',
-        `Slot ${editingSlot.id} updated (${mediaType})`
-      );
+      // Audit Log non-blocking
+      try {
+        await storage.logActivity(
+          role || 'editor',
+          user?.name || 'Admin',
+          'Update Media Slot',
+          `Slot ${editingSlot.id} updated (${mediaType})`
+        );
+      } catch (logErr) {
+        console.warn('[ImageSlotModal] logActivity failed non-fatally:', logErr);
+      }
 
       setSuccessMsg('تم حفظ التعديلات بنجاح!');
       setTimeout(() => {
         setEditingSlot(null);
       }, 700);
     } catch (err: any) {
-      setErrorMsg('فشل الحفظ: ' + (err.message || 'خطأ غير معروف'));
+      console.error('[ImageSlotModal.handleSave] Failed to save media slot:', {
+        slotId: editingSlot.id,
+        path: 'site_images/global',
+        uid: user?.id || 'unauthenticated',
+        role: role || 'unknown',
+        errorCode: err?.code,
+        error: err,
+      });
+
+      if (
+        err?.code === 'permission-denied' ||
+        err?.message?.includes('permission') ||
+        err?.message?.includes('صلاحية')
+      ) {
+        setErrorMsg(
+          'لا تملك صلاحية الحفظ على قاعدة البيانات. تأكد أن حسابك مسجل في admins بدور owner أو editor وأن قواعد Firestore المنشورة محدّثة.'
+        );
+      } else {
+        setErrorMsg('فشل الحفظ: ' + (err.message || 'خطأ غير معروف'));
+      }
     } finally {
       setIsSaving(false);
     }
@@ -464,9 +487,21 @@ export const ImageSlotModal: React.FC = () => {
         {/* Modal Body */}
         <div className="p-3 p-sm-4 overflow-y-auto flex-grow-1">
           {errorMsg && (
-            <div className="alert alert-danger d-flex align-items-center gap-2 py-2 mb-3" role="alert">
-              <AlertCircle size={16} className="flex-shrink-0" />
-              <span>{errorMsg}</span>
+            <div className="alert alert-danger d-flex flex-wrap align-items-center justify-content-between gap-2 py-2 mb-3" role="alert">
+              <div className="d-flex align-items-center gap-2">
+                <AlertCircle size={16} className="flex-shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+              <button
+                type="button"
+                className="btn btn-outline-danger btn-sm py-1 px-3 fw-bold d-inline-flex align-items-center gap-1"
+                onClick={handleSave}
+                disabled={isSaving || isUploading}
+                title="إعادة محاولة الحفظ دون إعادة رفع الملف"
+              >
+                <RotateCcw size={14} />
+                <span>إعادة المحاولة</span>
+              </button>
             </div>
           )}
           {warningMsg && (
