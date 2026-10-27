@@ -8,14 +8,14 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    border: 1px solid rgba(88, 63, 188, 0.08);
+    border: 1px solid var(--color-border);
     box-shadow: var(--shadow-sm);
     transition: all var(--transition-smooth);
     position: relative;
 
     &:hover {
       box-shadow: var(--shadow-lg);
-      border-color: rgba(88, 63, 188, 0.22);
+      border-color: rgba(var(--color-primary-rgb, 14, 92, 47), 0.22);
 
       .feature-icon-bubble {
         background: var(--color-primary);
@@ -40,7 +40,7 @@
     .feature-num {
       font-size: 1.5rem;
       font-weight: 900;
-      color: rgba(88, 63, 188, 0.15);
+      color: rgba(var(--color-primary-rgb, 14, 92, 47), 0.15);
       letter-spacing: -1px;
     }
 
@@ -60,7 +60,7 @@
     }
 
     .feature-metric-pill {
-      border-top: 1px dashed rgba(88, 63, 188, 0.12);
+      border-top: 1px dashed var(--color-border);
 
       span {
         display: inline-block;

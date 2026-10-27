@@ -14,7 +14,7 @@
     .loader-logo-img {
       width: 100%;
       height: auto;
-      filter: drop-shadow(0 10px 25px rgba(88, 63, 188, 0.15));
+      filter: drop-shadow(0 10px 25px rgba(var(--color-primary-rgb, 14, 92, 47), 0.15));
     }
 
     .loader-progress-track {
@@ -26,7 +26,7 @@
 
       .loader-progress-bar {
         height: 100%;
-        background: linear-gradient(90deg, #583FBC 0%, #2BB3B1 100%);
+        background: linear-gradient(90deg, var(--color-primary, #0E5C2F) 0%, var(--color-accent, #7AC143) 100%);
         border-radius: 9999px;
       }
     }

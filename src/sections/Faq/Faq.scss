@@ -9,14 +9,14 @@
     .faq-item-card {
       background: #FFFFFF;
       border-radius: 18px;
-      border: 1.5px solid rgba(88, 63, 188, 0.08);
+      border: 1.5px solid var(--color-border);
       box-shadow: var(--shadow-sm);
       overflow: hidden;
       transition: all 0.25s ease;
 
       &.is-active {
         border-color: var(--color-primary);
-        box-shadow: 0 8px 24px rgba(88, 63, 188, 0.1);
+        box-shadow: 0 8px 24px rgba(var(--color-primary-rgb, 14, 92, 47), 0.1);
 
         .faq-question-btn {
           color: var(--color-primary);
@@ -90,7 +90,7 @@
             font-size: 0.98rem;
             line-height: 1.75;
             margin-bottom: 0;
-            border-top: 1px dashed rgba(88, 63, 188, 0.1);
+            border-top: 1px dashed var(--color-border);
             padding-top: 14px;
           }
         }

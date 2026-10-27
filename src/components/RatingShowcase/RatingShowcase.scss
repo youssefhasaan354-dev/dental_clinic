@@ -6,7 +6,7 @@
   .rating-hero-card {
     background: #FFFFFF;
     border-radius: var(--radius-card);
-    border: 1px solid rgba(88, 63, 188, 0.1);
+    border: 1px solid var(--color-border);
     box-shadow: var(--shadow-lg);
     position: relative;
     overflow: hidden;
@@ -77,7 +77,7 @@
       align-items: center;
       gap: 6px;
       background: #F6FAFC;
-      border: 1px solid rgba(88, 63, 188, 0.08);
+      border: 1px solid var(--color-border);
       padding: 6px 14px;
       border-radius: 9999px;
       font-size: 0.86rem;

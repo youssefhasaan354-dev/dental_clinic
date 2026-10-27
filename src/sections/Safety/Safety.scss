@@ -4,18 +4,18 @@
   .safety-feature-card {
     background: #FFFFFF;
     border-radius: var(--radius-card);
-    border: 1px solid rgba(88, 63, 188, 0.08);
+    border: 1px solid var(--color-border);
     box-shadow: var(--shadow-sm);
     height: 100%;
     transition: all var(--transition-smooth);
 
     &:hover {
       box-shadow: var(--shadow-lg);
-      border-color: rgba(43, 179, 177, 0.35);
+      border-color: rgba(122, 193, 67, 0.45);
 
       .safety-icon-bubble {
         background: var(--color-accent);
-        color: #FFFFFF;
+        color: var(--color-primary-dark);
         transform: scale(1.08);
       }
     }

@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none">
   <defs>
     <linearGradient id="favGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#583FBC" />
-      <stop offset="100%" stop-color="#2BB3B1" />
+      <stop offset="0%" stop-color="#0E5C2F" />
+      <stop offset="100%" stop-color="#7AC143" />
     </linearGradient>
   </defs>
   <rect width="64" height="64" rx="16" fill="url(#favGrad)" />
-  <!-- White tooth & heart mark -->
+  <!-- White tooth & leaf-heart mark -->
   <path d="M32 10C22 10 14 18 14 28C14 36 18 43 21 50C23 55 25 58 28 58C30 58 31 53 32 48C33 53 34 58 36 58C39 58 41 55 43 50C46 43 50 36 50 28C50 18 42 10 32 10Z" fill="#FFFFFF" />
-  <path d="M32 18C28 18 24 21 24 25C24 31 29 35 32 39C35 35 40 31 40 25C40 21 36 18 32 18Z" fill="#2BB3B1" />
+  <path d="M32 18C28 18 24 21 24 25C24 31 29 35 32 39C35 35 40 31 40 25C40 21 36 18 32 18Z" fill="#7AC143" />
 </svg>

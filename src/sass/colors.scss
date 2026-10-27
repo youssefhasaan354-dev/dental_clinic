@@ -1,4 +1,4 @@
-$color-blue: #583FBC;
-$color-black: #181945;
+$color-blue: var(--color-primary, #0E5C2F);
+$color-black: var(--color-text, #0F1D16);
 $color-white: #ffffff;
-$color-gray: #74758F;
+$color-gray: var(--color-muted, #5C7065);

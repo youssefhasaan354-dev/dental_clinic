@@ -7,7 +7,7 @@
   "start_url": "/?source=pwa",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#0c6674",
+  "theme_color": "#0E5C2F",
   "background_color": "#ffffff",
   "dir": "rtl",
   "lang": "ar",
