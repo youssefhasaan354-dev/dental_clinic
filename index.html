@@ -52,13 +52,26 @@
     />
     <meta name="twitter:image" content="%VITE_SITE_URL%/assets/banner/1.png" />
 
-    <!-- Google Fonts: Cairo (Arabic) & Montserrat (English) -->
+    <!-- Google Fonts: Cairo (Arabic) & Montserrat (English) - Optimized Async Loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Montserrat:wght@400;600;700&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap"
     />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap"
+      />
+    </noscript>
 
     <!-- JSON-LD Structured Data: Dentist / LocalBusiness with verified facts only -->
     <script type="application/ld+json">
