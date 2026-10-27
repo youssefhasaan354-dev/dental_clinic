@@ -22,13 +22,13 @@
     }
 
     .footer-trust-badge {
-      background: rgba(43, 179, 177, 0.08);
+      background: var(--color-accent-subtle);
       color: var(--color-accent-dark);
       padding: 6px 14px;
       border-radius: 9999px;
       font-size: 0.84rem;
       font-weight: 700;
-      border: 1px solid rgba(43, 179, 177, 0.2);
+      border: 1px solid rgba(var(--color-accent-rgb, 122, 193, 67), 0.25);
     }
 
     .footer-social-wrapper {

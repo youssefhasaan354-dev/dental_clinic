@@ -63,7 +63,7 @@
     .aurora-orb-2 {
       width: 620px;
       height: 620px;
-      background: radial-gradient(circle, #2BB3B1 0%, rgba(43, 179, 177, 0) 70%);
+      background: radial-gradient(circle, var(--color-accent) 0%, rgba(var(--color-accent-rgb, 122, 193, 67), 0) 70%);
       bottom: -12%;
       inset-inline-end: -8%;
       animation: auroraOrb2 30s ease-in-out infinite alternate;
@@ -111,7 +111,7 @@
     width: 380px;
     height: 380px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(14, 92, 47, 0.12) 0%, rgba(43, 179, 177, 0.05) 50%, transparent 70%);
+    background: radial-gradient(circle, rgba(14, 92, 47, 0.12) 0%, rgba(var(--color-accent-rgb, 122, 193, 67), 0.08) 50%, transparent 70%);
     pointer-events: none;
     transform: translate(-50%, -50%);
     z-index: 1;
@@ -372,7 +372,7 @@
       transform: translate(-50%, -50%);
       border-radius: 50%;
       border: 1.5px solid transparent;
-      background: linear-gradient(135deg, rgba(14, 92, 47, 0.16), rgba(43, 179, 177, 0.12), transparent) border-box;
+      background: linear-gradient(135deg, rgba(14, 92, 47, 0.16), rgba(var(--color-accent-rgb, 122, 193, 67), 0.15), transparent) border-box;
       -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
@@ -434,7 +434,7 @@
         background: radial-gradient(
           ellipse at center,
           rgba(14, 92, 47, 0.14) 0%,
-          rgba(43, 179, 177, 0.06) 45%,
+          rgba(var(--color-accent-rgb, 122, 193, 67), 0.08) 45%,
           transparent 70%
         );
         filter: blur(8px);
