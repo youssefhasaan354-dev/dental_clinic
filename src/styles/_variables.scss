@@ -4,19 +4,21 @@
  */
 
 :root {
-  /* Brand Palette */
-  --color-primary: #583FBC;
-  --color-primary-hover: #4831A6;
-  --color-primary-dark: #372384;
-  --color-primary-light: #F1EDFF;
-  --color-primary-subtle: rgba(88, 63, 188, 0.08);
+  /* Brand Palette - Hayat Dental Clinic Green Theme */
+  --color-primary: #0E5C2F;
+  --color-primary-hover: #0A4523;
+  --color-primary-dark: #07351A;
+  --color-primary-light: #EEF4F0;
+  --color-primary-subtle: rgba(14, 92, 47, 0.08);
+  --color-primary-rgb: 14, 92, 47;
 
-  /* Medical Accent (Teal / Aqua) */
-  --color-accent: #2BB3B1;
-  --color-accent-hover: #229997;
-  --color-accent-dark: #197C7A;
-  --color-accent-light: #E7F8F7;
-  --color-accent-subtle: rgba(43, 179, 177, 0.12);
+  /* Fresh Accent - Apple Green (Icons, highlights, accents) */
+  --color-accent: #7AC143;
+  --color-accent-hover: #6EB039;
+  --color-accent-dark: #58942B;
+  --color-accent-light: #F3F9EE;
+  --color-accent-subtle: rgba(122, 193, 67, 0.16);
+  --color-accent-rgb: 122, 193, 67;
 
   /* Status Colors */
   --color-success: #10B981;
@@ -25,26 +27,27 @@
 
   /* Neutrals & Surfaces */
   --color-bg-body: #FFFFFF;
-  --color-bg-soft: #DBEFFA;
-  --color-bg-soft-hover: #D1EAF7;
-  --color-bg-alt: #F6FAFD;
+  --color-bg-soft: #EEF4F0;
+  --color-bg-soft-hover: #E3EDE6;
+  --color-bg-alt: #F4F8F5;
   --color-bg-card: #FFFFFF;
-  --color-bg-glass: rgba(255, 255, 255, 0.88);
-  --color-bg-glass-dark: rgba(24, 25, 69, 0.85);
+  --color-bg-glass: rgba(255, 255, 255, 0.90);
+  --color-bg-glass-dark: rgba(14, 92, 47, 0.90);
 
-  /* Text & Typography */
-  --color-text: #181945;
-  --color-text-body: #505273;
-  --color-muted: #74758F;
-  --color-border: rgba(88, 63, 188, 0.12);
-  --color-border-subtle: rgba(24, 25, 69, 0.06);
+  /* Text & Typography (Compliant with WCAG AA/AAA) */
+  --color-text: #0F1D16;
+  --color-text-body: #34473D;
+  --color-muted: #5C7065;
+  --color-border: rgba(14, 92, 47, 0.12);
+  --color-border-subtle: rgba(14, 92, 47, 0.06);
 
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(24, 25, 69, 0.04);
-  --shadow-md: 0 8px 24px rgba(24, 25, 69, 0.07);
-  --shadow-lg: 0 16px 40px rgba(88, 63, 188, 0.09), 0 4px 12px rgba(24, 25, 69, 0.04);
-  --shadow-glow: 0 12px 32px rgba(88, 63, 188, 0.22);
-  --shadow-teal-glow: 0 12px 30px rgba(43, 179, 177, 0.25);
+  --shadow-sm: 0 2px 8px rgba(14, 92, 47, 0.04);
+  --shadow-md: 0 8px 24px rgba(14, 92, 47, 0.07);
+  --shadow-lg: 0 16px 40px rgba(14, 92, 47, 0.10), 0 4px 12px rgba(14, 92, 47, 0.04);
+  --shadow-glow: 0 12px 32px rgba(14, 92, 47, 0.22);
+  --shadow-teal-glow: 0 12px 30px rgba(122, 193, 67, 0.25);
+  --shadow-accent-glow: 0 12px 30px rgba(122, 193, 67, 0.25);
 
   /* Radii */
   --radius-section: 48px;

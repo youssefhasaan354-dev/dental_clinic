@@ -3,7 +3,7 @@
     position: relative;
 
     .catalog-badge {
-      background: rgba(88, 63, 188, 0.08);
+      background: var(--color-primary-subtle);
       color: var(--color-primary);
       padding: 6px 16px;
       border-radius: 9999px;

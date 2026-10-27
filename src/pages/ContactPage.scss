@@ -26,7 +26,7 @@
 
     &:hover {
       box-shadow: var(--shadow-lg);
-      border-color: rgba(88, 63, 188, 0.25) !important;
+      border-color: rgba(var(--color-primary-rgb, 14, 92, 47), 0.25) !important;
     }
 
     .method-icon-bubble {
@@ -99,10 +99,10 @@
 
     .hours-styled-table {
       tr {
-        border-bottom: 1px solid rgba(88, 63, 188, 0.08);
+        border-bottom: 1px solid var(--color-border);
 
         &.row-today-active {
-          background: rgba(88, 63, 188, 0.08);
+          background: var(--color-primary-subtle);
 
           td {
             font-weight: 800;

@@ -15,7 +15,7 @@
     align-items: center;
     gap: 14px;
     box-shadow: 0 10px 30px rgba(24, 25, 69, 0.06);
-    border: 1px solid rgba(88, 63, 188, 0.08);
+    border: 1px solid var(--color-border);
     transition: all 0.3s ease;
 
     @media (max-width: 576px) {
@@ -66,12 +66,12 @@
 
   // Continuous Marquee Strip
   .marquee-strip-container {
-    background: linear-gradient(90deg, #583FBC 0%, #3F2B96 50%, #2BB3B1 100%);
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-hover) 50%, var(--color-accent) 100%);
     padding: 12px 0;
     overflow: hidden;
     position: relative;
     user-select: none;
-    box-shadow: 0 6px 20px rgba(88, 63, 188, 0.2);
+    box-shadow: 0 6px 20px rgba(var(--color-primary-rgb, 14, 92, 47), 0.2);
 
     &:hover .marquee-track {
       animation-play-state: paused;
@@ -94,7 +94,7 @@
         white-space: nowrap;
 
         .marquee-dot {
-          color: #48DFDC;
+          color: var(--color-accent);
           font-size: 0.8rem;
         }
       }

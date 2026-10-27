@@ -15,7 +15,7 @@
 
   .appointment-result-card {
     background: #ffffff;
-    box-shadow: 0 15px 35px rgba(88, 63, 188, 0.08);
+    box-shadow: 0 15px 35px rgba(var(--color-primary-rgb, 14, 92, 47), 0.08);
 
     .letter-spacing-1 {
       letter-spacing: 1px;

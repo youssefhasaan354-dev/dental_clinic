@@ -12,9 +12,9 @@ export const BrandingManager: React.FC = () => {
   const isAr = language === 'ar';
   const isViewer = role === 'viewer';
 
-  const [primaryColor, setPrimaryColor] = useState(settings.primaryColor || '#0c6674');
-  const [secondaryColor, setSecondaryColor] = useState(settings.secondaryColor || '#2ca49a');
-  const [accentColor, setAccentColor] = useState(settings.accentColor || '#e0f4f4');
+  const [primaryColor, setPrimaryColor] = useState(settings.primaryColor || '#0E5C2F');
+  const [secondaryColor, setSecondaryColor] = useState(settings.secondaryColor || '#7AC143');
+  const [accentColor, setAccentColor] = useState(settings.accentColor || '#EEF4F0');
   const [showPrices, setShowPrices] = useState(Boolean(settings.showPrices));
   const [showBeforeAfter, setShowBeforeAfter] = useState(Boolean(settings.showBeforeAfter));
   const [showAnnouncement, setShowAnnouncement] = useState(Boolean(settings.showAnnouncement));

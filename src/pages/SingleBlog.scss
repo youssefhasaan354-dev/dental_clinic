@@ -113,7 +113,7 @@
       align-items: center;
       gap: 6px;
       background: #F1F4FA;
-      border: 1px solid rgba(88, 63, 188, 0.15);
+      border: 1px solid var(--color-border);
       color: var(--color-text);
       font-size: 0.85rem;
       font-weight: 700;
@@ -131,7 +131,7 @@
   }
 
   .article-booking-callout {
-    background: linear-gradient(135deg, #DBEFFA 0%, #E8F5FD 100%);
-    border: 1px solid rgba(88, 63, 188, 0.1);
+    background: linear-gradient(135deg, var(--color-bg-soft) 0%, var(--color-bg-alt) 100%);
+    border: 1px solid var(--color-border);
   }
 }

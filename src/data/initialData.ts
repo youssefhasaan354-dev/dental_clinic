@@ -486,9 +486,9 @@ export const initialSiteSettings: SiteSettings = {
     en: 'Welcome to Hayaah Dental Clinic in Heliopolis',
   },
   announcementType: 'info',
-  primaryColor: '#0c6674',
-  secondaryColor: '#2ca49a',
-  accentColor: '#e0f4f4',
+  primaryColor: '#0E5C2F',
+  secondaryColor: '#7AC143',
+  accentColor: '#EEF4F0',
   noindex: true, // Rule 3: noindex until go-live
   dataVersion: 1,
 };

@@ -283,8 +283,8 @@ export const DashboardHome: React.FC = () => {
               <svg viewBox="0 0 700 200" width="100%" height="100%" className="overflow-visible">
                 <defs>
                   <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#583FBC" />
-                    <stop offset="100%" stopColor="#2BB3B1" />
+                    <stop offset="0%" stopColor="#0E5C2F" />
+                    <stop offset="100%" stopColor="#7AC143" />
                   </linearGradient>
                 </defs>
 
@@ -316,7 +316,7 @@ export const DashboardHome: React.FC = () => {
                           y={Math.max(16, y - 5)}
                           textAnchor="middle"
                           fontSize="10"
-                          fill="#583FBC"
+                          fill="#0E5C2F"
                           fontWeight="bold"
                         >
                           {day.count}
@@ -366,7 +366,7 @@ export const DashboardHome: React.FC = () => {
                         role="progressbar"
                         style={{
                           width: `${percentage}%`,
-                          backgroundColor: idx === 0 ? '#583FBC' : idx === 1 ? '#2BB3B1' : '#10B981',
+                          backgroundColor: idx === 0 ? '#0E5C2F' : idx === 1 ? '#7AC143' : '#10B981',
                         }}
                       />
                     </div>
