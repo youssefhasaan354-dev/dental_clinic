@@ -302,43 +302,63 @@ describe('DataContext & EditableMedia - No Default Flash Suite', () => {
     it('regression: transitions from isWaitingSlots=true to isWaitingSlots=false without hooks violation (Error #310)', () => {
       vi.spyOn(firebaseClient, 'isFirebaseConfigured').mockReturnValue(true);
 
-      // Phase 1: isWaitingSlots = true (slots not ready)
-      vi.spyOn(firestoreCache, 'getCachedData').mockReturnValue(null);
-      const htmlWaiting = renderToStaticMarkup(
-        <LanguageProvider>
-          <DataProvider>
-            <EditableMedia
-              slotId="slot-hero"
-              defaultSrc="/assets/banner/1.png"
-              className="main-hero-img"
-              width={540}
-              height={580}
-              disableOverlay
-            />
-          </DataProvider>
-        </LanguageProvider>
-      );
-      expect(htmlWaiting).toContain('editable-media-skeleton');
-      expect(htmlWaiting).not.toContain('<img');
+      const dispatcherRef = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED?.ReactCurrentDispatcher;
 
-      // Phase 2: isWaitingSlots = false (slots ready, all hooks execute consistently)
-      vi.spyOn(firestoreCache, 'getCachedData').mockReturnValue(initialImageSlots);
-      const htmlReady = renderToStaticMarkup(
-        <LanguageProvider>
-          <DataProvider>
-            <EditableMedia
-              slotId="slot-hero"
-              defaultSrc="/assets/banner/1.png"
-              className="main-hero-img"
-              width={540}
-              height={580}
-              disableOverlay
-            />
-          </DataProvider>
-        </LanguageProvider>
-      );
-      expect(htmlReady).toContain('<img');
-      expect(htmlReady).not.toContain('editable-media-skeleton');
+      const recordHooksForRender = (isReady: boolean): string[] => {
+        vi.spyOn(firestoreCache, 'getCachedData').mockReturnValue(isReady ? initialImageSlots : null);
+
+        const hookCalls: string[] = [];
+
+        function HookTracker({ children }: { children: React.ReactNode }) {
+          const orig = dispatcherRef?.current;
+          if (orig) {
+            dispatcherRef.current = new Proxy(orig, {
+              get(target, prop: string) {
+                if (typeof target[prop] === 'function' && prop !== 'readContext') {
+                  hookCalls.push(prop);
+                }
+                return Reflect.get(target, prop);
+              },
+            });
+          }
+          return <>{children}</>;
+        }
+
+        renderToStaticMarkup(
+          <LanguageProvider>
+            <DataProvider>
+              <HookTracker>
+                <EditableMedia
+                  slotId="slot-hero"
+                  defaultSrc="/assets/banner/1.png"
+                  className="main-hero-img"
+                  width={540}
+                  height={580}
+                  disableOverlay
+                />
+              </HookTracker>
+            </DataProvider>
+          </LanguageProvider>
+        );
+
+        return hookCalls;
+      };
+
+      // Phase 1: isWaitingSlots = true (slots not ready yet)
+      const render1Hooks = recordHooksForRender(false);
+      expect(render1Hooks.length).toBeGreaterThan(0);
+
+      // Phase 2: isWaitingSlots = false (slots loaded from cache/firebase)
+      const render2Hooks = recordHooksForRender(true);
+
+      // Verify hook ordering stability to prevent React Error #310:
+      // "Rendered more hooks than during the previous render."
+      if (render2Hooks.length > render1Hooks.length) {
+        throw new Error(
+          `Rendered more hooks than during the previous render: Render 1 called ${render1Hooks.length} hooks, but Render 2 called ${render2Hooks.length} hooks (React Error #310).`
+        );
+      }
+      expect(render2Hooks).toEqual(render1Hooks);
     });
   });
 });
