@@ -49,7 +49,7 @@ export const AdminLogin: React.FC = () => {
       descAr: 'صلاحيات كاملة: تعديل الخدمات، الأسعار، الهوية البصرية، قائمة الإطلاق، وإدارة النسخ الاحتياطية.',
       descEn: 'Full permissions: services, pricing, branding, go-live checklist, and version restoration.',
       icon: Shield,
-      color: '#0c6674',
+      color: '#0E5C2F',
     },
     {
       role: 'editor',
@@ -122,7 +122,7 @@ export const AdminLogin: React.FC = () => {
   return (
     <div
       className="admin-login-wrapper min-vh-100 d-flex align-items-center justify-content-center p-3"
-      style={{ backgroundColor: '#f0fdfa' }}
+      style={{ backgroundColor: 'var(--color-bg-soft, #EEF4F0)' }}
       dir={isAr ? 'rtl' : 'ltr'}
     >
       <PageMeta
