@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import FloatingActions from '../components/FloatingActions/FloatingActions';
-import ScrollProgress from '../components/ScrollProgress/ScrollProgress';
 import Services from '../sections/Services/Services';
 import Appointment from '../sections/Appointment/Appointment';
 import Faq from '../sections/Faq/Faq';
@@ -51,7 +50,6 @@ const ServicesPage = () => {
         canonicalPath="/services"
         schema={breadcrumbSchema}
       />
-      <ScrollProgress />
       <Navbar />
 
       {/* Services Page Header Banner */}

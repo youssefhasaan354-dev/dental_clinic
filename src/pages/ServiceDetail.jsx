@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import FloatingActions from '../components/FloatingActions/FloatingActions';
-import ScrollProgress from '../components/ScrollProgress/ScrollProgress';
 import SectionTitle from '../components/SectionTitle/SectionTitle';
 import ContactForm from '../components/ContactForm/ContactForm';
 import Gallery from '../sections/Gallery/Gallery';
@@ -102,7 +101,6 @@ const ServiceDetail = () => {
         schema={serviceSchema}
         noindex={!service}
       />
-      <ScrollProgress />
       <Navbar />
 
       {/* Hero Banner for Service */}

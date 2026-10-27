@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import FloatingActions from '../components/FloatingActions/FloatingActions';
-import ScrollProgress from '../components/ScrollProgress/ScrollProgress';
 import EditableMedia from '../components/VisualEdit/EditableMedia';
 import { getBlogPostBySlug, BLOG_POSTS } from '../data/blog';
 import { useTranslation } from '../i18n/LanguageContext';
@@ -115,7 +114,6 @@ const SingleBlog = () => {
         schema={blogSchema}
         noindex={!post}
       />
-      <ScrollProgress />
       <Navbar />
 
       <article className="single-article-container py-5">

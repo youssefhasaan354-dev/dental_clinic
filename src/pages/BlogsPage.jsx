@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import FloatingActions from '../components/FloatingActions/FloatingActions';
-import ScrollProgress from '../components/ScrollProgress/ScrollProgress';
 import SectionTitle from '../components/SectionTitle/SectionTitle';
 import Blogs from '../sections/Blogs/Blogs';
 import PageMeta from '../components/PageMeta/PageMeta';
@@ -51,7 +50,6 @@ const BlogsPage = () => {
         canonicalPath="/blogs"
         schema={breadcrumbSchema}
       />
-      <ScrollProgress />
       <Navbar />
 
       {/* Header Banner */}

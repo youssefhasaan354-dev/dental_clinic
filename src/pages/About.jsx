@@ -8,7 +8,6 @@ import Faq from '../sections/Faq/Faq';
 import Appointment from '../sections/Appointment/Appointment';
 import Footer from '../components/Footer/Footer';
 import FloatingActions from '../components/FloatingActions/FloatingActions';
-import ScrollProgress from '../components/ScrollProgress/ScrollProgress';
 import PageMeta from '../components/PageMeta/PageMeta';
 import { useTranslation } from '../i18n/LanguageContext';
 import { getSiteUrl } from '../utils/siteUrl';
@@ -51,7 +50,6 @@ const About = () => {
         canonicalPath="/about"
         schema={breadcrumbSchema}
       />
-      <ScrollProgress />
       <Navbar />
       <AboutBanner />
       <Priority />
