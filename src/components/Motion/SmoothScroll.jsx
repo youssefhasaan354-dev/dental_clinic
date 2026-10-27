@@ -21,6 +21,7 @@ export const SmoothScroll = ({ children }) => {
         wheelMultiplier: 1.0,
         touchMultiplier: 1.2,
       });
+      window.__lenis = lenis;
     } catch (e) {
       console.warn('[SmoothScroll] Lenis initialization skipped:', e);
       return;
@@ -35,6 +36,7 @@ export const SmoothScroll = ({ children }) => {
 
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
+      delete window.__lenis;
       lenis?.destroy();
     };
   }, []);

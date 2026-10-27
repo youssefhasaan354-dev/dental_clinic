@@ -1,5 +1,8 @@
 .services-section {
   position: relative;
+  overflow-x: clip;
+  width: 100%;
+  max-width: 100%;
 
   .service-filters-row {
     @media (max-width: 576px) {
@@ -160,6 +163,9 @@
     position: relative;
     height: 220vh;
     margin-top: 10px;
+    overflow-x: clip;
+    width: 100%;
+    max-width: 100%;
 
     .services-sticky-viewport {
       position: sticky;
@@ -167,7 +173,10 @@
       height: calc(100vh - 120px);
       display: flex;
       align-items: center;
-      overflow: hidden;
+      overflow-x: clip;
+      overflow-y: visible;
+      width: 100%;
+      max-width: 100%;
       padding: 20px 0;
     }
 

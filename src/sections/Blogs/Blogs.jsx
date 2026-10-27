@@ -55,21 +55,21 @@ const Blogs = ({ limit = 3, showAllBtn = true }) => {
                 <div className="blog-body p-4 d-flex flex-column flex-grow-1">
                   <div className="blog-meta-row d-flex align-items-center gap-3 mb-2">
                     <span className="meta-item">
-                      <FiCalendar /> {language === 'ar' ? post.date.ar : post.date.en}
+                      <FiCalendar /> {language === 'ar' ? post.date?.ar : post.date?.en}
                     </span>
                     <span className="meta-item">
-                      <FiClock /> {language === 'ar' ? post.readTime.ar : post.readTime.en}
+                      <FiClock /> {language === 'ar' ? post.readingTime?.ar : post.readingTime?.en}
                     </span>
                   </div>
 
-                  <h3 className="blog-title">
+                  <h3 className="blog-card-title mb-2">
                     <Link to={`/blog/${post.slug}`}>
-                      {language === 'ar' ? post.title.ar : post.title.en}
+                      {language === 'ar' ? post.title?.ar : post.title?.en}
                     </Link>
                   </h3>
 
-                  <p className="blog-snippet">
-                    {language === 'ar' ? post.snippet.ar : post.snippet.en}
+                  <p className="blog-card-excerpt mb-4">
+                    {language === 'ar' ? post.excerpt?.ar : post.excerpt?.en}
                   </p>
 
                   <div className="blog-card-footer mt-auto pt-3 border-top">
