@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import { getCairoNow, parseCairoDate } from '../cairoTime';
 
 describe('Cairo Saturday-Thursday Week calculation', () => {
   it('identifies the start of the week as Saturday and end as Thursday', () => {

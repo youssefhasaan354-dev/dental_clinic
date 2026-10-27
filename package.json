@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "vite",
     "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
     "prebuild": "node scripts/generate-seo.mjs && node scripts/check-case-sensitivity.mjs && node scripts/check-image-slots.mjs",
     "build": "npm run lint && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:rules": "firebase emulators:exec --only firestore \"node scripts/test-rules.mjs && vitest run src/services/booking/__tests__/serviceIntegration.test.ts\""
+    "test:rules": "firebase emulators:exec --project test-rules-project --only firestore \"node scripts/test-rules.mjs && vitest run src/services/booking/__tests__/serviceIntegration.test.ts\"",
+    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes"
   },
   "dependencies": {
     "bootstrap": "^5.3.3",
@@ -37,6 +39,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^9.39.5",
     "eslint-plugin-react": "^7.37.5",
+    "sharp": "^0.35.5",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.2",
     "vite": "^5.2.0",

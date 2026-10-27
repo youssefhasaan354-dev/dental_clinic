@@ -347,7 +347,7 @@ export class FirebaseStorageService implements IDataStorageService {
 
     for (const [id, ovr] of Object.entries(overrides)) {
       if (!ovr || typeof ovr !== 'object') continue;
-      const existing = slotsMap.get(id) || {
+      const existing: ImageSlot = slotsMap.get(id) || {
         id,
         name: id,
         nameAr: id,
@@ -410,11 +410,40 @@ export class FirebaseStorageService implements IDataStorageService {
       updatedAt: new Date().toISOString(),
     });
 
-    await setDoc(
-      doc(db, 'site_images', 'global'),
-      { [slotId]: overrideEntry },
-      { merge: true }
-    );
+    try {
+      await setDoc(
+        doc(db, 'site_images', 'global'),
+        { [slotId]: overrideEntry },
+        { merge: true }
+      );
+    } catch (err: any) {
+      let currentUid = 'unknown';
+      try {
+        const { getFirebaseAuth } = await import('../firebase/client');
+        const auth = await getFirebaseAuth();
+        currentUid = auth.currentUser?.uid || 'unauthenticated';
+      } catch {
+        // ignore
+      }
+
+      console.error('[FirebaseStorageService.updateImageSlot] Firestore write failed:', {
+        path: 'site_images/global',
+        slotId,
+        uid: currentUid,
+        errorCode: err?.code,
+        errorMessage: err?.message,
+      });
+
+      if (err?.code === 'permission-denied') {
+        const customErr: any = new Error(
+          'لا تملك صلاحية الحفظ على قاعدة البيانات. تأكد أن حسابك مسجل في admins بدور owner أو editor وأن قواعد Firestore المنشورة محدّثة.'
+        );
+        customErr.code = 'permission-denied';
+        customErr.originalError = err;
+        throw customErr;
+      }
+      throw err;
+    }
 
     invalidateCachedData('site_images');
 

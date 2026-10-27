@@ -49,7 +49,15 @@ export async function maybeInitAppCheck(app: FirebaseApp): Promise<void> {
   if (appCheckInitialized) return;
   if (!isFirebaseConfigured()) return;
   const recaptchaKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
-  if (!recaptchaKey || !recaptchaKey.trim() || typeof window === 'undefined') return;
+  if (!recaptchaKey || !recaptchaKey.trim()) {
+    if (typeof window !== 'undefined') {
+      console.warn(
+        '[Firebase AppCheck] VITE_RECAPTCHA_SITE_KEY is not configured while App Check enforcement may be active. If App Check Enforce is active in Firebase Console, Firestore requests will be rejected with "Missing or insufficient permissions".'
+      );
+    }
+    return;
+  }
+  if (typeof window === 'undefined') return;
 
   try {
     const providerType = import.meta.env.VITE_RECAPTCHA_PROVIDER?.trim().toLowerCase();

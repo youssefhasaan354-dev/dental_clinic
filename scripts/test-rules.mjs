@@ -416,6 +416,12 @@ async function run() {
     await assertSucceeds(getDoc(doc(ownerDb, 'appointments', apptIdF)));
 
     await assertSucceeds(
+      setDoc(doc(ownerDb, 'doctor_schedules', 'doc-1'), {
+        active: true,
+        days: [0, 1, 2],
+      })
+    );
+    await assertFails(
       setDoc(doc(editorDb, 'doctor_schedules', 'doc-1'), {
         active: true,
         days: [0, 1, 2],
@@ -473,6 +479,7 @@ async function run() {
     await assertFails(setDoc(doc(viewerDb, 'site_images', 'global'), { 'slot-hero': { mediaType: 'video' } }));
     await assertSucceeds(setDoc(doc(editorDb, 'site_images', 'global'), { 'slot-hero': { mediaType: 'video' } }));
     await assertSucceeds(setDoc(doc(ownerDb, 'site_images', 'global'), { 'slot-hero': { mediaType: 'image' } }));
+
     // New Phase D: Appointment Payload Validation Rules
     console.log('Testing: Appointment payload validation rules (name length, phone format, allowed keys, notes length)...');
     const validSlotId = 'doc-1_2026-11-01_1130';
@@ -497,7 +504,8 @@ async function run() {
           date: '2026-11-01',
           startTime: '11:30',
           doctorId: 'doc-1',
-          status: 'pending',
+          status: 'confirmed',
+          consentGiven: true,
         });
       })
     );
@@ -522,7 +530,8 @@ async function run() {
           date: '2026-11-01',
           startTime: '11:30',
           doctorId: 'doc-1',
-          status: 'pending',
+          status: 'confirmed',
+          consentGiven: true,
         });
       })
     );
@@ -547,7 +556,8 @@ async function run() {
           date: '2026-11-01',
           startTime: '11:30',
           doctorId: 'doc-1',
-          status: 'pending',
+          status: 'confirmed',
+          consentGiven: true,
           injectedAdminRole: 'owner', // unexpected key!
         });
       })
@@ -573,12 +583,274 @@ async function run() {
           date: '2026-11-01',
           startTime: '11:30',
           doctorId: 'doc-1',
-          status: 'pending',
+          status: 'confirmed',
+          consentGiven: true,
           notes: 'x'.repeat(1005), // too long
         });
       })
     );
     console.log('✓ PASS: Excessively long notes (>1000 chars) correctly rejected');
+
+    // A3.1: Status must match getAutoConfirm()
+    console.log('Testing (A3.1): Status must be confirmed only when autoConfirm == true...');
+    // Currently autoConfirm is true -> pending must FAIL
+    const testSlotA3 = 'doc-1_2026-11-01_1300';
+    const testApptA3 = 'apt-a3-status';
+    await assertFails(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'slots', testSlotA3), {
+          doctorId: 'doc-1',
+          date: '2026-11-01',
+          startTime: '13:00',
+          appointmentId: testApptA3,
+        });
+        tx.set(doc(unauthedDb, 'appointments', testApptA3), {
+          id: testApptA3,
+          bookingCode: 'HAY-A3S1',
+          manageToken: 'tok-a3s1',
+          patientName: 'Status Test',
+          patientPhone: '+201012345678',
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '13:00',
+          doctorId: 'doc-1',
+          status: 'pending', // rejected because autoConfirm is true!
+          consentGiven: true,
+        });
+      })
+    );
+    console.log('✓ PASS (A3.1): Anonymous pending appointment rejected when autoConfirm is true');
+
+    // Toggle autoConfirm to false and verify confirmed fails while pending succeeds
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, 'booking_settings', 'global'), { autoConfirm: false });
+    });
+
+    const testSlotA3b = 'doc-1_2026-11-01_1330';
+    const testApptA3b = 'apt-a3-status-b';
+    await assertFails(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'slots', testSlotA3b), {
+          doctorId: 'doc-1',
+          date: '2026-11-01',
+          startTime: '13:30',
+          appointmentId: testApptA3b,
+        });
+        tx.set(doc(unauthedDb, 'appointments', testApptA3b), {
+          id: testApptA3b,
+          bookingCode: 'HAY-A3S2',
+          manageToken: 'tok-a3s2',
+          patientName: 'Status Test',
+          patientPhone: '+201012345678',
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '13:30',
+          doctorId: 'doc-1',
+          status: 'confirmed', // rejected because autoConfirm is false!
+          consentGiven: true,
+        });
+      })
+    );
+
+    // Pending succeeds when autoConfirm is false
+    await assertSucceeds(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'slots', testSlotA3b), {
+          doctorId: 'doc-1',
+          date: '2026-11-01',
+          startTime: '13:30',
+          appointmentId: testApptA3b,
+        });
+        tx.set(doc(unauthedDb, 'appointments', testApptA3b), {
+          id: testApptA3b,
+          bookingCode: 'HAY-A3S2',
+          manageToken: 'tok-a3s2',
+          patientName: 'Status Test',
+          patientPhone: '+201012345678',
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '13:30',
+          doctorId: 'doc-1',
+          status: 'pending', // succeeds when autoConfirm is false
+          consentGiven: true,
+        });
+        tx.set(doc(unauthedDb, 'bookingLookup', 'tok-a3s2'), {
+          appointmentId: testApptA3b,
+          bookingCode: 'HAY-A3S2',
+          manageToken: 'tok-a3s2',
+          date: '2026-11-01',
+          startTime: '13:30',
+          doctorId: 'doc-1',
+          status: 'pending',
+        });
+      })
+    );
+    console.log('✓ PASS (A3.1): When autoConfirm is false, confirmed is rejected and pending is accepted');
+
+    // Restore autoConfirm to true for subsequent tests
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, 'booking_settings', 'global'), { autoConfirm: true });
+    });
+
+    // A3.2: isWalkIn protection (forbidden from public client, allowed for staff)
+    console.log('Testing (A3.2): isWalkIn forbidden from anonymous client, allowed for staff...');
+    const testSlotWalkIn = 'doc-1_2026-11-01_1400';
+    const testApptWalkIn = 'apt-a3-walkin';
+    await assertFails(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'slots', testSlotWalkIn), {
+          doctorId: 'doc-1',
+          date: '2026-11-01',
+          startTime: '14:00',
+          appointmentId: testApptWalkIn,
+        });
+        tx.set(doc(unauthedDb, 'appointments', testApptWalkIn), {
+          id: testApptWalkIn,
+          bookingCode: 'HAY-WALK1',
+          manageToken: 'tok-walk1',
+          patientName: 'WalkIn Impostor',
+          patientPhone: '+201012345678',
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '14:00',
+          doctorId: 'doc-1',
+          status: 'confirmed',
+          consentGiven: true,
+          isWalkIn: true, // Forbidden from anonymous!
+        });
+      })
+    );
+
+    // Receptionist can create walkIn appointment
+    await assertSucceeds(
+      setDoc(doc(recepDb, 'appointments', testApptWalkIn), {
+        id: testApptWalkIn,
+        bookingCode: 'HAY-WALK1',
+        manageToken: 'tok-walk1',
+        patientName: 'WalkIn Patient',
+        patientPhone: '+201012345678',
+        serviceId: 'root-canal',
+        date: '2026-11-01',
+        startTime: '14:00',
+        doctorId: 'doc-1',
+        status: 'confirmed',
+        consentGiven: true,
+        isWalkIn: true,
+      })
+    );
+    console.log('✓ PASS (A3.2): Anonymous isWalkIn: true rejected, receptionist allowed');
+
+    // A3.3: consentGiven == true is mandatory for public client
+    console.log('Testing (A3.3): consentGiven == true mandatory for anonymous client...');
+    const testSlotConsent = 'doc-1_2026-11-01_1430';
+    const testApptConsent = 'apt-a3-consent';
+    // Missing consentGiven
+    await assertFails(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'slots', testSlotConsent), {
+          doctorId: 'doc-1',
+          date: '2026-11-01',
+          startTime: '14:30',
+          appointmentId: testApptConsent,
+        });
+        tx.set(doc(unauthedDb, 'appointments', testApptConsent), {
+          id: testApptConsent,
+          bookingCode: 'HAY-CNS1',
+          manageToken: 'tok-cns1',
+          patientName: 'Consent Patient',
+          patientPhone: '+201012345678',
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '14:30',
+          doctorId: 'doc-1',
+          status: 'confirmed',
+          // consentGiven missing!
+        });
+      })
+    );
+    // consentGiven: false
+    await assertFails(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'slots', testSlotConsent), {
+          doctorId: 'doc-1',
+          date: '2026-11-01',
+          startTime: '14:30',
+          appointmentId: testApptConsent,
+        });
+        tx.set(doc(unauthedDb, 'appointments', testApptConsent), {
+          id: testApptConsent,
+          bookingCode: 'HAY-CNS1',
+          manageToken: 'tok-cns1',
+          patientName: 'Consent Patient',
+          patientPhone: '+201012345678',
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '14:30',
+          doctorId: 'doc-1',
+          status: 'confirmed',
+          consentGiven: false, // Must be true!
+        });
+      })
+    );
+    console.log('✓ PASS (A3.3): Anonymous missing/false consentGiven rejected');
+
+    // A3.4: createdAt / updatedAt size bounds and type
+    console.log('Testing (A3.4): createdAt / updatedAt bounds and string type validation...');
+    const testSlotTime = 'doc-1_2026-11-01_1500';
+    const testApptTime = 'apt-a3-time';
+    // Non-string createdAt fails
+    await assertFails(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'slots', testSlotTime), {
+          doctorId: 'doc-1',
+          date: '2026-11-01',
+          startTime: '15:00',
+          appointmentId: testApptTime,
+        });
+        tx.set(doc(unauthedDb, 'appointments', testApptTime), {
+          id: testApptTime,
+          bookingCode: 'HAY-TIME1',
+          manageToken: 'tok-time1',
+          patientName: 'Time Patient',
+          patientPhone: '+201012345678',
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '15:00',
+          doctorId: 'doc-1',
+          status: 'confirmed',
+          consentGiven: true,
+          createdAt: 1714000000000, // Invalid: number instead of string
+        });
+      })
+    );
+    // Overly long createdAt fails (> 50 chars)
+    await assertFails(
+      runTransaction(unauthedDb, async (tx) => {
+        tx.set(doc(unauthedDb, 'slots', testSlotTime), {
+          doctorId: 'doc-1',
+          date: '2026-11-01',
+          startTime: '15:00',
+          appointmentId: testApptTime,
+        });
+        tx.set(doc(unauthedDb, 'appointments', testApptTime), {
+          id: testApptTime,
+          bookingCode: 'HAY-TIME2',
+          manageToken: 'tok-time2',
+          patientName: 'Time Patient',
+          patientPhone: '+201012345678',
+          serviceId: 'root-canal',
+          date: '2026-11-01',
+          startTime: '15:00',
+          doctorId: 'doc-1',
+          status: 'confirmed',
+          consentGiven: true,
+          createdAt: '2026-11-01T15:00:00.000Z' + 'x'.repeat(40), // > 50 chars!
+        });
+      })
+    );
+    console.log('✓ PASS (A3.4): Non-string and excessively long createdAt/updatedAt rejected');
 
     // 5. Doctor management security: only owner can write/delete, public can read
     console.log('Testing doctor management security rules...');

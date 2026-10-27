@@ -80,6 +80,31 @@ describe('Doctor Management System', () => {
     const afterList = await service.getDoctors();
     expect(afterList.some((d) => d.doctorId === newDoc.doctorId)).toBe(false);
   });
+
+  it('assigns an eligible doctor when doctorId is "any"', async () => {
+    const res = await service.createAppointment({
+      serviceId: 'teeth-whitening',
+      doctorId: 'any',
+      date: '2026-11-22',
+      startTime: '10:00',
+      patientName: 'سارة خالد',
+      patientPhone: '01099887766',
+      consentGiven: true,
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.appointment).toBeDefined();
+    expect(res.appointment?.doctorId).toBeDefined();
+    expect(res.appointment?.doctorId).not.toBe('any');
+
+    // Assigned doctor must support the requested service
+    const docs = await service.getDoctors();
+    const assigned = docs.find((d) => d.doctorId === res.appointment?.doctorId);
+    expect(assigned).toBeDefined();
+    expect(
+      assigned?.services.includes('*') || assigned?.services.includes('teeth-whitening')
+    ).toBe(true);
+  });
 });
 
 describe('Zod Booking Validation Schema', () => {

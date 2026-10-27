@@ -32,6 +32,70 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AUTH_STORAGE_KEY = 'hayaah_admin_auth_user';
 
+export interface PerformLoginOptions {
+  email: string;
+  password: string;
+  isFirebaseMode: boolean;
+  isDemoAllowed: boolean;
+  onFirebaseSignIn?: (email: string, password: string) => Promise<{ success: boolean; user?: AdminUser; error?: string }>;
+  onDemoLogin?: (role: UserRole) => Promise<void>;
+}
+
+export async function performEmailLogin({
+  email,
+  password,
+  isFirebaseMode,
+  isDemoAllowed,
+  onFirebaseSignIn,
+  onDemoLogin,
+}: PerformLoginOptions): Promise<{ success: boolean; user?: AdminUser; error?: string }> {
+  // 1. Firebase mode
+  if (isFirebaseMode) {
+    if (onFirebaseSignIn) {
+      return onFirebaseSignIn(email, password);
+    }
+    return { success: false, error: 'Firebase Auth handler missing' };
+  }
+
+  // 2. Demo adapter authentication (admin@hayaah.demo / demo1234 or receptionist@hayaah.demo / demo1234)
+  const cleanEmail = email.trim().toLowerCase();
+
+  if (isDemoAllowed && onDemoLogin) {
+    if (
+      (cleanEmail === 'admin@hayaah.demo' || cleanEmail === 'owner@hayaahclinic.com') &&
+      password === 'demo1234'
+    ) {
+      try {
+        await onDemoLogin('owner');
+        return { success: true };
+      } catch {
+        return { success: false, error: 'بيانات الدخول غير صحيحة / Invalid credentials' };
+      }
+    }
+
+    if (
+      (cleanEmail === 'receptionist@hayaah.demo' || cleanEmail === 'receptionist@hayaahclinic.com') &&
+      password === 'demo1234'
+    ) {
+      try {
+        await onDemoLogin('receptionist');
+        return { success: true };
+      } catch {
+        return { success: false, error: 'بيانات الدخول غير صحيحة / Invalid credentials' };
+      }
+    }
+  }
+
+  const defaultError = isDemoAllowed
+    ? 'بيانات الدخول غير صحيحة. استخدم admin@hayaah.demo / demo1234 / Invalid credentials'
+    : 'بيانات الدخول غير صحيحة / Invalid credentials';
+
+  return {
+    success: false,
+    error: defaultError,
+  };
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isFirebaseMode = isFirebaseConfigured();
 
@@ -180,95 +244,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithEmail = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setAuthError(null);
 
-    // 1. Firebase Auth when Firebase mode is active
-    if (isFirebaseMode) {
-      try {
-        const auth = await getFirebaseAuth();
-        const { signInWithEmailAndPassword, signOut } = await import('firebase/auth');
-        const db = await getFirebaseFirestore();
-        const { doc, getDoc } = await import('firebase/firestore');
+    const isDemoAllowed = !isFirebaseMode && (import.meta.env.VITE_ADMIN_DEMO_LOGIN !== 'false');
 
-        const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
-        const uid = cred.user.uid;
+    const result = await performEmailLogin({
+      email,
+      password,
+      isFirebaseMode,
+      isDemoAllowed,
+      onFirebaseSignIn: async (e, p) => {
+        try {
+          const auth = await getFirebaseAuth();
+          const { signInWithEmailAndPassword, signOut } = await import('firebase/auth');
+          const db = await getFirebaseFirestore();
+          const { doc, getDoc } = await import('firebase/firestore');
 
-        // Check role in `admins/{uid}`
-        const adminDoc = await getDoc(doc(db, 'admins', uid));
-        if (!adminDoc.exists()) {
-          await signOut(auth);
-          setUser(null);
-          const errorMsg =
-            'تم التحقق من بيانات الدخول، لكن الحساب غير مسجل في وثائق المشرفين (admins/{uid}). يرجى مراجعة المالك / User authenticated, but no admin doc found in admins/{uid}. Access denied.';
-          setAuthError(errorMsg);
-          return { success: false, error: errorMsg };
-        }
+          const cred = await signInWithEmailAndPassword(auth, e.trim(), p);
+          const uid = cred.user.uid;
 
-        const data = adminDoc.data();
-        const validRoles: UserRole[] = ['owner', 'receptionist', 'editor', 'viewer'];
-        if (!data?.role || !validRoles.includes(data.role as UserRole)) {
-          await signOut(auth);
-          setUser(null);
-          const errorMsg =
-            'الدور المحدد للحساب غير صالح في admins/{uid} / Invalid admin role in admins/{uid}.';
-          setAuthError(errorMsg);
-          return { success: false, error: errorMsg };
-        }
-
-        const loggedInUser: AdminUser = {
-          id: uid,
-          name: data.name || cred.user.displayName || cred.user.email?.split('@')[0] || 'Admin',
-          role: data.role as UserRole,
-          email: cred.user.email || email,
-        };
-
-        if (data.role === 'owner') {
-          try {
-            const settingsSnap = await getDoc(doc(db, 'booking_settings', 'global'));
-            if (!settingsSnap.exists()) {
-              const { DEFAULT_BOOKING_SETTINGS } = await import('../services/booking/slotEngine');
-              const { setDoc } = await import('firebase/firestore');
-              await setDoc(doc(db, 'booking_settings', 'global'), DEFAULT_BOOKING_SETTINGS);
-            }
-          } catch (e) {
-            console.warn('[AuthContext] Auto-seed booking_settings/global skipped:', e);
+          // Check role in `admins/{uid}`
+          const adminDoc = await getDoc(doc(db, 'admins', uid));
+          if (!adminDoc.exists()) {
+            await signOut(auth);
+            setUser(null);
+            const errorMsg =
+              'تم التحقق من بيانات الدخول، لكن الحساب غير مسجل في وثائق المشرفين (admins/{uid}). يرجى مراجعة المالك / User authenticated, but no admin doc found in admins/{uid}. Access denied.';
+            return { success: false, error: errorMsg };
           }
+
+          const data = adminDoc.data();
+          const validRoles: UserRole[] = ['owner', 'receptionist', 'editor', 'viewer'];
+          if (!data?.role || !validRoles.includes(data.role as UserRole)) {
+            await signOut(auth);
+            setUser(null);
+            const errorMsg =
+              'الدور المحدد للحساب غير صالح في admins/{uid} / Invalid admin role in admins/{uid}.';
+            return { success: false, error: errorMsg };
+          }
+
+          const loggedInUser: AdminUser = {
+            id: uid,
+            name: data.name || cred.user.displayName || cred.user.email?.split('@')[0] || 'Admin',
+            role: data.role as UserRole,
+            email: cred.user.email || e,
+          };
+
+          if (data.role === 'owner') {
+            try {
+              const settingsSnap = await getDoc(doc(db, 'booking_settings', 'global'));
+              if (!settingsSnap.exists()) {
+                const { DEFAULT_BOOKING_SETTINGS } = await import('../services/booking/slotEngine');
+                const { setDoc } = await import('firebase/firestore');
+                await setDoc(doc(db, 'booking_settings', 'global'), DEFAULT_BOOKING_SETTINGS);
+              }
+            } catch (eAuto) {
+              console.warn('[AuthContext] Auto-seed booking_settings/global skipped:', eAuto);
+            }
+          }
+
+          setUser(loggedInUser);
+          return { success: true, user: loggedInUser };
+        } catch (err: any) {
+          let message = err.message || 'بيانات الدخول غير صحيحة / Invalid credentials';
+          if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+            message = 'البريد الإلكتروني أو كلمة المرور غير صحيحة / Invalid email or password';
+          }
+          return { success: false, error: message };
         }
+      },
+      onDemoLogin: async (roleToLogin) => {
+        await loginAsDemoUser(roleToLogin);
+      },
+    });
 
-        setUser(loggedInUser);
-        return { success: true };
-      } catch (err: any) {
-        let message = err.message || 'بيانات الدخول غير صحيحة / Invalid credentials';
-        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-          message = 'البريد الإلكتروني أو كلمة المرور غير صحيحة / Invalid email or password';
-        }
-        setAuthError(message);
-        return { success: false, error: message };
-      }
+    if (!result.success && result.error) {
+      setAuthError(result.error);
     }
 
-    // 2. Demo adapter authentication (admin@hayaah.demo / demo1234 or receptionist@hayaah.demo / demo1234)
-    const cleanEmail = email.trim().toLowerCase();
-    if (
-      (cleanEmail === 'admin@hayaah.demo' || cleanEmail === 'owner@hayaahclinic.com') &&
-      password === 'demo1234'
-    ) {
-      await loginAsDemoUser('owner');
-      return { success: true };
-    }
-
-    if (
-      (cleanEmail === 'receptionist@hayaah.demo' || cleanEmail === 'receptionist@hayaahclinic.com') &&
-      password === 'demo1234'
-    ) {
-      await loginAsDemoUser('receptionist');
-      return { success: true };
-    }
-
-    const demoError = 'بيانات الدخول غير صحيحة. استخدم admin@hayaah.demo / demo1234 / Invalid credentials';
-    setAuthError(demoError);
-    return {
-      success: false,
-      error: demoError,
-    };
+    return result;
   };
 
   const logout = async () => {

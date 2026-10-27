@@ -120,6 +120,14 @@ export class FirebaseBookingService implements IBookingService {
       };
     }
 
+    // 3. Privacy consent check (required by firestore rules)
+    if (!data.consentGiven) {
+      return {
+        success: false,
+        error: 'يجب الموافقة على سياسة الخصوصية للمتابعة / Consent must be given to book an appointment',
+      };
+    }
+
     const db = await this.getDB();
     const { collection, doc, runTransaction } = await import('firebase/firestore');
 
@@ -135,7 +143,11 @@ export class FirebaseBookingService implements IBookingService {
     // Determine candidate doctors
     const isAnyDoctor = !data.doctorId || data.doctorId === 'any';
     const candidateDoctors = isAnyDoctor
-      ? doctors.filter((d) => d.isActive)
+      ? doctors.filter(
+          (d) =>
+            d.isActive &&
+            (!d.services || d.services.includes('*') || d.services.includes(data.serviceId))
+        )
       : doctors.filter((d) => d.doctorId === data.doctorId && d.isActive);
 
     if (candidateDoctors.length === 0) {
@@ -198,7 +210,7 @@ export class FirebaseBookingService implements IBookingService {
           endTime,
           status: (settings.autoConfirm ? 'confirmed' : 'pending') as AppointmentStatus,
           notes: data.notes?.trim() || undefined,
-          consentGiven: data.consentGiven,
+          consentGiven: true,
           isWalkIn: Boolean(data.isWalkIn),
           createdAt: nowIso,
           updatedAt: nowIso,
@@ -947,7 +959,12 @@ export class FirebaseBookingService implements IBookingService {
     return merged;
   }
 
-  async addDoctor(doctor: Omit<DoctorSchedule, 'doctorId'> & { doctorId?: string }): Promise<DoctorSchedule> {
+  async addDoctor(
+    doctor: Omit<DoctorSchedule, 'doctorId' | 'weeklyHours'> & {
+      doctorId?: string;
+      weeklyHours?: DoctorSchedule['weeklyHours'];
+    }
+  ): Promise<DoctorSchedule> {
     const db = await this.getDB();
     const { doc, setDoc } = await import('firebase/firestore');
 

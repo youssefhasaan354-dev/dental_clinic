@@ -151,6 +151,7 @@ export interface ImageSlot {
   nameAr?: string;
   nameEn?: string;
   section: string;
+  page?: string;
   currentUrl: string;
   defaultUrl: string;
   altText: BilingualText;
@@ -216,6 +217,7 @@ export interface VersionSnapshot {
     doctors: DoctorProfile[];
     articles: ArticleItem[];
     faqs: FaqItem[];
+    ratings?: RatingData;
     settings: SiteSettings;
     sections: SectionConfig[];
     imageSlots: ImageSlot[];

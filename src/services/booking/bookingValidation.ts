@@ -10,7 +10,7 @@ import { validateAndNormalizeEgyptianPhone } from './slotEngine';
 export const bookingFormSchema = z.object({
   patientName: z
     .string({
-      required_error: 'يرجى إدخال اسم المريض بالكامل / Patient full name is required',
+      error: 'يرجى إدخال اسم المريض بالكامل / Patient full name is required',
     })
     .trim()
     .min(2, {
@@ -22,7 +22,7 @@ export const bookingFormSchema = z.object({
 
   patientPhone: z
     .string({
-      required_error: 'رقم الهاتف مطلوب / Phone number is required',
+      error: 'رقم الهاتف مطلوب / Phone number is required',
     })
     .trim()
     .refine(
@@ -46,13 +46,13 @@ export const bookingFormSchema = z.object({
 
   patientType: z
     .enum(['new', 'returning'], {
-      invalid_type_error: 'نوع المريض غير صحيح / Invalid patient type',
+      error: 'نوع المريض غير صحيح / Invalid patient type',
     })
     .default('new'),
 
   serviceId: z
     .string({
-      required_error: 'يرجى اختيار الخدمة المطلوبة / Please select a service',
+      error: 'يرجى اختيار الخدمة المطلوبة / Please select a service',
     })
     .min(1, {
       message: 'يرجى اختيار الخدمة المطلوبة / Please select a service',
@@ -62,7 +62,7 @@ export const bookingFormSchema = z.object({
 
   date: z
     .string({
-      required_error: 'يرجى تحديد تاريخ الموعد / Please select an appointment date',
+      error: 'يرجى تحديد تاريخ الموعد / Please select an appointment date',
     })
     .regex(/^\d{4}-\d{2}-\d{2}$/, {
       message: 'صيغة التاريخ غير صحيحة (YYYY-MM-DD) / Invalid date format (YYYY-MM-DD)',
@@ -70,17 +70,15 @@ export const bookingFormSchema = z.object({
 
   startTime: z
     .string({
-      required_error: 'يرجى تحديد وقت الموعد / Please select an appointment time',
+      error: 'يرجى تحديد وقت الموعد / Please select an appointment time',
     })
     .regex(/^\d{2}:\d{2}$/, {
       message: 'صيغة الوقت غير صحيحة (HH:mm) / Invalid time format (HH:mm)',
     }),
 
   consentGiven: z.literal(true, {
-    errorMap: () => ({
-      message:
-        'يجب الموافقة على سياسة الخصوصية للمتابعة / You must accept the privacy policy to proceed',
-    }),
+    error:
+      'يجب الموافقة على سياسة الخصوصية للمتابعة / You must accept the privacy policy to proceed',
   }),
 
   notes: z

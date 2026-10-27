@@ -109,10 +109,26 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
     loadDocs();
   }, [bookingService]);
 
-  // Active doctors list (exclude inactive)
+  // Active doctors list (exclude inactive and filter by selected service eligibility)
   const activeDoctorsList = useMemo(() => {
-    return doctors.filter((d) => d.isActive !== false);
-  }, [doctors]);
+    return doctors.filter((d) => {
+      if (d.isActive === false) return false;
+      if (!selectedServiceId) return true;
+      if (!d.services || d.services.includes('*')) return true;
+      return d.services.includes(selectedServiceId);
+    });
+  }, [doctors, selectedServiceId]);
+
+  // Reset doctor and time if previously selected doctor is not eligible for new service
+  useEffect(() => {
+    if (selectedDoctorId !== 'any' && activeDoctorsList.length > 0) {
+      const isEligible = activeDoctorsList.some((d) => d.doctorId === selectedDoctorId);
+      if (!isEligible) {
+        setSelectedDoctorId('any');
+        setSelectedTime('');
+      }
+    }
+  }, [activeDoctorsList, selectedDoctorId]);
 
   // Load availability when date, service, or doctor changes
   useEffect(() => {
@@ -582,7 +598,10 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
               {/* Option: Any Available Doctor */}
               <div
                 className={`doctor-select-card ${selectedDoctorId === 'any' ? 'selected' : ''}`}
-                onClick={() => setSelectedDoctorId('any')}
+                onClick={() => {
+                  setSelectedDoctorId('any');
+                  setSelectedTime('');
+                }}
                 role="button"
                 tabIndex={0}
               >
@@ -613,10 +632,13 @@ export const BookingWizard = ({ defaultService = '', className = '' }) => {
                 const docTitle = isAr ? doc.title?.ar : doc.title?.en;
 
                 return (
-                  <div
+                   <div
                     key={doc.doctorId}
                     className={`doctor-select-card ${isSelected ? 'selected' : ''}`}
-                    onClick={() => setSelectedDoctorId(doc.doctorId)}
+                    onClick={() => {
+                      setSelectedDoctorId(doc.doctorId);
+                      setSelectedTime('');
+                    }}
                     role="button"
                     tabIndex={0}
                   >

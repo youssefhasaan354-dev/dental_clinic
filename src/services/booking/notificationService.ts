@@ -93,6 +93,15 @@ export function generateIcsContent(appointment: Appointment, clinicAddress: stri
   const dtStart = `${year}${month}${day}T${startH}${startM}00`;
   const dtEnd = `${year}${month}${day}T${endH}${endM}00`;
 
+  const siteUrl = getSiteUrl();
+  const manageUrl = appointment.manageToken
+    ? `${siteUrl}/booking/manage?token=${appointment.manageToken}`
+    : `${siteUrl}/booking/manage?code=${appointment.bookingCode}&phone=${encodeURIComponent(appointment.patientPhone)}`;
+
+  const serviceName = typeof appointment.serviceName === 'object' && appointment.serviceName !== null
+    ? (appointment.serviceName.ar || appointment.serviceName.en || '')
+    : String(appointment.serviceName || '');
+
   return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -104,8 +113,9 @@ export function generateIcsContent(appointment: Appointment, clinicAddress: stri
     `DTSTAMP:${dtStart}Z`,
     `DTSTART:${dtStart}`,
     `DTEND:${dtEnd}`,
-    `SUMMARY:موعد عيادة حياة لطب الأسنان - ${appointment.serviceName.ar}`,
-    `DESCRIPTION:حجز موعد كود ${appointment.bookingCode} - ${appointment.serviceName.ar}. هاتف العيادة: 02 2635 5669`,
+    `SUMMARY:موعد عيادة حياة لطب الأسنان - ${serviceName}`,
+    `DESCRIPTION:حجز موعد كود ${appointment.bookingCode} - ${serviceName}. إدارة الموعد: ${manageUrl}. هاتف العيادة: 02 2635 5669`,
+    `URL:${manageUrl}`,
     `LOCATION:${clinicAddress}`,
     'STATUS:CONFIRMED',
     'END:VEVENT',
@@ -117,13 +127,21 @@ export function generateIcsContent(appointment: Appointment, clinicAddress: stri
  * Generate Google Calendar Web URL
  */
 export function buildGoogleCalendarUrl(appointment: Appointment, clinicAddress: string = 'Fareed Semeika St., Heliopolis, Cairo'): string {
-  const [year, month, day] = appointment.date.split('');
   const startIso = `${appointment.date.replace(/-/g, '')}T${appointment.startTime.replace(/:/g, '')}00`;
   const endIso = `${appointment.date.replace(/-/g, '')}T${appointment.endTime.replace(/:/g, '')}00`;
 
-  const title = encodeURIComponent(`موعد عيادة حياة لطب الأسنان - ${appointment.serviceName.ar}`);
+  const siteUrl = getSiteUrl();
+  const manageUrl = appointment.manageToken
+    ? `${siteUrl}/booking/manage?token=${appointment.manageToken}`
+    : `${siteUrl}/booking/manage?code=${appointment.bookingCode}&phone=${encodeURIComponent(appointment.patientPhone)}`;
+
+  const serviceName = typeof appointment.serviceName === 'object' && appointment.serviceName !== null
+    ? (appointment.serviceName.ar || appointment.serviceName.en || '')
+    : String(appointment.serviceName || '');
+
+  const title = encodeURIComponent(`موعد عيادة حياة لطب الأسنان - ${serviceName}`);
   const details = encodeURIComponent(
-    `كود الحجز: ${appointment.bookingCode}\nالخدمة: ${appointment.serviceName.ar}\nالمريض: ${appointment.patientName}\nهاتف العيادة: 02 2635 5669`
+    `كود الحجز: ${appointment.bookingCode}\nالخدمة: ${serviceName}\nالمريض: ${appointment.patientName}\nإدارة وتعديل الحجز: ${manageUrl}\nهاتف العيادة: 02 2635 5669`
   );
   const location = encodeURIComponent(clinicAddress);
 

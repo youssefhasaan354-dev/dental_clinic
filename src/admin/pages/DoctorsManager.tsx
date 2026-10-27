@@ -109,8 +109,8 @@ export const DoctorsManager: React.FC = () => {
   }, []);
 
   const handleToggleDoctorActive = async (doc: DoctorSchedule) => {
-    if (isViewer) {
-      alert(isAr ? 'عفواً، وضع العرض فقط.' : 'Read-only mode.');
+    if (!isOwner) {
+      alert(isAr ? 'عفواً، تعديل حالة الأطباء مقتصر على مالك العيادة (Owner).' : 'Modifying doctor status is restricted to clinic owner.');
       return;
     }
     try {
@@ -123,8 +123,8 @@ export const DoctorsManager: React.FC = () => {
   };
 
   const handleOpenAddDoctor = () => {
-    if (isViewer) {
-      alert(isAr ? 'عفواً، وضع العرض فقط.' : 'Read-only mode.');
+    if (!isOwner) {
+      alert(isAr ? 'عفواً، إضافة أطباء جدد مقتصرة على مالك العيادة (Owner).' : 'Adding doctors is restricted to clinic owner.');
       return;
     }
     setModalMode('create');
@@ -134,8 +134,8 @@ export const DoctorsManager: React.FC = () => {
   };
 
   const handleOpenEditDoctor = (doc: DoctorSchedule) => {
-    if (isViewer) {
-      alert(isAr ? 'عفواً، وضع العرض فقط.' : 'Read-only mode.');
+    if (!isOwner) {
+      alert(isAr ? 'عفواً، تعديل بيانات وجدول الأطباء مقتصر على مالك العيادة (Owner).' : 'Editing doctors is restricted to clinic owner.');
       return;
     }
     setModalMode('edit');
@@ -323,12 +323,11 @@ export const DoctorsManager: React.FC = () => {
         </div>
 
         <div className="d-flex align-items-center gap-2">
-          {activeTab === 'doctors' && (
+          {activeTab === 'doctors' && isOwner && (
             <button
               type="button"
               className="btn btn-primary rounded-pill px-3 py-2 d-flex align-items-center gap-2 shadow-sm"
               onClick={handleOpenAddDoctor}
-              disabled={isViewer}
             >
               <Plus size={16} />
               <span className="fw-semibold">{isAr ? 'إضافة طبيب جديد' : 'Add New Doctor'}</span>
@@ -362,8 +361,8 @@ export const DoctorsManager: React.FC = () => {
           <Shield size={18} className="flex-shrink-0" />
           <span>
             {isAr
-              ? 'تنبيه أمني: إضافة وحذف الأطباء محصورة بحساب المالك (Owner) لضمان سلامة جدول الحجوزات.'
-              : 'Security Note: Adding and deleting doctors requires Owner permissions.'}
+              ? 'تنبيه أمني: إضافة وتعديل وحذف الأطباء وجداولهم محصورة بحساب المالك (Owner) وفقاً لقواعد أمان قاعدة البيانات.'
+              : 'Security Note: Adding, editing, and deleting doctors and schedules is restricted to the clinic Owner.'}
           </span>
         </div>
       )}
@@ -460,8 +459,8 @@ export const DoctorsManager: React.FC = () => {
                               doc.isActive ? 'btn-outline-success' : 'btn-outline-secondary'
                             }`}
                             onClick={() => handleToggleDoctorActive(doc)}
-                            disabled={isViewer}
-                            title={isAr ? 'تغيير حالة التفعيل' : 'Toggle active state'}
+                            disabled={!isOwner}
+                            title={!isOwner ? (isAr ? 'مقتصر على مالك العيادة (Owner)' : 'Owner only') : (isAr ? 'تغيير حالة التفعيل' : 'Toggle active state')}
                           >
                             {doc.isActive ? (isAr ? 'نشط' : 'Active') : (isAr ? 'موقف' : 'Off')}
                           </button>
@@ -470,8 +469,8 @@ export const DoctorsManager: React.FC = () => {
                             type="button"
                             className="btn btn-sm btn-light border rounded-circle p-2"
                             onClick={() => handleOpenEditDoctor(doc)}
-                            title={isAr ? 'تعديل بيانات الطبيب' : 'Edit doctor details'}
-                            disabled={isViewer}
+                            title={!isOwner ? (isAr ? 'مقتصر على مالك العيادة (Owner)' : 'Owner only') : (isAr ? 'تعديل بيانات الطبيب' : 'Edit doctor details')}
+                            disabled={!isOwner}
                           >
                             <Edit2 size={14} />
                           </button>
@@ -480,8 +479,8 @@ export const DoctorsManager: React.FC = () => {
                             type="button"
                             className="btn btn-sm btn-outline-danger border rounded-circle p-2"
                             onClick={() => handleDeleteDoctor(doc)}
-                            title={isAr ? 'حذف الطبيب' : 'Delete doctor'}
-                            disabled={isViewer || !isOwner}
+                            title={!isOwner ? (isAr ? 'مقتصر على مالك العيادة (Owner)' : 'Owner only') : (isAr ? 'حذف الطبيب' : 'Delete doctor')}
+                            disabled={!isOwner}
                           >
                             <Trash2 size={14} />
                           </button>
