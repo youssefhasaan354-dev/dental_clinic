@@ -19,6 +19,15 @@
   display: block;
 }
 
+.editable-media-edge-fade {
+  -webkit-mask-image: radial-gradient(ellipse 50% 52% at 50% 50%, #000000 70%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 52% at 50% 50%, #000000 70%, transparent 100%);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
 .editable-media-bg-wrap {
   pointer-events: none;
   z-index: 0;

@@ -56,11 +56,33 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
   const { getImageSlot, imageSlotsReady } = useData();
   const isAr = language === 'ar';
 
+  const isHero = priority || slotId === 'slot-hero';
   const isFirebaseMode = isFirebaseConfigured();
   const isWaitingSlots = isFirebaseMode && imageSlotsReady === false;
 
   const slot = getImageSlot(slotId);
   const currentUrl = slot?.currentUrl || defaultSrc;
+  const isEdgeFade = Boolean(slot?.edgeFade ?? (slotId === 'slot-hero'));
+
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  const maskStyle: React.CSSProperties = isEdgeFade
+    ? {
+        WebkitMaskImage: 'radial-gradient(ellipse 50% 52% at 50% 50%, #000000 70%, transparent 100%)',
+        maskImage: 'radial-gradient(ellipse 50% 52% at 50% 50%, #000000 70%, transparent 100%)',
+      }
+    : {};
 
   // Resolve aspect ratio (prop, style, or slot.aspectRatio)
   const baseSlot = slot || getImageSlotById(slotId);
@@ -79,7 +101,7 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
   if (isWaitingSlots) {
     const skeletonNode = (
       <div
-        className={`editable-media-skeleton ${className}`}
+        className={`editable-media-skeleton ${isEdgeFade ? 'editable-media-edge-fade' : ''} ${className}`}
         aria-hidden="true"
         style={{
           display: inline ? 'inline-block' : 'block',
@@ -92,6 +114,7 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
             : (as === 'background' ? '100%' : 'auto'),
           aspectRatio: resolvedAspectRatio,
           minHeight: !resolvedAspectRatio && !height ? '120px' : undefined,
+          ...maskStyle,
           ...style,
         }}
       />
@@ -144,7 +167,6 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
 
   // Video autoplay & visibility IntersectionObserver
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const isHero = priority || slotId === 'slot-hero';
 
   useEffect(() => {
     if (mediaType !== 'video' || !videoRef.current) return;
@@ -152,11 +174,6 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
     const videoEl = videoRef.current;
 
     // Check accessibility & bandwidth constraints
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
     const nav = typeof navigator !== 'undefined' ? (navigator as any) : null;
     const saveData = nav?.connection?.saveData === true;
 
@@ -189,7 +206,7 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
     return () => {
       observer.disconnect();
     };
-  }, [mediaType, slot?.autoplay]);
+  }, [mediaType, slot?.autoplay, prefersReducedMotion]);
 
   // Compute focal point and zoom
   const focalPoint = slot?.focalPoint || 'center center';
@@ -213,7 +230,60 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
       buildCloudinaryVideoPoster(currentUrl) ||
       defaultSrc;
 
-    const optimizedVideo = optimizeVideoUrl(currentUrl);
+    // Requirement 1.4: prefers-reduced-motion: stop video and show poster with same mask
+    if (prefersReducedMotion && posterUrl) {
+      const reducedPosterNode = (
+        <img
+          src={posterUrl}
+          alt={resolvedAlt}
+          width={width}
+          height={height}
+          loading={isHero ? 'eager' : loading}
+          {...({ fetchpriority: isHero ? 'high' : undefined } as any)}
+          decoding="async"
+          className={`editable-media-img ${isEdgeFade ? 'editable-media-edge-fade' : ''} ${className}`}
+          style={{
+            width: width || (as === 'background' ? '100%' : '100%'),
+            height: height || (as === 'background' ? '100%' : 'auto'),
+            objectFit: 'cover',
+            objectPosition: '50% 50%',
+            aspectRatio: containerAspectRatio,
+            ...innerMediaStyle,
+            ...maskStyle,
+            ...style,
+          }}
+        />
+      );
+
+      const posterContent = as === 'background' ? (
+        <div className="editable-media-bg-wrap position-absolute top-0 start-0 w-100 h-100 overflow-hidden">
+          {reducedPosterNode}
+        </div>
+      ) : (
+        reducedPosterNode
+      );
+
+      if (disableOverlay) return posterContent;
+      return (
+        <ImageSlotOverlay
+          slotId={slotId}
+          inline={inline}
+          initialSlotProps={{
+            defaultUrl: defaultSrc,
+            altText: typeof alt === 'object' ? alt : { ar: String(alt || ''), en: String(alt || '') },
+            aspectRatio: slot?.aspectRatio || '16:9',
+            allowVideo: true,
+          }}
+        >
+          {posterContent}
+        </ImageSlotOverlay>
+      );
+    }
+
+    // Requirement 2.1: Do not apply optimizeVideoUrl on Hero or edgeFade media
+    const shouldSkipVideoOptimize = isHero || isEdgeFade;
+    const finalVideoUrl = shouldSkipVideoOptimize ? currentUrl : optimizeVideoUrl(currentUrl);
+
     const loop = slot?.loop ?? true;
     const muted = slot?.muted ?? true;
     const videoControls = typeof propControls === 'boolean' ? propControls : (slot?.controls ?? false);
@@ -221,21 +291,24 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
     const videoNode = (
       <video
         ref={videoRef}
-        src={optimizedVideo}
+        src={finalVideoUrl}
         poster={posterUrl || undefined}
         muted={muted}
         playsInline
         loop={loop}
+        autoPlay={isHero ? true : undefined}
         controls={videoControls}
-        preload={isHero ? 'metadata' : 'none'}
+        preload={isHero ? 'auto' : 'none'}
         aria-label={resolvedAlt || 'Video playback'}
-        className={`editable-media-video ${className}`}
+        className={`editable-media-video ${isEdgeFade ? 'editable-media-edge-fade' : ''} ${className}`}
         style={{
           width: width || '100%',
           height: height || (as === 'background' ? '100%' : 'auto'),
           objectFit: 'cover',
+          objectPosition: '50% 50%',
           aspectRatio: containerAspectRatio,
           ...innerMediaStyle,
+          ...maskStyle,
         }}
       />
     );
@@ -386,12 +459,13 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
       loading={isHero ? 'eager' : loading}
       {...({ fetchpriority: isHero ? 'high' : undefined } as any)}
       decoding="async"
-      className={`editable-media-img ${className}`}
+      className={`editable-media-img ${isEdgeFade ? 'editable-media-edge-fade' : ''} ${className}`}
       style={{
         width: as === 'background' ? '100%' : undefined,
         height: as === 'background' ? '100%' : undefined,
         objectFit: as === 'background' ? 'cover' : undefined,
         ...innerMediaStyle,
+        ...maskStyle,
         ...style,
       }}
     />
