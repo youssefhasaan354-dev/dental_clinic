@@ -267,10 +267,13 @@ export class DemoStorageService implements IDataStorageService {
     return updated;
   }
 
-  // Image Slot Registry & Media
   async getImageSlots(): Promise<ImageSlot[]> {
     await this.init();
-    return this.getItem('imageSlots', initialImageSlots);
+    const slots = this.getItem<ImageSlot[]>('imageSlots', initialImageSlots);
+    return slots.map((s) => ({
+      ...s,
+      edgeFade: s.edgeFade !== undefined ? s.edgeFade : (s.id === 'slot-hero'),
+    }));
   }
 
   async updateImageSlot(slotId: string, updates: Partial<ImageSlot>): Promise<ImageSlot> {

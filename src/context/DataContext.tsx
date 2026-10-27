@@ -23,6 +23,9 @@ import {
   initialImageSlots,
 } from '../data/initialData';
 
+import { isFirebaseConfigured } from '../services/firebase/client';
+import { getCachedData } from '../utils/firestoreCache';
+
 interface DataContextType {
   clinicInfo: ClinicInfo;
   settings: SiteSettings;
@@ -33,6 +36,7 @@ interface DataContextType {
   ratings: RatingData;
   sections: SectionConfig[];
   imageSlots: ImageSlot[];
+  imageSlotsReady: boolean;
   isLoading: boolean;
   refreshData: () => Promise<void>;
   getImageSlot: (slotId: string) => ImageSlot | undefined;
@@ -45,6 +49,10 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const isFirebase = isFirebaseConfigured();
+  const cachedSlots = isFirebase ? getCachedData<ImageSlot[]>('site_images') : null;
+  const hasValidCache = Boolean(cachedSlots && Array.isArray(cachedSlots) && cachedSlots.length > 0);
+
   const [clinicInfo, setClinicInfo] = useState<ClinicInfo>(initialClinicInfo);
   const [settings, setSettings] = useState<SiteSettings>(initialSiteSettings);
   const [services, setServices] = useState<ServiceItem[]>(initialServices);
@@ -53,7 +61,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [faqs, setFaqs] = useState<FaqItem[]>(initialFaqs);
   const [ratings, setRatings] = useState<RatingData>(initialRatings);
   const [sections, setSections] = useState<SectionConfig[]>(initialSections);
-  const [imageSlots, setImageSlots] = useState<ImageSlot[]>(initialImageSlots);
+  const [imageSlots, setImageSlots] = useState<ImageSlot[]>(() => {
+    if (!isFirebase) {
+      return initialImageSlots;
+    }
+    if (hasValidCache && cachedSlots) {
+      return cachedSlots;
+    }
+    return [];
+  });
+  const [imageSlotsReady, setImageSlotsReady] = useState<boolean>(() => {
+    if (!isFirebase) {
+      return true;
+    }
+    return hasValidCache;
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [editingSlot, setEditingSlot] = useState<ImageSlot | null>(null);
 
@@ -94,8 +116,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setImageSlots(loadedSlots);
     } catch (err) {
       console.error('Error refreshing clinic data:', err);
+      // Fallback to initial slots on failure so slots are never empty
+      setImageSlots((prev) => (prev.length === 0 ? initialImageSlots : prev));
     } finally {
       setIsLoading(false);
+      setImageSlotsReady(true);
     }
   }, []);
 
@@ -138,6 +163,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ratings,
         sections,
         imageSlots,
+        imageSlotsReady,
         isLoading,
         refreshData,
         getImageSlot,

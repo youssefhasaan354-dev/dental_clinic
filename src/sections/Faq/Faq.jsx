@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation, useLanguage } from '../../i18n/LanguageContext';
 import { useData } from '../../context/DataContext';
 import SectionTitle from '../../components/SectionTitle/SectionTitle';
+import { Reveal, Stagger, StaggerItem } from '../../components/Motion';
 import { FiPlus, FiMinus, FiHelpCircle, FiInfo } from 'react-icons/fi';
 import './Faq.scss';
 
@@ -22,25 +23,27 @@ const Faq = ({ limit = 6 }) => {
   return (
     <section className="faq-interactive-section pt-100 pb-70">
       <div className="container">
-        <SectionTitle
-          subTitle={isAr ? 'إجابات واضحة' : 'Clear Answers'}
-          title={isAr ? 'الأسئلة الشائعة حول الكشف والعلاج' : 'Frequently Asked Questions'}
-          description={
-            isAr
-              ? 'إجابات مباشرة ومطمئنة لأكثر الاستفسارات تكراراً لدى مراجعي عيادة حياة لطب الأسنان.'
-              : 'Direct, reassuring information answering common patient inquiries.'
-          }
-          align="center"
-        />
+        <Reveal>
+          <SectionTitle
+            subTitle={isAr ? 'إجابات واضحة' : 'Clear Answers'}
+            title={isAr ? 'الأسئلة الشائعة حول الكشف والعلاج' : 'Frequently Asked Questions'}
+            description={
+              isAr
+                ? 'إجابات مباشرة ومطمئنة لأكثر الاستفسارات تكراراً لدى مراجعي عيادة حياة لطب الأسنان.'
+                : 'Direct, reassuring information answering common patient inquiries.'
+            }
+            align="center"
+          />
+        </Reveal>
 
         <div className="row justify-content-center">
           <div className="col-lg-9">
-            <div className="faq-accordion-group">
+            <Stagger className="faq-accordion-group">
               {displayedFaqs.map((faq, idx) => {
                 const isOpen = openIndex === idx;
 
                 return (
-                  <div
+                  <StaggerItem
                     key={faq.id}
                     className={`faq-item-card mb-3 rounded-4 bg-white border shadow-sm overflow-hidden ${isOpen ? 'is-active' : ''}`}
                   >
@@ -84,10 +87,10 @@ const Faq = ({ limit = 6 }) => {
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </div>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </Stagger>
           </div>
         </div>
       </div>

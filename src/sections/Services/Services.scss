@@ -154,4 +154,37 @@
       }
     }
   }
+
+  // Desktop Pinned Horizontal Scroll Track
+  .services-desktop-pinned {
+    position: relative;
+    height: 220vh;
+    margin-top: 10px;
+
+    .services-sticky-viewport {
+      position: sticky;
+      top: 90px;
+      height: calc(100vh - 120px);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      padding: 20px 0;
+    }
+
+    .services-horizontal-track {
+      display: flex;
+      gap: 24px;
+      will-change: transform;
+
+      .service-horizontal-item {
+        width: 380px;
+        min-height: 380px;
+        flex-shrink: 0;
+
+        .service-card-premium {
+          height: 100%;
+        }
+      }
+    }
+  }
 }

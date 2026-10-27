@@ -5,6 +5,7 @@ import { CLINIC_DATA } from '../../data/clinic';
 import { TESTIMONIALS } from '../../data/testimonials';
 import { FaStar, FaStarHalfAlt, FaGoogle } from 'react-icons/fa';
 import { FiExternalLink, FiCheckCircle } from 'react-icons/fi';
+import { CountUp } from '../Motion';
 import SectionTitle from '../SectionTitle/SectionTitle';
 import './RatingShowcase.scss';
 
@@ -44,7 +45,7 @@ const RatingShowcase = () => {
                   viewport={{ once: true }}
                   transition={{ delay: 0.2, type: 'spring', stiffness: 300 }}
                 >
-                  {CLINIC_DATA.rating.score}
+                  <CountUp end={CLINIC_DATA.rating.score} decimals={1} duration={2} />
                 </motion.span>
                 <div className="stars-column text-start">
                   <div className="stars-graphic d-flex gap-1 mb-1">
@@ -59,9 +60,23 @@ const RatingShowcase = () => {
               </div>
 
               <p className="rating-count-subtitle mb-4">
-                {language === 'ar'
-                  ? `بناءً على ${CLINIC_DATA.rating.reviewsCount} تقييماً موثقاً على خرائط Google`
-                  : `Based on ${CLINIC_DATA.rating.reviewsCount} verified patient reviews on Google Maps`}
+                {language === 'ar' ? (
+                  <>
+                    بناءً على{' '}
+                    <strong>
+                      <CountUp end={CLINIC_DATA.rating.reviewsCount} duration={2} />
+                    </strong>{' '}
+                    تقييماً موثقاً على خرائط Google
+                  </>
+                ) : (
+                  <>
+                    Based on{' '}
+                    <strong>
+                      <CountUp end={CLINIC_DATA.rating.reviewsCount} duration={2} />
+                    </strong>{' '}
+                    verified patient reviews on Google Maps
+                  </>
+                )}
               </p>
 
               {/* Highlights tags */}
