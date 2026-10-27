@@ -298,5 +298,47 @@ describe('DataContext & EditableMedia - No Default Flash Suite', () => {
       expect(html).toContain('/assets/banner/1.png');
       expect(html).not.toContain('editable-media-skeleton');
     });
+
+    it('regression: transitions from isWaitingSlots=true to isWaitingSlots=false without hooks violation (Error #310)', () => {
+      vi.spyOn(firebaseClient, 'isFirebaseConfigured').mockReturnValue(true);
+
+      // Phase 1: isWaitingSlots = true (slots not ready)
+      vi.spyOn(firestoreCache, 'getCachedData').mockReturnValue(null);
+      const htmlWaiting = renderToStaticMarkup(
+        <LanguageProvider>
+          <DataProvider>
+            <EditableMedia
+              slotId="slot-hero"
+              defaultSrc="/assets/banner/1.png"
+              className="main-hero-img"
+              width={540}
+              height={580}
+              disableOverlay
+            />
+          </DataProvider>
+        </LanguageProvider>
+      );
+      expect(htmlWaiting).toContain('editable-media-skeleton');
+      expect(htmlWaiting).not.toContain('<img');
+
+      // Phase 2: isWaitingSlots = false (slots ready, all hooks execute consistently)
+      vi.spyOn(firestoreCache, 'getCachedData').mockReturnValue(initialImageSlots);
+      const htmlReady = renderToStaticMarkup(
+        <LanguageProvider>
+          <DataProvider>
+            <EditableMedia
+              slotId="slot-hero"
+              defaultSrc="/assets/banner/1.png"
+              className="main-hero-img"
+              width={540}
+              height={580}
+              disableOverlay
+            />
+          </DataProvider>
+        </LanguageProvider>
+      );
+      expect(htmlReady).toContain('<img');
+      expect(htmlReady).not.toContain('editable-media-skeleton');
+    });
   });
 });
