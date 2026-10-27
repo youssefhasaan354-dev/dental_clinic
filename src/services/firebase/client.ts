@@ -121,8 +121,8 @@ export async function getFirebaseApp(): Promise<FirebaseApp> {
     appInstance = getApp();
   }
 
-  // Initiate App Check in background without blocking critical app startup
-  void maybeInitAppCheck(appInstance);
+  // Await App Check initialization to ensure valid token is attached to initial queries when enforced
+  await maybeInitAppCheck(appInstance);
 
   return appInstance;
 }
