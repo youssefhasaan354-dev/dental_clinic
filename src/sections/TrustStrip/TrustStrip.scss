@@ -3,6 +3,9 @@
   position: relative;
   z-index: 10;
   margin-bottom: 50px;
+  overflow-x: clip;
+  width: 100%;
+  max-width: 100%;
 
   .trust-metric-card {
     background: #FFFFFF;
