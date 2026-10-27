@@ -7,7 +7,7 @@ import EditableMedia from '../../components/VisualEdit/EditableMedia';
 import { FiCalendar, FiPhoneCall, FiStar, FiShield, FiArrowDown } from 'react-icons/fi';
 import OpenBadge from '../../components/OpenBadge/OpenBadge';
 import { CLINIC_RATING } from '../../data/clinic';
-import heroModelImg from '../../assets/banner/1.png';
+import heroModelImg from '../../assets/banner/1.webp';
 import './Banner.scss';
 
 const Banner = () => {
@@ -34,7 +34,7 @@ const Banner = () => {
   // Subtle interactive cursor glow
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const handleMouseMove = (e) => {
-    if (prefersReduced) return;
+    if (prefersReduced || (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches)) return;
     const rect = e.currentTarget.getBoundingClientRect();
     setMousePos({
       x: e.clientX - rect.left,

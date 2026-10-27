@@ -32,11 +32,11 @@ const BrandLoader = ({ onFinish }) => {
       // ignore sessionStorage exceptions
     }
 
-    // Snappier 500ms duration for high-end feel without harming LCP
+    // Snappier 280ms duration for high-end feel without harming LCP
     const timer = setTimeout(() => {
       setLoading(false);
       if (onFinish) onFinish();
-    }, 500);
+    }, 280);
 
     return () => clearTimeout(timer);
   }, [onFinish, shouldSkip]);

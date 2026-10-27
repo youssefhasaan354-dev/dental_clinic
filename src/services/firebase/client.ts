@@ -121,7 +121,8 @@ export async function getFirebaseApp(): Promise<FirebaseApp> {
     appInstance = getApp();
   }
 
-  await maybeInitAppCheck(appInstance);
+  // Initiate App Check in background without blocking critical app startup
+  void maybeInitAppCheck(appInstance);
 
   return appInstance;
 }
