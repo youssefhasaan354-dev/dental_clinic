@@ -4,6 +4,7 @@ import { useTranslation } from '../../i18n/LanguageContext';
 import { CLINIC_DATA } from '../../data/clinic';
 import { SERVICES } from '../../data/services';
 import { FiAward, FiStar, FiShield, FiHeart } from 'react-icons/fi';
+import { CountUp } from '../../components/Motion';
 import './TrustStrip.scss';
 
 const TrustStrip = () => {
@@ -12,17 +13,25 @@ const TrustStrip = () => {
   const trustMetrics = [
     {
       icon: <FiAward />,
-      number: '+١٠' === t('trust.years.number') ? '+10' : t('trust.years.number'),
+      number: (
+        <>
+          +<CountUp end={10} duration={2} />
+        </>
+      ),
       label: t('trust.years.label'),
     },
     {
       icon: <FiStar />,
-      number: `${CLINIC_DATA.rating.scoreDisplay} ★`,
+      number: (
+        <>
+          <CountUp end={4.6} decimals={1} duration={2} /> ★
+        </>
+      ),
       label: t('trust.rating.label') + ` (${CLINIC_DATA.rating.reviewsCount})`,
     },
     {
       icon: <FiHeart />,
-      number: '12',
+      number: <CountUp end={12} duration={2} />,
       label: t('trust.services.label'),
     },
     {

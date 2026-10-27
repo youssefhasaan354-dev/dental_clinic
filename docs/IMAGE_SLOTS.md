@@ -7,7 +7,7 @@ Every image, video, and media asset on public pages is addressable via a unique 
 |---|---|---|---|---|---|
 | `slot-logo` | Navbar (`Navbar.jsx`), Brand Loader (`BrandLoader.jsx`) | `/assets/logo.svg` | 220 × 55 px | 4:1 | No |
 | `slot-footer-logo` | Footer (`Footer.jsx`) | `/assets/logo.svg` | 230 × 58 px | 4:1 | No |
-| `slot-hero` | Hero Main Visual (`Banner.jsx`) | `/assets/banner/1.png` | 1080 × 1080 px | 1:1 or 16:9 | **Yes** |
+| `slot-hero` | Hero Main Visual (`Banner.jsx`) | `/assets/banner/1.png` | 1080 × 1080 px | 1:1 or 16:9 (`1 / 1.05`) | **Yes** (Edge fade mask enabled by default: `edgeFade: true`) |
 | `slot-home-hero-badge` | Hero Doctor Badge (`Banner.jsx`) | `/assets/banner/doctor.png` | 96 × 96 px | 1:1 | No |
 | `slot-about-banner-1` | About Hero Suite (`AboutBanner.jsx`) | `/assets/about/banner/banner_1.png` | 600 × 450 px | 4:3 | **Yes** |
 | `slot-about-banner-2` | About Hero Doctor (`AboutBanner.jsx`) | `/assets/about/banner/banner_2.png` | 600 × 450 px | 4:3 | **Yes** |

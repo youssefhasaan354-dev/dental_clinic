@@ -5,6 +5,7 @@ import { useData } from '../../context/DataContext';
 import { useNavigate } from 'react-router-dom';
 import SectionTitle from '../../components/SectionTitle/SectionTitle';
 import EditableMedia from '../../components/VisualEdit/EditableMedia';
+import { Reveal, Stagger, StaggerItem } from '../../components/Motion';
 import { FiCalendar, FiAward, FiGlobe, FiUserCheck } from 'react-icons/fi';
 import './Team.scss';
 
@@ -26,28 +27,26 @@ const Team = () => {
   return (
     <section className="team-specialists-section pt-100 pb-70">
       <div className="container">
-        <SectionTitle
-          subTitle={isAr ? 'الكادر الطبي' : 'Clinical Team'}
-          title={isAr ? 'أطباء معتمدون ومقيدون بنقابة أطباء الأسنان' : 'Registered Dental Practitioners'}
-          description={
-            isAr
-              ? 'يقوم على علاجك نخبة من أطباء الأسنان المتخصصين وفق أعلى معايير الممارسة الإكلينيكية المعاصرة.'
-              : 'Our licensed clinical team provides patient-first dental care adhering to Egyptian syndicate guidelines.'
-          }
-          align="center"
-        />
+        <Reveal>
+          <SectionTitle
+            subTitle={isAr ? 'الكادر الطبي' : 'Clinical Team'}
+            title={isAr ? 'أطباء معتمدون ومقيدون بنقابة أطباء الأسنان' : 'Registered Dental Practitioners'}
+            description={
+              isAr
+                ? 'يقوم على علاجك نخبة من أطباء الأسنان المتخصصين وفق أعلى معايير الممارسة الإكلينيكية المعاصرة.'
+                : 'Our licensed clinical team provides patient-first dental care adhering to Egyptian syndicate guidelines.'
+            }
+            align="center"
+          />
+        </Reveal>
 
-        <div className="row g-4 justify-content-center">
+        <Stagger className="row g-4 justify-content-center">
           {doctors
             .filter((d) => d.isVisible !== false)
-            .map((doctor, idx) => (
-              <div key={doctor.id} className="col-lg-5 col-md-6">
+            .map((doctor) => (
+              <StaggerItem key={doctor.id} className="col-lg-5 col-md-6">
                 <motion.div
                   className="team-card-styled h-100 p-4 rounded-4 bg-white shadow-sm border d-flex flex-column"
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
                   whileHover={{ y: -6 }}
                 >
                   <div className="d-flex align-items-center gap-3 mb-3">
@@ -132,9 +131,9 @@ const Team = () => {
                     </button>
                   </div>
                 </motion.div>
-              </div>
+              </StaggerItem>
             ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );

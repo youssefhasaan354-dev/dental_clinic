@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { FEATURES } from '../../data/features';
 import SectionTitle from '../../components/SectionTitle/SectionTitle';
+import { Reveal, Stagger, StaggerItem } from '../../components/Motion';
 import { FiShield, FiUsers, FiLayers, FiSmile } from 'react-icons/fi';
 import './Features.scss';
 
@@ -27,22 +28,20 @@ const Features = () => {
   return (
     <section className="features-why-us-section pt-100 pb-70">
       <div className="container">
-        <SectionTitle
-          subTitle={t('features.sectionSub')}
-          title={t('features.sectionTitle')}
-          description={t('features.sectionDesc')}
-          align="center"
-        />
+        <Reveal>
+          <SectionTitle
+            subTitle={t('features.sectionSub')}
+            title={t('features.sectionTitle')}
+            description={t('features.sectionDesc')}
+            align="center"
+          />
+        </Reveal>
 
-        <div className="row g-4">
-          {FEATURES.map((item, idx) => (
-            <div key={item.id} className="col-lg-3 col-md-6">
+        <Stagger className="row g-4">
+          {FEATURES.map((item) => (
+            <StaggerItem key={item.id} className="col-lg-3 col-md-6">
               <motion.div
                 className="feature-card-clean"
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
                 whileHover={{ y: -6 }}
               >
                 <div className="feature-card-top d-flex justify-content-between align-items-center mb-4">
@@ -64,9 +63,9 @@ const Features = () => {
                   <span>{language === 'ar' ? item.metric.ar : item.metric.en}</span>
                 </div>
               </motion.div>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );

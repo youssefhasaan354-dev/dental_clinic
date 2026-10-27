@@ -380,6 +380,9 @@ export class FirebaseStorageService implements IDataStorageService {
         controls: ovr.controls !== undefined ? ovr.controls : existing.controls,
         isSample: ovr.isSample !== undefined ? ovr.isSample : existing.isSample,
         isAI: ovr.isAI !== undefined ? ovr.isAI : existing.isAI,
+        edgeFade: ovr.edgeFade !== undefined
+          ? Boolean(ovr.edgeFade)
+          : (existing.edgeFade ?? (id === 'slot-hero')),
         updatedAt: ovr.updatedAt !== undefined ? ovr.updatedAt : existing.updatedAt,
       });
     }
@@ -405,6 +408,7 @@ export class FirebaseStorageService implements IDataStorageService {
       loop: updates.loop,
       muted: updates.muted,
       controls: updates.controls,
+      edgeFade: updates.edgeFade !== undefined ? updates.edgeFade : undefined,
       isSample: updates.isSample,
       isAI: updates.isAI,
       updatedAt: new Date().toISOString(),

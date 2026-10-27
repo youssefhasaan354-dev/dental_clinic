@@ -5,6 +5,7 @@ import { useTranslation } from '../../i18n/LanguageContext';
 import { BLOG_POSTS } from '../../data/blog';
 import EditableMedia from '../../components/VisualEdit/EditableMedia';
 import SectionTitle from '../../components/SectionTitle/SectionTitle';
+import { Reveal, Stagger, StaggerItem } from '../../components/Motion';
 import { FiClock, FiCalendar, FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 import './Blogs.scss';
 
@@ -16,22 +17,20 @@ const Blogs = ({ limit = 3, showAllBtn = true }) => {
   return (
     <section className="blogs-preview-section pt-100 pb-70">
       <div className="container">
-        <SectionTitle
-          subTitle={t('blog.sectionSub')}
-          title={t('blog.sectionTitle')}
-          description={t('blog.sectionDesc')}
-          align="center"
-        />
+        <Reveal>
+          <SectionTitle
+            subTitle={t('blog.sectionSub')}
+            title={t('blog.sectionTitle')}
+            description={t('blog.sectionDesc')}
+            align="center"
+          />
+        </Reveal>
 
-        <div className="row g-4">
-          {displayedPosts.map((post, idx) => (
-            <div key={post.id} className="col-lg-4 col-md-6">
+        <Stagger className="row g-4">
+          {displayedPosts.map((post) => (
+            <StaggerItem key={post.id} className="col-lg-4 col-md-6">
               <motion.article
                 className="blog-card-modern"
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.45, delay: idx * 0.1 }}
                 whileHover={{ y: -6 }}
               >
                 <div className="blog-thumb-box">
@@ -59,18 +58,18 @@ const Blogs = ({ limit = 3, showAllBtn = true }) => {
                       <FiCalendar /> {language === 'ar' ? post.date.ar : post.date.en}
                     </span>
                     <span className="meta-item">
-                      <FiClock /> {language === 'ar' ? post.readingTime.ar : post.readingTime.en}
+                      <FiClock /> {language === 'ar' ? post.readTime.ar : post.readTime.en}
                     </span>
                   </div>
 
-                  <h3 className="blog-card-title mb-2">
+                  <h3 className="blog-title">
                     <Link to={`/blog/${post.slug}`}>
                       {language === 'ar' ? post.title.ar : post.title.en}
                     </Link>
                   </h3>
 
-                  <p className="blog-card-excerpt mb-4">
-                    {language === 'ar' ? post.excerpt.ar : post.excerpt.en}
+                  <p className="blog-snippet">
+                    {language === 'ar' ? post.snippet.ar : post.snippet.en}
                   </p>
 
                   <div className="blog-card-footer mt-auto pt-3 border-top">
@@ -81,9 +80,9 @@ const Blogs = ({ limit = 3, showAllBtn = true }) => {
                   </div>
                 </div>
               </motion.article>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
 
         {showAllBtn && (
           <div className="text-center mt-5">
