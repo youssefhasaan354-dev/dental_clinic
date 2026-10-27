@@ -6,58 +6,58 @@
  */
 
 // Hero & Brand
-import doctorBanner from '../assets/banner/doctor.png';
-import bannerHeroModel from '../assets/banner/1.png';
-import bannerPattern from '../assets/banner/pattern_02.png';
-import bannerShapeDots from '../assets/banner/pattern.png';
-import shapeOne from '../assets/banner/vector_01.png';
-import shapeTwo from '../assets/banner/vector_02.png';
-import shapeThree from '../assets/banner/vector_03.png';
+import doctorBanner from '../assets/banner/doctor.webp';
+import bannerHeroModel from '../assets/banner/1.webp';
+import bannerPattern from '../assets/banner/pattern_02.webp';
+import bannerShapeDots from '../assets/banner/pattern.png'; // keep tiny png
+import shapeOne from '../assets/banner/vector_01.webp';
+import shapeTwo from '../assets/banner/vector_02.webp';
+import shapeThree from '../assets/banner/vector_03.webp';
 
 // Features & About
-import priorityImage from '../assets/about/priority.png';
-import expertImage from '../assets/expert.png';
-import emergencyImage from '../assets/emergency.png';
+import priorityImage from '../assets/about/priority.webp';
+import expertImage from '../assets/expert.webp';
+import emergencyImage from '../assets/emergency.webp';
 
 // About Banners
-import aboutBanner1 from '../assets/about/banner/banner_1.png';
-import aboutBanner2 from '../assets/about/banner/banner_2.png';
+import aboutBanner1 from '../assets/about/banner/banner_1.webp';
+import aboutBanner2 from '../assets/about/banner/banner_2.webp';
 
 // Service Page & Gallery
-import servicePageHero from '../assets/servicePage/1.png';
-import gallery1 from '../assets/servicePage/gallery/1.png';
-import gallery2 from '../assets/servicePage/gallery/2.png';
-import gallery3 from '../assets/servicePage/gallery/3.png';
-import gallery4 from '../assets/servicePage/gallery/4.png';
-import gallery5 from '../assets/servicePage/gallery/5.png';
-import gallery6 from '../assets/servicePage/gallery/6.png';
+import servicePageHero from '../assets/servicePage/1.webp';
+import gallery1 from '../assets/servicePage/gallery/1.webp';
+import gallery2 from '../assets/servicePage/gallery/2.webp';
+import gallery3 from '../assets/servicePage/gallery/3.webp';
+import gallery4 from '../assets/servicePage/gallery/4.webp';
+import gallery5 from '../assets/servicePage/gallery/5.webp';
+import gallery6 from '../assets/servicePage/gallery/6.webp';
 
 // Symptoms
-import symptom1 from '../assets/symptoms/1.png';
-import symptom2 from '../assets/symptoms/2.png';
-import symptom3 from '../assets/symptoms/3.png';
-import symptom4 from '../assets/symptoms/4.png';
-import symptom5 from '../assets/symptoms/5.png';
+import symptom1 from '../assets/symptoms/1.webp';
+import symptom2 from '../assets/symptoms/2.webp';
+import symptom3 from '../assets/symptoms/3.webp';
+import symptom4 from '../assets/symptoms/4.webp';
+import symptom5 from '../assets/symptoms/5.webp';
 
 // Team
-import team1 from '../assets/about/team/1.png';
-import team2 from '../assets/about/team/2.png';
-import team3 from '../assets/about/team/3.png';
-import team4 from '../assets/about/team/4.png';
+import team1 from '../assets/about/team/1.webp';
+import team2 from '../assets/about/team/2.webp';
+import team3 from '../assets/about/team/3.webp';
+import team4 from '../assets/about/team/4.webp';
 
 // Blogs
-import blog1 from '../assets/blogs/1.png';
-import blog2 from '../assets/blogs/2.png';
-import blog3 from '../assets/blogs/3.png';
-import blog4 from '../assets/blogs/4.png';
-import blog5 from '../assets/blogs/5.png';
-import blog6 from '../assets/blogs/6.png';
+import blog1 from '../assets/blogs/1.webp';
+import blog2 from '../assets/blogs/2.webp';
+import blog3 from '../assets/blogs/3.webp';
+import blog4 from '../assets/blogs/4.webp';
+import blog5 from '../assets/blogs/5.webp';
+import blog6 from '../assets/blogs/6.webp';
 
 // Services Icons
-import serviceIcon1 from '../assets/service/1.png';
-import serviceIcon2 from '../assets/service/2.png';
-import serviceIcon3 from '../assets/service/3.png';
-import serviceIcon4 from '../assets/service/4.png';
+import serviceIcon1 from '../assets/service/1.webp';
+import serviceIcon2 from '../assets/service/2.webp';
+import serviceIcon3 from '../assets/service/3.webp';
+import serviceIcon4 from '../assets/service/4.webp';
 
 export const IMAGES = {
   // Hero

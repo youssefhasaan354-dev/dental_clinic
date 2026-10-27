@@ -284,7 +284,7 @@ describe('DataContext & EditableMedia - No Default Flash Suite', () => {
           <DataProvider>
             <EditableMedia
               slotId="slot-hero"
-              defaultSrc="/assets/banner/1.png"
+              defaultSrc="/assets/banner/1.webp"
               className="main-hero-img"
               width={540}
               height={580}
@@ -295,7 +295,7 @@ describe('DataContext & EditableMedia - No Default Flash Suite', () => {
       );
 
       expect(html).toContain('<img');
-      expect(html).toContain('/assets/banner/1.png');
+      expect(html).toContain('1.webp');
       expect(html).not.toContain('editable-media-skeleton');
     });
 

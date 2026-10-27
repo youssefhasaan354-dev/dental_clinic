@@ -225,9 +225,10 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
 
   // 1. Render Video
   if (mediaType === 'video') {
+    const isCloudinaryVideo = Boolean(currentUrl && currentUrl.includes('res.cloudinary.com') && currentUrl.includes('/video/upload/'));
     const posterUrl =
       slot?.posterUrl ||
-      buildCloudinaryVideoPoster(currentUrl) ||
+      (isCloudinaryVideo ? buildCloudinaryVideoPoster(currentUrl, { autoFormat: true, width: isHero ? 600 : undefined }) : null) ||
       defaultSrc;
 
     // Requirement 1.4: prefers-reduced-motion: stop video and show poster with same mask
@@ -280,27 +281,25 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
       );
     }
 
-    // Requirement 2.1: Do not apply optimizeVideoUrl on Hero or edgeFade media
-    const shouldSkipVideoOptimize = isHero || isEdgeFade;
-    const finalVideoUrl = shouldSkipVideoOptimize ? currentUrl : optimizeVideoUrl(currentUrl);
-
     const loop = slot?.loop ?? true;
     const muted = slot?.muted ?? true;
     const videoControls = typeof propControls === 'boolean' ? propControls : (slot?.controls ?? false);
+    const videoPreload = isHero ? 'auto' : 'metadata';
 
     const videoNode = (
       <video
         ref={videoRef}
-        src={finalVideoUrl}
         poster={posterUrl || undefined}
         muted={muted}
         playsInline
         loop={loop}
         autoPlay={isHero ? true : undefined}
         controls={videoControls}
-        preload={isHero ? 'auto' : 'none'}
+        preload={videoPreload}
         aria-label={resolvedAlt || 'Video playback'}
         className={`editable-media-video ${isEdgeFade ? 'editable-media-edge-fade' : ''} ${className}`}
+        width={typeof width === 'number' ? width : undefined}
+        height={typeof height === 'number' ? height : undefined}
         style={{
           width: width || '100%',
           height: height || (as === 'background' ? '100%' : 'auto'),
@@ -310,7 +309,25 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
           ...innerMediaStyle,
           ...maskStyle,
         }}
-      />
+      >
+        {isHero && isCloudinaryVideo ? (
+          <>
+            <source
+              media="(max-width: 768px)"
+              src={optimizeVideoUrl(currentUrl, { width: 540 })}
+              type="video/mp4"
+            />
+            <source
+              media="(min-width: 769px)"
+              src={optimizeVideoUrl(currentUrl, { width: 960 })}
+              type="video/mp4"
+            />
+            <source src={currentUrl} type="video/mp4" />
+          </>
+        ) : (
+          <source src={isCloudinaryVideo ? optimizeVideoUrl(currentUrl) : currentUrl} type="video/mp4" />
+        )}
+      </video>
     );
 
     const content = as === 'background' ? (

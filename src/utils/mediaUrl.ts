@@ -51,7 +51,10 @@ export function buildImageSrcSet(
  * Optimizes a Cloudinary video URL by injecting auto-format and auto-quality.
  * Non-Cloudinary URLs remain untouched.
  */
-export function optimizeVideoUrl(url: string | undefined | null): string {
+export function optimizeVideoUrl(
+  url: string | undefined | null,
+  options?: { width?: number }
+): string {
   if (!url || typeof url !== 'string') return '';
   const trimmed = url.trim();
   if (!trimmed) return '';
@@ -60,7 +63,10 @@ export function optimizeVideoUrl(url: string | undefined | null): string {
     return trimmed;
   }
 
-  const transform = 'f_auto,q_auto';
+  const transform = options?.width
+    ? `f_auto,q_auto,w_${Math.round(options.width)}`
+    : 'f_auto,q_auto';
+
   if (trimmed.includes(transform)) {
     return trimmed;
   }
@@ -71,15 +77,26 @@ export function optimizeVideoUrl(url: string | undefined | null): string {
 /**
  * Automatically builds a video poster frame URL from a Cloudinary video URL (first frame: so_0 as jpg).
  */
-export function buildCloudinaryVideoPoster(url: string | undefined | null): string | null {
+export function buildCloudinaryVideoPoster(
+  url: string | undefined | null,
+  options?: { width?: number; autoFormat?: boolean }
+): string | null {
   if (!url || typeof url !== 'string') return null;
   const trimmed = url.trim();
   if (!trimmed.includes('res.cloudinary.com') || !trimmed.includes('/video/upload/')) {
     return null;
   }
-  // Replace /video/upload/ with /video/upload/so_0/ and replace extension with .jpg
+
+  let transform = 'so_0';
+  if (options?.width) {
+    transform = `so_0,f_auto,q_auto,w_${Math.round(options.width)}`;
+  } else if (options?.autoFormat) {
+    transform = 'so_0,f_auto,q_auto';
+  }
+
+  // Replace /video/upload/ with /video/upload/${transform}/ and replace extension with .jpg
   return trimmed
-    .replace('/video/upload/', '/video/upload/so_0/')
+    .replace('/video/upload/', `/video/upload/${transform}/`)
     .replace(/\.(mp4|webm|mov|mkv)(\?.*)?$/i, '.jpg$2');
 }
 
