@@ -299,6 +299,10 @@ describe('DataContext & EditableMedia - No Default Flash Suite', () => {
       expect(html).not.toContain('editable-media-skeleton');
     });
 
+    // NOTE: This regression test relies on React internals (ReactCurrentDispatcher) to intercept
+    // and count hook dispatches across renders in a node/SSR environment to catch React Error #310.
+    // If this test fails after upgrading React versions (e.g., React 19+), review the internal
+    // dispatcher contract before assuming a regression in application code.
     it('regression: transitions from isWaitingSlots=true to isWaitingSlots=false without hooks violation (Error #310)', () => {
       vi.spyOn(firebaseClient, 'isFirebaseConfigured').mockReturnValue(true);
 
