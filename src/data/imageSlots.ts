@@ -54,7 +54,6 @@ export const ALL_IMAGE_SLOTS: ImageSlot[] = [
     recommendedSize: '1080x1080',
     allowVideo: true,
     mediaType: 'image',
-    edgeFade: true,
   },
   {
     id: 'slot-home-hero-badge',
@@ -694,6 +693,5 @@ export function resolveSlotMedia(
       en: override?.alt?.en || override?.altText?.en || slot.altText?.en || '',
     },
     aspectRatio: override?.aspectRatio || slot.aspectRatio,
-    edgeFade: override?.edgeFade !== undefined ? override.edgeFade : (slot.edgeFade ?? (slot.id === 'slot-hero')),
   };
 }

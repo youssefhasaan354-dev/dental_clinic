@@ -45,7 +45,6 @@ export const ImageSlotModal: React.FC = () => {
   const [captionEn, setCaptionEn] = useState('');
   const [isSample, setIsSample] = useState(false);
   const [isAI, setIsAI] = useState(false);
-  const [edgeFade, setEdgeFade] = useState(false);
 
   // Video toggles
   const [autoplay, setAutoplay] = useState(true);
@@ -90,7 +89,6 @@ export const ImageSlotModal: React.FC = () => {
       setLoop(editingSlot.loop ?? true);
       setMuted(editingSlot.muted ?? true);
       setControls(editingSlot.controls ?? false);
-      setEdgeFade(editingSlot.edgeFade !== undefined ? editingSlot.edgeFade : (editingSlot.id === 'slot-hero'));
       setZoom(editingSlot.zoom || 1);
 
       if (editingSlot.focalPoint) {
@@ -335,7 +333,6 @@ export const ImageSlotModal: React.FC = () => {
     setZoom(1);
     setFocalX(50);
     setFocalY(50);
-    setEdgeFade(editingSlot.id === 'slot-hero');
     setSuccessMsg('تمت استعادة الإعدادات والوسائط الافتراضية.');
   };
 
@@ -355,7 +352,6 @@ export const ImageSlotModal: React.FC = () => {
         loop,
         muted,
         controls,
-        edgeFade,
         isSample,
         isAI,
       });
@@ -943,23 +939,6 @@ export const ImageSlotModal: React.FC = () => {
               <label className="form-check-label small" htmlFor="isAICheck">
                 صورة مولدة بالذكاء الاصطناعي (AI Generated)
               </label>
-            </div>
-
-            {/* Edge Fade Blend Option */}
-            <div className="form-check mt-3 pt-3 border-top">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="edgeFadeCheck"
-                checked={edgeFade}
-                onChange={(e) => setEdgeFade(e.target.checked)}
-              />
-              <label className="form-check-label small fw-bold text-dark" htmlFor="edgeFadeCheck">
-                دمج الحواف بنعومة (للصور/الفيديوهات ذات الخلفية البيضاء)
-              </label>
-              <div className="form-text small text-muted">
-                يطبّق قناع تدرج شعاعي (Radial Mask) ناعم يخفي الإطار والمستطيل الأبيض ليدمج المجسم بسلاسة مع خلفية الموقع.
-              </div>
             </div>
           </div>
         </div>

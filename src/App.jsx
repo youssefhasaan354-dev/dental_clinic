@@ -23,7 +23,6 @@ import NotFound from './pages/NotFound';
 import BrandLoader from './components/BrandLoader/BrandLoader';
 import { ImageSlotModal } from './components/VisualEdit/ImageSlotModal';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
-import { SmoothScroll, ScrollProgress } from './components/Motion';
 
 // Admin System (Lazy-Loaded for performance and bundle isolation)
 const AdminLayout = lazy(() => import('./admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
@@ -123,13 +122,12 @@ function App() {
   return (
     <AuthProvider>
       <DataProvider>
-        <SmoothScroll>
-          {!isAdminRoute && <ScrollProgress />}
-          {initialLoading && <BrandLoader onFinish={() => setInitialLoading(false)} />}
-          <ScrollToTop />
-          <SeoMetaController pathname={location.pathname} />
+        {initialLoading && <BrandLoader onFinish={() => setInitialLoading(false)} />}
+        <ScrollToTop />
+        <SeoMetaController pathname={location.pathname} />
 
-          <ErrorBoundary>
+
+        <ErrorBoundary>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
             {/* Public Site Routes */}
@@ -321,7 +319,6 @@ function App() {
 
       {/* In-Place Image Edit Modal */}
         <ImageSlotModal />
-        </SmoothScroll>
       </DataProvider>
     </AuthProvider>
   );

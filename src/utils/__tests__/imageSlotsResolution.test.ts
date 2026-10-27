@@ -64,25 +64,4 @@ describe('Image Slots Resolution Suite', () => {
     const resolved = resolveSlotMedia(logo, override);
     expect(resolved.mediaType).toBe('image');
   });
-
-  it('verifies edgeFade behavior: defaults true for slot-hero and respects explicit overrides', () => {
-    const hero = getImageSlotById('slot-hero')!;
-    expect(hero.edgeFade).toBe(true);
-
-    // Legacy or override without edgeFade defaults to true for slot-hero
-    const resolvedDefault = resolveSlotMedia(hero, undefined);
-    expect(resolvedDefault.edgeFade).toBe(true);
-
-    const resolvedWithoutProp = resolveSlotMedia(hero, { url: 'https://example.com/custom.mp4' });
-    expect(resolvedWithoutProp.edgeFade).toBe(true);
-
-    // Explicit override false
-    const resolvedExplicitFalse = resolveSlotMedia(hero, { url: 'https://example.com/custom.mp4', edgeFade: false });
-    expect(resolvedExplicitFalse.edgeFade).toBe(false);
-
-    // Other slot defaults false
-    const logo = getImageSlotById('slot-logo')!;
-    const resolvedLogo = resolveSlotMedia(logo, undefined);
-    expect(resolvedLogo.edgeFade).toBe(false);
-  });
 });

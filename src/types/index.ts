@@ -169,7 +169,6 @@ export interface ImageSlot {
   loop?: boolean;
   muted?: boolean;
   controls?: boolean;
-  edgeFade?: boolean;
   updatedAt?: string;
 }
 

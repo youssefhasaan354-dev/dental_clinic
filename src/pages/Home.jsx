@@ -15,6 +15,7 @@ import Faq from '../sections/Faq/Faq';
 import Appointment from '../sections/Appointment/Appointment';
 import Footer from '../components/Footer/Footer';
 import FloatingActions from '../components/FloatingActions/FloatingActions';
+import ScrollProgress from '../components/ScrollProgress/ScrollProgress';
 import PageMeta from '../components/PageMeta/PageMeta';
 import { FAQS } from '../data/faq';
 import { useTranslation } from '../i18n/LanguageContext';
@@ -49,6 +50,7 @@ const Home = () => {
         canonicalPath="/"
         schema={faqSchema}
       />
+      <ScrollProgress />
       <Navbar />
       <Banner />
       <TrustStrip />

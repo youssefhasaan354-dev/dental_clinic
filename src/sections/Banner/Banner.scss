@@ -1,120 +1,23 @@
-// Premium Pearl & Aurora Hero Section Styling
-.banner-sticky-wrapper {
-  position: relative;
-  min-height: 100svh;
-
-  @media (min-width: 992px) {
-    height: 140vh;
-  }
-}
-
 .banner-section {
-  position: sticky;
-  top: 0;
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #EAF5FC 0%, #F5FAFE 60%, #EDF7FC 100%);
-  border-radius: var(--radius-section, 32px);
-  margin: var(--section-margin, 12px 16px 30px);
+  background: linear-gradient(135deg, #DBEFFA 0%, #EBF6FC 60%, #E5F3F9 100%);
+  border-radius: var(--radius-section);
+  margin: var(--section-margin);
   padding: 40px 0 20px;
-  z-index: 1;
 
-  @media (max-width: 991px) {
-    position: relative;
-    height: auto;
-    min-height: 100svh;
-    margin: 8px 8px 24px;
-    border-radius: 24px;
-    padding: 30px 0 20px;
-  }
-
-  // Pearl & Aurora Ambient Atmosphere
-  .banner-aurora-bg {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 0;
-
-    .aurora-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.15;
-      will-change: transform;
-    }
-
-    .aurora-orb-1 {
-      width: 680px;
-      height: 680px;
-      background: radial-gradient(circle, #583FBC 0%, rgba(88, 63, 188, 0) 70%);
-      top: -15%;
-      inset-inline-start: -10%;
-      animation: auroraOrb1 26s ease-in-out infinite alternate;
-    }
-
-    .aurora-orb-2 {
-      width: 620px;
-      height: 620px;
-      background: radial-gradient(circle, #2BB3B1 0%, rgba(43, 179, 177, 0) 70%);
-      bottom: -12%;
-      inset-inline-end: -8%;
-      animation: auroraOrb2 30s ease-in-out infinite alternate;
-    }
-
-    .aurora-orb-3 {
-      width: 520px;
-      height: 520px;
-      background: radial-gradient(circle, #7CE2FE 0%, rgba(124, 226, 254, 0) 70%);
-      top: 25%;
-      inset-inline-end: 22%;
-      animation: auroraOrb3 22s ease-in-out infinite alternate;
-
-      @media (max-width: 767px) {
-        display: none;
-      }
-    }
-
-    .aurora-orb-4 {
-      width: 480px;
-      height: 480px;
-      background: radial-gradient(circle, #B2A2FA 0%, rgba(178, 162, 250, 0) 70%);
-      bottom: 12%;
-      inset-inline-start: 20%;
-      animation: auroraOrb4 28s ease-in-out infinite alternate;
-
-      @media (max-width: 767px) {
-        display: none;
-      }
-    }
-
-    .aurora-grain {
-      position: absolute;
-      inset: 0;
-      opacity: 0.03;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-      background-repeat: repeat;
-      pointer-events: none;
-    }
-  }
-
-  // Interactive Cursor Light (Desktop)
   .hero-cursor-glow {
     position: absolute;
-    width: 380px;
-    height: 380px;
+    width: 320px;
+    height: 320px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(88, 63, 188, 0.12) 0%, rgba(43, 179, 177, 0.05) 50%, transparent 70%);
+    background: radial-gradient(circle, rgba(88, 63, 188, 0.12) 0%, rgba(43, 179, 177, 0.06) 45%, transparent 70%);
     pointer-events: none;
     transform: translate(-50%, -50%);
     z-index: 1;
-    filter: blur(40px);
+    transition: width 0.3s ease, height 0.3s ease;
   }
 
-  // Text Column
   .banner-text-block {
     position: relative;
     z-index: 5;
@@ -122,146 +25,91 @@
     .since-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       background: rgba(88, 63, 188, 0.08);
-      color: var(--color-primary, #583FBC);
+      color: var(--color-primary);
       padding: 6px 14px;
       border-radius: 9999px;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       font-weight: 700;
-      border: 1px solid rgba(88, 63, 188, 0.12);
     }
 
-    // Headline with Word Mask Reveal & Shimmer
     .hero-main-title {
-      font-size: clamp(2.1rem, 4.2vw, 4.1rem);
+      font-size: 3.4rem;
       font-weight: 900;
-      color: var(--color-text, #181945);
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-      margin-top: 16px;
+      color: var(--color-text);
+      line-height: 1.18;
+      letter-spacing: -1px;
       margin-bottom: 20px;
-      text-wrap: balance;
 
-      .hero-word-wrapper {
-        display: inline-block;
-        overflow: hidden;
-        vertical-align: top;
+      @media (max-width: 991px) {
+        font-size: 2.6rem;
       }
 
-      .hero-word-inner {
-        display: inline-block;
-        will-change: transform, opacity;
+      @media (max-width: 576px) {
+        font-size: 1.85rem;
       }
 
-      .hero-gradient-text {
-        background: linear-gradient(
-          120deg,
-          #583FBC 0%,
-          #2BB3B1 30%,
-          #7CE2FE 55%,
-          #583FBC 85%,
-          #2BB3B1 100%
-        );
-        background-size: 250% auto;
+      @media (max-width: 360px) {
+        font-size: 1.6rem;
+      }
+
+      .text-gradient-purple {
+        background: linear-gradient(135deg, #583FBC 0%, #2BB3B1 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        animation: heroGradientShimmer 6s ease-in-out infinite;
+        display: inline-block;
       }
     }
 
     .hero-lead-text {
       font-size: 1.15rem;
-      line-height: 1.8;
-      color: var(--color-text-body, #475569);
+      line-height: 1.75;
+      color: var(--color-text-body);
       max-width: 540px;
-      margin-bottom: 24px;
-      text-wrap: pretty;
+      margin-bottom: 25px;
 
       @media (max-width: 576px) {
-        font-size: 1.02rem;
-        line-height: 1.7;
+        font-size: 1rem;
       }
     }
 
-    // Buttons Group
     .hero-cta-group {
       @media (max-width: 480px) {
         flex-direction: column;
         align-items: stretch !important;
 
-        .hero-book-btn,
-        .hero-call-btn {
+        .theme-btn,
+        .banner-call-btn {
           width: 100%;
-          justify-content: center;
+        }
+
+        .theme-btn a,
+        .theme-btn button {
+          width: 100%;
         }
       }
 
-      .hero-book-btn {
-        position: relative;
-        overflow: hidden;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        background: linear-gradient(135deg, #583FBC 0%, #432E96 100%);
-        color: #FFFFFF !important;
-        font-weight: 700;
-        font-size: 1rem;
-        padding: 14px 28px;
-        border-radius: var(--radius-btn, 14px);
-        box-shadow: 0 10px 24px rgba(88, 63, 188, 0.28);
-        text-decoration: none;
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-
-        .cta-icon {
-          font-size: 1.15rem;
-        }
-
-        &::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -120%;
-          width: 60%;
-          height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.35) 50%,
-            transparent 100%
-          );
-          transform: skewX(-20deg);
-          animation: ctaLightSweep 4.5s ease-in-out infinite;
-        }
-
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 14px 30px rgba(88, 63, 188, 0.38);
-        }
-      }
-
-      .hero-call-btn {
+      .banner-call-btn {
         display: inline-flex;
         align-items: center;
         gap: 12px;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border: 1px solid rgba(88, 63, 188, 0.14);
+        background: #FFFFFF;
         padding: 10px 20px;
-        border-radius: var(--radius-btn, 14px);
-        box-shadow: 0 6px 18px rgba(24, 25, 69, 0.04);
+        border-radius: var(--radius-btn);
         text-decoration: none;
-        color: var(--color-text, #181945);
-        transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        color: var(--color-text);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(88, 63, 188, 0.1);
+        transition: all 0.25s ease;
 
         &:hover {
-          background: #FFFFFF;
-          border-color: var(--color-primary, #583FBC);
-          box-shadow: 0 10px 25px rgba(88, 63, 188, 0.12);
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-md);
+          border-color: var(--color-primary);
 
           .call-icon-pulse {
-            background: var(--color-primary, #583FBC);
+            background: var(--color-primary);
             color: #FFFFFF;
           }
         }
@@ -271,7 +119,7 @@
           height: 42px;
           border-radius: 12px;
           background: rgba(88, 63, 188, 0.1);
-          color: var(--color-primary, #583FBC);
+          color: var(--color-primary);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -284,34 +132,31 @@
           flex-direction: column;
 
           .call-tag {
-            font-size: 0.74rem;
-            color: var(--color-muted, #64748B);
+            font-size: 0.75rem;
+            color: var(--color-muted);
             font-weight: 600;
           }
 
           .call-number {
             font-size: 1.05rem;
             font-weight: 800;
-            color: var(--color-primary, #583FBC);
+            color: var(--color-primary);
           }
         }
       }
     }
 
-    // Verified Rating Bar
     .hero-verified-bar {
       background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      padding: 8px 18px;
+      backdrop-filter: blur(8px);
+      padding: 8px 16px;
       border-radius: 9999px;
-      border: 1px solid rgba(88, 63, 188, 0.1);
+      border: 1px solid rgba(88, 63, 188, 0.08);
       max-width: 100%;
-      box-shadow: 0 4px 14px rgba(24, 25, 69, 0.03);
 
       @media (max-width: 576px) {
         border-radius: 16px;
-        padding: 8px 14px;
+        padding: 8px 12px;
         flex-wrap: wrap;
       }
 
@@ -323,371 +168,113 @@
 
       .rating-text {
         font-size: 0.88rem;
-        color: var(--color-text, #181945);
+        color: var(--color-text);
         font-weight: 600;
       }
     }
   }
 
-  // Visual Column (Tooth Container & Floating Badges)
   .banner-img-area {
     position: relative;
     z-index: 5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
+    text-align: center;
 
-    // Radiant White Aura Behind Tooth Model
-    &::before {
-      content: '';
-      position: absolute;
-      width: 140%;
-      height: 140%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: radial-gradient(
-        circle,
-        rgba(255, 255, 255, 0.96) 0%,
-        rgba(255, 255, 255, 0.75) 35%,
-        rgba(255, 255, 255, 0) 70%
-      );
-      z-index: 1;
-      pointer-events: none;
-      border-radius: 50%;
-      filter: blur(24px);
-    }
-
-    // Delicate Ambient Rotating Ring
-    .hero-ambient-ring {
-      position: absolute;
-      width: 110%;
-      height: 110%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      border: 1.5px solid transparent;
-      background: linear-gradient(135deg, rgba(88, 63, 188, 0.16), rgba(43, 179, 177, 0.12), transparent) border-box;
-      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-      z-index: 1;
-      animation: ringSlowRotate 36s linear infinite;
-
-      @media (max-width: 767px) {
-        display: none;
-      }
-    }
-
-    // Media Wrapper: Completely Free of Frames, Borders or Box Shadows
     .banner-img-wrapper {
       position: relative;
-      z-index: 2;
-      width: 100%;
-      max-width: 540px;
-      aspect-ratio: 1 / 1.05;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-      border-radius: 0 !important;
-      overflow: visible !important;
-
-      @media (max-width: 991px) {
-        max-width: 440px;
-      }
-
-      @media (max-width: 576px) {
-        max-width: 360px;
-      }
+      display: inline-block;
 
       .main-hero-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: 50% 50%;
-        aspect-ratio: 1 / 1.05;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        filter: none !important;
-      }
-
-      // Soft Floating Ground Shadow Under Rotating Tooth
-      .hero-tooth-shadow {
-        position: absolute;
-        bottom: 5%;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 56%;
-        height: 24px;
-        border-radius: 50%;
-        background: radial-gradient(
-          ellipse at center,
-          rgba(88, 63, 188, 0.14) 0%,
-          rgba(43, 179, 177, 0.06) 45%,
-          transparent 70%
-        );
-        filter: blur(8px);
-        pointer-events: none;
-        z-index: 1;
-        animation: toothShadowPulse 5s ease-in-out infinite alternate;
+        max-width: 100%;
+        height: auto;
+        position: relative;
+        z-index: 3;
+        filter: drop-shadow(0 15px 35px rgba(24, 25, 69, 0.12));
       }
     }
 
-    // Floating Glass Cards (Outside the Video/Mask)
-    .hero-floating-card {
+    .floating-info-card {
       position: absolute;
-      z-index: 10;
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      box-shadow: 0 16px 36px rgba(24, 25, 69, 0.08), 0 2px 6px rgba(88, 63, 188, 0.04);
-      padding: 12px 18px;
+      bottom: 25px;
+      inset-inline-start: 15px;
+      padding: 12px 20px;
+      z-index: 6;
       border-radius: 20px;
-      pointer-events: auto;
-      transition: box-shadow 0.3s ease, border-color 0.3s ease;
 
-      &:hover {
-        box-shadow: 0 20px 42px rgba(24, 25, 69, 0.12), 0 4px 10px rgba(88, 63, 188, 0.08);
-        border-color: rgba(88, 63, 188, 0.22);
+      @media (max-width: 576px) {
+        bottom: 12px;
+        inset-inline-start: 10px;
+        padding: 8px 14px;
+        border-radius: 14px;
       }
 
-      .card-icon-pill {
+      .badge-avatar img {
         width: 44px;
         height: 44px;
-        border-radius: 12px;
-        background: rgba(88, 63, 188, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--color-primary, #583FBC);
-        font-size: 1.25rem;
+        border-radius: 50%;
+        object-fit: cover;
       }
 
-      .card-text-block {
-        display: flex;
-        flex-direction: column;
-
-        .card-title {
-          font-size: 0.92rem;
-          font-weight: 800;
-          color: var(--color-text, #181945);
-          margin-bottom: 2px;
-        }
-
-        .card-subtitle {
-          font-size: 0.78rem;
-          color: var(--color-primary, #583FBC);
-          font-weight: 600;
-        }
+      .badge-title {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: var(--color-text);
+        margin-bottom: 2px;
       }
 
-      // Card 1: Bottom corner
-      &.floating-card-doctor {
-        bottom: 8%;
-        inset-inline-start: 4%;
-        animation: floatCard1 5s ease-in-out infinite alternate;
-
-        @media (max-width: 576px) {
-          bottom: 2%;
-          inset-inline-start: 2%;
-          padding: 8px 12px;
-          border-radius: 14px;
-
-          .card-icon-pill {
-            width: 36px;
-            height: 36px;
-            font-size: 1rem;
-          }
-          .card-title {
-            font-size: 0.82rem;
-          }
-          .card-subtitle {
-            font-size: 0.7rem;
-          }
-        }
+      .badge-sub {
+        font-size: 0.8rem;
+        color: var(--color-primary);
+        font-weight: 600;
       }
+    }
 
-      // Card 2: Top corner
-      &.floating-card-rating {
-        top: 8%;
-        inset-inline-end: 4%;
-        animation: floatCard2 6s ease-in-out infinite alternate 1s;
+    .shapes-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
 
-        @media (max-width: 576px) {
-          top: 2%;
-          inset-inline-end: 2%;
-          padding: 8px 12px;
-          border-radius: 14px;
-        }
-
-        .rating-pill-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          background: #FEF3C7;
-          color: #B45309;
-          padding: 4px 10px;
-          border-radius: 9999px;
-          font-weight: 800;
-          font-size: 0.9rem;
-
-          .star-gold {
-            color: #F59E0B;
-            fill: #F59E0B;
-          }
-        }
+      .shape {
+        position: absolute;
+      }
+      .shape-1 {
+        top: 10%;
+        inset-inline-start: 5%;
+        width: 45px;
+      }
+      .shape-2 {
+        bottom: 20%;
+        inset-inline-end: 8%;
+        width: 35px;
+      }
+      .shape-3 {
+        top: 25%;
+        inset-inline-end: 5%;
+        width: 40px;
       }
     }
   }
 
-  // Scroll Down Indicator
   .scroll-prompt {
     position: relative;
     z-index: 5;
 
-    .scroll-prompt-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(88, 63, 188, 0.12);
-      color: var(--color-primary, #583FBC);
-      font-size: 1.35rem;
-      text-decoration: none;
-      transition: all 0.25s ease;
-
-      &:hover {
-        background: #FFFFFF;
-        color: var(--color-accent, #2BB3B1);
-        transform: translateY(2px);
-      }
-    }
-
     .scroll-arrow-bounce {
+      color: var(--color-primary);
+      font-size: 1.5rem;
       animation: arrowBounce 2s infinite ease-in-out;
+      cursor: pointer;
     }
   }
-}
 
-// Overlapping Next Section Styling
-.trust-strip-wrapper {
-  position: relative;
-  z-index: 2;
-  border-top-left-radius: 36px;
-  border-top-right-radius: 36px;
-  box-shadow: 0 -12px 35px rgba(24, 25, 69, 0.04);
-}
-
-// CSS Keyframes (Transform only for smooth 60fps)
-@keyframes auroraOrb1 {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  100% {
-    transform: translate(60px, 40px) scale(1.1);
-  }
-}
-
-@keyframes auroraOrb2 {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  100% {
-    transform: translate(-50px, -35px) scale(1.08);
-  }
-}
-
-@keyframes auroraOrb3 {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  100% {
-    transform: translate(-40px, 50px) scale(1.12);
-  }
-}
-
-@keyframes auroraOrb4 {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  100% {
-    transform: translate(45px, -30px) scale(1.06);
-  }
-}
-
-@keyframes heroGradientShimmer {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes ctaLightSweep {
-  0%, 65% {
-    left: -120%;
-  }
-  100% {
-    left: 220%;
-  }
-}
-
-@keyframes floatCard1 {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-8px);
-  }
-}
-
-@keyframes floatCard2 {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(8px);
-  }
-}
-
-@keyframes ringSlowRotate {
-  0% {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
-@keyframes toothShadowPulse {
-  0% {
-    transform: translateX(-50%) scale(1);
-    opacity: 0.85;
-  }
-  100% {
-    transform: translateX(-50%) scale(1.08);
-    opacity: 1;
+  .banner-pattern-bg {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40%;
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 1;
   }
 }
 
@@ -696,21 +283,6 @@
     transform: translateY(0);
   }
   50% {
-    transform: translateY(6px);
-  }
-}
-
-// Accessibility: Respect Prefers Reduced Motion
-@media (prefers-reduced-motion: reduce) {
-  .banner-section {
-    .aurora-orb,
-    .hero-gradient-text,
-    .hero-book-btn::after,
-    .hero-ambient-ring,
-    .hero-tooth-shadow,
-    .hero-floating-card,
-    .scroll-arrow-bounce {
-      animation: none !important;
-    }
+    transform: translateY(8px);
   }
 }

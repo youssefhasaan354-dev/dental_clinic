@@ -7,7 +7,6 @@ import SectionTitle from '../../components/SectionTitle/SectionTitle';
 import BeforeAfter from '../../components/BeforeAfter/BeforeAfter';
 import Lightbox from '../../components/Lightbox/Lightbox';
 import EditableMedia from '../../components/VisualEdit/EditableMedia';
-import { Reveal } from '../../components/Motion';
 import { FiZoomIn, FiShield } from 'react-icons/fi';
 import './Gallery.scss';
 
@@ -39,28 +38,20 @@ const Gallery = () => {
   return (
     <section className="smile-gallery-section pt-100 pb-70">
       <div className="container">
-        <Reveal>
-          <SectionTitle
-            subTitle={isAr ? 'جولة مصورة' : 'Visual Tour'}
-            title={isAr ? 'أجواء عيادة حياة لطب الأسنان' : 'Inside Hayaah Dental Clinic'}
-            description={
-              isAr
-                ? 'بيئة هادئة ومريحة، غرف علاج مجهزة بأحدث أجهزة التعقيم والأشعة الرقمية، لضمان أعلى معايير الأمان الصحي.'
-                : 'A serene clinic atmosphere equipped with certified sterilization and low-dose digital imaging.'
-            }
-            align="center"
-          />
-        </Reveal>
+        <SectionTitle
+          subTitle={isAr ? 'جولة مصورة' : 'Visual Tour'}
+          title={isAr ? 'أجواء عيادة حياة لطب الأسنان' : 'Inside Hayaah Dental Clinic'}
+          description={
+            isAr
+              ? 'بيئة هادئة ومريحة، غرف علاج مجهزة بأحدث أجهزة التعقيم والأشعة الرقمية، لضمان أعلى معايير الأمان الصحي.'
+              : 'A serene clinic atmosphere equipped with certified sterilization and low-dose digital imaging.'
+          }
+          align="center"
+        />
 
         {/* Golden Rule 9: Before/After Spotlight is OFF by default. Only rendered if clinic approved and patient consent verified in admin */}
         {settings.showBeforeAfter && (
-          <motion.div
-            className="before-after-spotlight mb-5 p-4 rounded-4 bg-light border"
-            initial={{ clipPath: 'inset(10% 0% 10% 0% round 24px)', opacity: 0 }}
-            whileInView={{ clipPath: 'inset(0% 0% 0% 0% round 24px)', opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          >
+          <div className="before-after-spotlight mb-5 p-4 rounded-4 bg-light border">
             <div className="d-flex align-items-center gap-2 mb-3">
               <FiShield className="text-success" />
               <span className="badge bg-success">
@@ -71,7 +62,7 @@ const Gallery = () => {
               beforeImg={galleryImages[0].src}
               afterImg={galleryImages[1].src}
             />
-          </motion.div>
+          </div>
         )}
 
         {/* Clinic Environment Gallery Grid */}
