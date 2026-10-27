@@ -11,6 +11,8 @@ import {
   isDirectVideoUrl,
 } from '../../utils/mediaUrl';
 import { Play } from 'lucide-react';
+import { getImageSlotById } from '../../data/imageSlots';
+import { isFirebaseConfigured } from '../../services/firebase/client';
 import './EditableMedia.scss';
 
 export interface EditableMediaProps {
@@ -21,6 +23,7 @@ export interface EditableMediaProps {
   style?: React.CSSProperties;
   width?: number | string;
   height?: number | string;
+  aspectRatio?: string;
   loading?: 'lazy' | 'eager';
   as?: 'media' | 'background';
   inline?: boolean;
@@ -39,6 +42,7 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
   style = {},
   width,
   height,
+  aspectRatio: propAspectRatio,
   loading = 'lazy',
   as = 'media',
   inline = false,
@@ -49,11 +53,60 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
   posterOnly = false,
 }) => {
   const { language } = useLanguage();
-  const { getImageSlot } = useData();
+  const { getImageSlot, imageSlotsReady } = useData();
   const isAr = language === 'ar';
+
+  const isFirebaseMode = isFirebaseConfigured();
+  const isWaitingSlots = isFirebaseMode && imageSlotsReady === false;
 
   const slot = getImageSlot(slotId);
   const currentUrl = slot?.currentUrl || defaultSrc;
+
+  // Resolve aspect ratio (prop, style, or slot.aspectRatio)
+  const baseSlot = slot || getImageSlotById(slotId);
+  const slotAspectRatio = slot?.aspectRatio || baseSlot?.aspectRatio;
+  const rawAspectRatio =
+    propAspectRatio ||
+    (style?.aspectRatio as string | undefined) ||
+    slotAspectRatio;
+
+  const resolvedAspectRatio = rawAspectRatio
+    ? rawAspectRatio.replace(':', '/')
+    : (typeof width === 'number' && typeof height === 'number' ? `${width} / ${height}` : undefined);
+
+  // If Firebase mode and slots are not ready yet, render placeholder with slot aspect-ratio
+  // to avoid flashing default media and prevent layout shifts.
+  if (isWaitingSlots) {
+    const skeletonNode = (
+      <div
+        className={`editable-media-skeleton ${className}`}
+        aria-hidden="true"
+        style={{
+          display: inline ? 'inline-block' : 'block',
+          width: width !== undefined
+            ? (typeof width === 'number' ? `${width}px` : width)
+            : (as === 'background' ? '100%' : (inline ? undefined : '100%')),
+          maxWidth: '100%',
+          height: height !== undefined && !resolvedAspectRatio
+            ? (typeof height === 'number' ? `${height}px` : height)
+            : (as === 'background' ? '100%' : 'auto'),
+          aspectRatio: resolvedAspectRatio,
+          minHeight: !resolvedAspectRatio && !height ? '120px' : undefined,
+          ...style,
+        }}
+      />
+    );
+
+    if (as === 'background') {
+      return (
+        <div className="editable-media-bg-wrap position-absolute top-0 start-0 w-100 h-100 overflow-hidden">
+          {skeletonNode}
+        </div>
+      );
+    }
+
+    return skeletonNode;
+  }
 
   // Resolve localized alt text
   const resolvedAlt = useMemo(() => {
@@ -151,9 +204,7 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
   };
 
   // Convert aspect ratio string e.g. "16:9" or "4:3" if provided and no explicit height
-  const containerAspectRatio = slot?.aspectRatio
-    ? slot.aspectRatio.replace(':', '/')
-    : undefined;
+  const containerAspectRatio = resolvedAspectRatio;
 
   // 1. Render Video
   if (mediaType === 'video') {
@@ -333,7 +384,7 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
       width={width}
       height={height}
       loading={isHero ? 'eager' : loading}
-      fetchPriority={isHero ? 'high' : undefined}
+      {...({ fetchpriority: isHero ? 'high' : undefined } as any)}
       decoding="async"
       className={`editable-media-img ${className}`}
       style={{
