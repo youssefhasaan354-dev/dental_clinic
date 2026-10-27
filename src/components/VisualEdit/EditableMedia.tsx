@@ -96,41 +96,6 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
     ? rawAspectRatio.replace(':', '/')
     : (typeof width === 'number' && typeof height === 'number' ? `${width} / ${height}` : undefined);
 
-  // If Firebase mode and slots are not ready yet, render placeholder with slot aspect-ratio
-  // to avoid flashing default media and prevent layout shifts.
-  if (isWaitingSlots) {
-    const skeletonNode = (
-      <div
-        className={`editable-media-skeleton ${isEdgeFade ? 'editable-media-edge-fade' : ''} ${className}`}
-        aria-hidden="true"
-        style={{
-          display: inline ? 'inline-block' : 'block',
-          width: width !== undefined
-            ? (typeof width === 'number' ? `${width}px` : width)
-            : (as === 'background' ? '100%' : (inline ? undefined : '100%')),
-          maxWidth: '100%',
-          height: height !== undefined && !resolvedAspectRatio
-            ? (typeof height === 'number' ? `${height}px` : height)
-            : (as === 'background' ? '100%' : 'auto'),
-          aspectRatio: resolvedAspectRatio,
-          minHeight: !resolvedAspectRatio && !height ? '120px' : undefined,
-          ...maskStyle,
-          ...style,
-        }}
-      />
-    );
-
-    if (as === 'background') {
-      return (
-        <div className="editable-media-bg-wrap position-absolute top-0 start-0 w-100 h-100 overflow-hidden">
-          {skeletonNode}
-        </div>
-      );
-    }
-
-    return skeletonNode;
-  }
-
   // Resolve localized alt text
   const resolvedAlt = useMemo(() => {
     if (slot?.altText) {
@@ -222,6 +187,41 @@ export const EditableMedia: React.FC<EditableMediaProps> = ({
 
   // Convert aspect ratio string e.g. "16:9" or "4:3" if provided and no explicit height
   const containerAspectRatio = resolvedAspectRatio;
+
+  // If Firebase mode and slots are not ready yet, render placeholder with slot aspect-ratio
+  // to avoid flashing default media and prevent layout shifts.
+  if (isWaitingSlots) {
+    const skeletonNode = (
+      <div
+        className={`editable-media-skeleton ${isEdgeFade ? 'editable-media-edge-fade' : ''} ${className}`}
+        aria-hidden="true"
+        style={{
+          display: inline ? 'inline-block' : 'block',
+          width: width !== undefined
+            ? (typeof width === 'number' ? `${width}px` : width)
+            : (as === 'background' ? '100%' : (inline ? undefined : '100%')),
+          maxWidth: '100%',
+          height: height !== undefined && !resolvedAspectRatio
+            ? (typeof height === 'number' ? `${height}px` : height)
+            : (as === 'background' ? '100%' : 'auto'),
+          aspectRatio: resolvedAspectRatio,
+          minHeight: !resolvedAspectRatio && !height ? '120px' : undefined,
+          ...maskStyle,
+          ...style,
+        }}
+      />
+    );
+
+    if (as === 'background') {
+      return (
+        <div className="editable-media-bg-wrap position-absolute top-0 start-0 w-100 h-100 overflow-hidden">
+          {skeletonNode}
+        </div>
+      );
+    }
+
+    return skeletonNode;
+  }
 
   // 1. Render Video
   if (mediaType === 'video') {
