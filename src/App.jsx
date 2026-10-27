@@ -141,6 +141,7 @@ function App() {
             <Route path="/blogs" element={<PageTransition><BlogsPage /></PageTransition>} />
             <Route path="/blog/:url" element={<PageTransition><SingleBlog /></PageTransition>} />
             <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
+            <Route path="/booking" element={<Navigate to="/contact" replace />} />
             <Route path="/booking/manage" element={<PageTransition><ManageBooking /></PageTransition>} />
             <Route path="/privacy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
             <Route path="/terms" element={<PageTransition><TermsPage /></PageTransition>} />
